@@ -10,6 +10,8 @@
 \usepackage[utf8]{inputenc}
 %\useoutertheme{frankfurt}
 
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
 \usepackage{tudscrcolor}
 
 %\renewcommand{\metropolis@colors@dark}{
@@ -41,6 +43,10 @@
 \DeclareTextFontCommand{\textos}{\osfamily}
 %\usepackage[sfdefault]{FiraSans}
 
+\setbeamertemplate{itemize item}{\raisebox{1.5pt}{\scalebox{.8}{$\blacktriangleright$}}}
+\setbeamertemplate{itemize subitem}{$\vartriangleright$}
+\setbeamertemplate{itemize subsubitem}{--}
+
 %\defbeamertemplate*{title page}{customized}[1][]
 %{
 %	\usebeamerfont{title}\inserttitle\par
@@ -53,13 +59,10 @@
 %%	\setbeamercolor{background canvas}{blue}
 %}
 
-\setbeamertemplate{itemize items}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
-\setbeamertemplate{itemize subitems}{$\vartriangleright$}
-\setbeamertemplate{itemize subsubitems}{--}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     SET COLOURS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\AtBeginDocument{\colorlet{defaultcolor}{.}}
 
 \setbeamercolor{normal text}{%
 	fg=cddarkblue,
@@ -85,6 +88,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                    NEW TITLEPAGE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{datetime}
+\renewcommand{\dateseparator}{.}
+
 %%%%%% Neugestaltung des Titelblattes ---- ANFANG
 \setbeamertemplate{title page}{
 	\begin{minipage}[t][0.1\paperheight]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
@@ -101,6 +107,21 @@
 		\vfill
 		\vspace*{1mm}
 	\end{minipage}
+	\begin{tikzpicture}[remember picture, overlay]
+		\node [
+		fill=none,  % Farbe des Randstreifens
+		text=bg,  % Textfarbe
+		font=\fosfamily\tiny,  % Einstellungen für die Schrift
+%		inner xsep=0,       % Abstand des Textes von unten
+		% maximale Textbreite = Papierhöhe - 2*Abstand des Textes von unten:
+		%			text width={\dimexpr\paperheight-2\footskip\relax},
+%		align=center,
+		%			minimum height=8mm,% Breite des Randstreifens
+		anchor=south east,
+		] at ($(current page.south east)+(-3mm,+3mm)$)
+		{\parbox{2cm}{\raggedleft letzte Änderung: \\ \ddmmyyyydate\today , \currenttime}};
+%		\draw[draw, line width=2pt, color=cdorange] ($(current page.north west)+(+1mm,0)$) -- ($(current page.south west)+(+1mm,0)$);
+	\end{tikzpicture}
 }
 
 \setbeamertemplate{title graphic}{

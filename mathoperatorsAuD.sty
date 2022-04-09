@@ -21,6 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % new math commands
 
+\DeclareMathSymbol{*}{\mathbin}{symbols}{"01}
+
 % >> special characters
 \newcommand{\quer}[1]{\overline{#1}}
 \newcommand{\schlange}[1]{\widetilde{#1}}
@@ -36,13 +38,10 @@
 \newcommand*{\und}{\text{ und }}
 \newcommand*{\bzw}{\text{ bzw. }}
 \newcommand*{\bei}{\text{ bei }}
-\newcommand*{\falls}{\text{ falls }}
 
 \newcommand{\brackets}[1]{\left( #1 \right)}
 \newcommand{\klammer}[1]{\left( #1 \right)}
-\newcommand{\sqbrackets}[1]{\left[ #1 \right]}
-\newcommand{\rdfloor}[1]{\left\lfloor #1 \right\rfloor}
-\newcommand{\rdceil}[1]{\left\lceil #1 \right\rceil}
+\newcommand{\sqbrackets}[1]{\left\{ #1 \right\}}
 
 % >> sets and mappings
 \newcommand{\menge}[1]{\left\{ #1 \right\}}
@@ -51,22 +50,18 @@
 \newcommand{\ohne}[1]{\setminus}
 \newcommand{\ohneNull}{\setminus \menge{0}}
 \newcommand{\pows}[1]{\mathcal{P}\left( #1 \right)}
-\renewcommand{\complement}{\mathsf{C}}
 
-\newcommand{\N}{\mathbb{N}}     % natural numbers
-\newcommand{\Z}{\mathbb{Z}}     % integers
+\newcommand{\N}{\mathbb{N}}		% natural numbers
+\newcommand{\Z}{\mathbb{Z}}		% integers
 \newcommand{\Q}{\mathbb{Q}}     % rational numbers
-\newcommand{\R}{\mathbb{R}}     % real numbers
+\newcommand{\R}{\mathbb{R}}		% real numbers
 \newcommand{\Rn}{\mathbb{R}^n}  % IR^n
 \newcommand{\Rm}{\mathbb{R}^m}  % IR^m
 \newcommand{\Rd}{\mathbb{R}^d}  % IR^d
-\newcommand{\CC}{\mathbb{C}}    % complex numbers
+\undef{\C}
+\newcommand{\C}{\mathbb{C}}		% complex numbers
 \newcommand{\K}{\mathbb{K}}     % any field (real or complex)
 \newcommand{\F}{\mathbb{F}}     % (prime) field
-
-\renewcommand{\i}{\mathrm{i}}
-\renewcommand{\Re}{\operatorname{Re}}
-\renewcommand{\Im}{\operatorname{Im}}
 
 % % Abbildungen mit Namen, einzeilig
 %\newcommand{\abb}[3]{#1 \colon #2 \to #3}
@@ -117,14 +112,14 @@
 
 \newcommand{\einheit}[1]{{#1}^{\times}} % Einheiten
 \newcommand{\Rx}{\einheit{R}}           % Einheiten Ring
-\newcommand{\Kx}{\einheit{K}}           % Einheiten Körper
+\newcommand{\Kx}{\einheit{K}}			% Einheiten Körper
 
 \NewDocumentCommand{\polynom}{O{R} O{X}}{#1 \left[ #2 \right]}
 % following commands just for compatibility
 \newcommand{\polynomring}[2]{#1 \left[ #2 \right]}  % Polynomring *[*]
 %\newcommand{\polynom}[1]{\polynomring{#1}{X}} % Polynomring *[X]
 \newcommand{\polynomR}{\polynom{R}}   % Polynomring R[X]
-% in older documents insert
+% in older documents insert 
 % \renewcommand{\polynom}[1]{#1 $\left[ X \right]$}
 % for old \polynom-command
 
@@ -139,7 +134,7 @@
 \newcommand{\rest}[1]{\Z / #1 \Z}           % Restklassen Z/(*)Z
 
 % >> metric spaces
-\NewDocumentCommand{\folge}{m m}{\left\{ #1 \right\}_{#2}}
+\newcommand{\folge}[2][]{\left\{ #2 \right\}_{#1}}          % sequence (*)_*
 \newcommand{\dist}[2]{\mathrm{d} \! \left( #1 , #2 \right)} % d(*,*)
 \newcommand{\abs}[1]{\left| #1 \right|}                     % |*|
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}          % ||*||
@@ -171,8 +166,6 @@
 \newcommand{\P}{\mathbb{P}}
 \newcommand{\ereignisF}{\mathcal{F}}
 
-\newcommand{\upmodels}{\perp\!\!\!\perp}
-
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\EW}[1][X]{\ensuremath{\E \left[ #1 \right]}}
 \newcommand{\Varianz}{\mathbb{V}\mathrm{ar}}
@@ -184,13 +177,6 @@
 \newcommand{\Normal}{\mathcal{N}}
 
 \newcommand{\disteq}{\mathrel{\overset{\mathrm{d}}{=}}}
-
-% >> functional analysis
-\newcommand{\schwachstern}{ schwach${}^\ast$ }
-\newcommand{\weakconv}{\rightharpoonup}
-\newcommand{\weakstarconv}{\overset{\ast}{\rightharpoonup}}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % math operators
@@ -208,7 +194,6 @@
 %%%%%% C
 \DeclareMathOperator{\charak}{char} % characteristic
 \DeclareMathOperator{\cl}{cl}       % closure
-\DeclareMathOperator{\Col}{Col}     % Spaltenraum
 \DeclareMathOperator{\cond}{cond}   % condition of a matrix/algorithm
 \DeclareMathOperator{\cdiff}{C}     % stetig differenzierbare Abbildungen
 
@@ -223,8 +208,6 @@
 \DeclareMathOperator{\Eig}{Eig}     % Eigenspace
 \DeclareMathOperator{\End}{End}     % Endomorphism
 \DeclareMathOperator{\eps}{eps}     % Maschinengenauigkeit
-\DeclareMathOperator{\ES}{ES}       % expected shortfall
-\DeclareMathOperator*{\esssup}{ess \ sup}
 \DeclareMathOperator{\Exp}{Exp}     % exponential distribution
 \DeclareMathOperator{\ext}{ext}     % Exterior
 \DeclareMathOperator{\Ext}{ext}     % 2nd time?
@@ -244,7 +227,6 @@
 %%%%%% H
 \DeclareMathOperator{\Hom}{Hom}     % family of Homomorphisms
 \DeclareMathOperator{\Hau}{Hau}     % Hauptraum (generalized Eigenspace)
-\DeclareMathOperator{\Hol}{H\ddot{o}l}
 \DeclareMathOperator{\Hyper}{Hyper} % hypergeometric distribution
 
 %%%%%% IJK
@@ -259,7 +241,6 @@
 
 %%%%%% LMN
 \DeclareMathOperator{\Lin}{L}       % lineare Abbildungen
-\DeclareMathOperator{\lin}{lin}     % linear space
 \DeclareMathOperator{\LC}{LC}       % Leitkoeffizient
 
 \DeclareMathOperator{\Mat}{Mat}         % Matrix
@@ -286,9 +267,7 @@
 %%%%%% R
 \DeclareMathOperator{\rd}{rd}       % ?
 \DeclareMathOperator{\rk}{rk}       % Rank of a matrix
-\DeclareMathOperator{\rg}{rg}
 \DeclareMathOperator{\rot}{rot}     % Rotation (Curl)
-\DeclareMathOperator{\Row}{Row}     % Zeilenraum
 \DeclareMathOperator{\rang}{rang}   % Matrix Rank
 
 %%%%%% S
@@ -314,7 +293,6 @@
 \DeclareMathOperator{\UG}{UG}       % Untergruppe (subgroup)
 \DeclareMathOperator{\Ugr}{Ugr}     % Menge der Untergruppen (set of subgroups)
 \DeclareMathOperator{\Uni}{U}       % Unitary Group / uniform distribution
-\DeclareMathOperator{\VaR}{VaR}     % value-at-risk
 
 %%%%%% XYZ
 \DeclareMathOperator{\ZR}{ZR}       % Zeilenraum
