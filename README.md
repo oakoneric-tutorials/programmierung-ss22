@@ -1,12 +1,12 @@
 # Übung: Programmierung
 
-In diesem Repository befinden sich Materialien und Lösungen, die im Rahmen meiner Übungen zur Lehrveranstaltung **Programmierung** im Sommersemester 2021 entstanden sind.
+In diesem Repository befinden sich Materialien und Lösungen, die im Rahmen meiner Übungen zur Lehrveranstaltung **Programmierung** im Sommersemester 2022 entstanden sind.
 
 Diese Lösungen wurden nicht vom Lehrstuhl erstellt und können damit trotz gründlicher Arbeit noch Fehler enthalten. Findet ihr einen solchen, dann fühlt euch eingeladen, diesen mit einem Request zu beheben.
 
-Bitte beachtet stets die aktuellen Informationen auf der [Website der Lehrveranstaltung](https://www.orchid.inf.tu-dresden.de/teaching/2021ss/prog/) und im [OPAL-Kurs](https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/29487333379?3).
+Bitte beachtet stets die aktuellen Informationen im [OPAL-Kurs](https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/34152054791/CourseNode/101397009996211).
 
-Bei Fragen oder Problemen könnt ihr euch an [mich](mailto:eric.kunze@mailbox.tu-dresden.de) oder an [Thomas Ruprecht](mailto:thomas.ruprecht@tu-dresden.de) wenden.
+Bei Fragen oder Problemen könnt ihr euch an [mich](mailto:eric.kunze@tu-dresden.de) oder an [Thomas Ruprecht](mailto:thomas.ruprecht@tu-dresden.de) wenden.
 
 ## Programmieren mit Haskell
 
@@ -20,4 +20,5 @@ Weitere Informationen findet ihr auf der Lehrveranstaltungswebsite.
 
 ## Kontakt
 * Eric Kunze
-* Mail: [eric.kunze@mailbox.tu-dresden.de](eric.kunze@mailbox.tu-dresden.de)
+* Mail: [eric.kunze@tu-dresden.de](mailto:eric.kunze@tu-dresden.de)
+* Telegram: [@oakoneric](https://t.me/oakoneric)
