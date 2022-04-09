@@ -1,0 +1,487 @@
+\documentclass{beamer}
+\usepackage{../tut-slides}
+\usepackage{../mathoperatorsAuD}
+
+\usepackage{csquotes}
+\usepackage{cancel}
+
+\usepackage{amsmath,amssymb}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,automata, matrix, trees}
+\usetikzlibrary{calc,positioning,backgrounds,arrows.meta}
+\usepackage{forest}
+
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tabu}
+
+\renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
+
+\usepackage{listings}
+\lstset{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=single,
+	keywordstyle=\bfseries,       % keyword style
+	morekeywords={}, 
+	language=Prolog,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=5pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
+\lstdefinestyle{refutation}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\color{cdgray},    	     % comment style
+	escapeinside={(*@}{@*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=none,
+	keywordstyle=\bfseries,       % keyword style
+	morekeywords={}, 
+	language=Prolog,                 % the language of the code
+	numbers=none,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=5pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
+
+\usepackage{textgreek}
+\usepackage{adjustbox}
+
+
+\renewcommand{\emph}[1]{\textbf{#1}}
+\newcommand{\coloremph}[1]{\textcolor{cdpurple}{#1}}
+\newcommand{\col}[1]{\textcolor{cdpurple}{\boldsymbol{#1}}}
+\newcommand{\coll}[1]{\textcolor{cddarkgreen}{\boldsymbol{#1}}}
+\newcommand{\colll}[1]{\textcolor{cdorange}{\boldsymbol{#1}}}
+%\newcommand{\step}[2][]{\ensuremath{\overset{{#1} (\text{#2})}{=}}}
+%\newcommand*{\astep}[2][]{\ensuremath{\overset{{#1} (\text{#2})}&{=}}}
+
+\newcommand{\num}[1]{\ensuremath{\langle #1 \rangle}}
+
+\begin{document}	
+	\title{Programmierung}
+	\subtitle{Übung 9: Logikprogrammierung mit Prolog${}^-$}
+	\author{Eric Kunze}
+	\email{eric.kunze@tu-dresden.de}
+%	\city{TU Dresden}
+	\date{}
+%	\institute{Lehrstuhl für Grundlagen der Programmierung}
+%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	
+	\maketitle
+	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile] \frametitle{Inhalt}
+	\begin{enumerate}
+		\item Funktionale Programmierung
+		\begin{enumerate}
+			\item Einführung in Haskell: Listen
+			\item Algebraische Datentypen
+			\item Funktionen höherer Ordnung
+			\item Typpolymorphie \& Unifikation
+			\item Beweis von Programmeigenschaften
+			\item \textlambda--Kalkül
+		\end{enumerate}
+		\item \textbf{Logikprogrammierung}
+		\item Implementierung einer imperativen Programmiersprache
+		\item Verifikation von Programmeigenschaften
+		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
+	\end{enumerate}
+\end{frame}
+
+
+\section{Logikprogrammierung und Prolog${}^-$}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile] \frametitle{\enquote{Datenstrukturen} in Prolog}
+	\footnotesize
+	\begin{itemize}
+		\item Darstellung von Objekten als Terme über Konstruktoren
+		\item keine explizite Deklaration -- implizite Definition über Verwendung in Klauseln
+	\end{itemize}
+	
+	\textbf{natürliche Zahlen:} Prädikat \texttt{nat}
+	\vspace{-.75em}
+	\begin{itemize} 
+		\item nullstelliger Konstruktor \texttt{0} 
+		\item einstelliger Konstruktor \texttt{s(X)}
+	\end{itemize}
+	
+	\begin{lstlisting}
+nat(0).
+nat(s(X)) :- nat(X).
+	\end{lstlisting}
+	
+	\textbf{Listen:} Prädikat \texttt{list}
+	\hfill Abkürzung:
+	\vspace{-.75em}
+	\begin{itemize} 
+		\item nullstelliger Konstruktor \texttt{nil} 
+		\hfill $\leadsto$ \texttt{[]} 
+		\item zweistelliger Konstruktor \texttt{cons(X, Xs)}
+		\hfill $\leadsto$ \texttt{[X|Xs]}
+	\end{itemize}
+	
+	\begin{lstlisting}[firstnumber=3]
+list(nil).
+list(cons(X, Xs)) :- list(Xs).
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{\enquote{Datenstrukturen} in Prolog}
+	\footnotesize
+	
+	\textbf{Erinnerung:} natürliche Zahlen, Listen
+	
+	\begin{lstlisting}
+nat(0).
+nat(s(X)) :- nat(X).
+list(nil).
+list(cons(X, Xs)) :- list(Xs).
+	\end{lstlisting}
+	
+	\textbf{Bäume:} Prädikat \texttt{istree}
+	\vspace{-0.5em}
+	\begin{itemize} \footnotesize
+		\item nullstelliger Konstruktor \texttt{nil}
+		\item dreistelliger Konstruktor \texttt{tree(X,L,R)} 
+	\end{itemize}
+	
+	\begin{lstlisting}[firstnumber=5]
+istree(nil).
+istree(tree(_, L, R)) :- istree(L), istree(R).
+	\end{lstlisting}
+\end{frame}
+
+
+
+
+\section{Aufgabe 1 \\ \itshape \normalsize Listen}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+	\footnotesize
+	
+	\textbf{Ziel:} binäre Relation \texttt{sublist} mit 
+	\begin{equation*}
+		(\ell_1 , \ell_2) \in \texttt{sublist} 
+		\quad \Leftrightarrow \quad
+		\ell_1 \subseteq \ell_2
+	\end{equation*}
+	$\leadsto$ $\ell_1$ soll \textit{Teilliste} von $\ell_2$ sein
+	
+	\begin{lstlisting}
+nat (0).
+nat(s(X)) :- nat(X).
+
+listnat ([]).
+listnat ([X|XS]) :- nat(X), listnat(XS).
+
+	\end{lstlisting}
+	\pause
+	\begin{lstlisting}[firstnumber=6]
+sublist(Xs   , [Y|Ys]) :- nat(Y), sublist(Xs, Ys). 
+sublist(Xs   , Ys )    :- prefix(Xs, Ys). 
+
+prefix([]    , Ys )    :- listnat(Ys). 
+prefix([X|Xs], [X|Ys]) :- nat(X), prefix(Xs, Ys).
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\footnotesize
+	\textbf{Belegung 1:}
+	
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\scriptsize]
+          ?-  sublist ([<4>|Xs], [<5>, <4>, <3>]).
+          ?-  nat(<5>), sublist ([<4>|Xs], [<4>, <3>]). % 6
+          ?-* nat(0), sublist ([<4>|Xs], [<4>, <3>]).   % 2
+          ?-  sublist ([<4>|Xs], [<4>, <3>]).           % 1
+          ?-  prefix ([<4>|Xs], [<4>, <3>]).            % 7
+          ?-  nat(<4>), prefix(Xs , [<3>]).             % 10
+          ?-* nat(0), prefix(Xs , [<3>]).               % 2
+          ?-  prefix(Xs , [<3>]).                       % 1
+{Xs = []} ?-  listnat ([<3>]).                          % 9
+          ?-  nat(<3>), listnat ([]).                   % 5
+          ?-* nat(0), listnat ([]).                     % 2
+          ?-  listnat ([]).                             % 1
+          ?-  .                                         % 4
+	\end{lstlisting}
+	Somit also \texttt{Xs = []}.
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\footnotesize
+	\textbf{Belegung 2:}
+	
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\scriptsize]
+               ?-  sublist ([<4>|Xs], [<5>, <4>, <3>]).
+               ?-  nat(<5>), sublist ([<4>|Xs], [<4>, <3>]). 
+                                                        % 6
+               ?-* nat(0), sublist ([<4>|Xs], [<4>, <3>]).  
+                                                        % 2
+               ?-  sublist ([<4>|Xs], [<4>, <3>]).      % 1
+               ?-  prefix ([<4>|Xs], [<4>, <3>]).       % 7
+               ?-  nat(<4>), prefix(Xs , [<3>]).        % 10
+               ?-* nat(0), prefix(Xs , [<3>]).          % 2
+               ?-  prefix(Xs , [<3>]).                  % 1
+{Xs=[<3>|Xs1]} ?-  nat(<3>), prefix(Xs1 , []).          % 10
+               ?-* nat(0), prefix(Xs1 , []).            % 2
+               ?-  prefix(Xs1 , []).                    % 1
+{Xs1 = []}     ?-  listnat ([]).                        % 9
+               ?-  .                                    % 4
+	\end{lstlisting}
+	
+	Somit also \texttt{Xs = [<3>|Xs1] = [<3>]}.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 2 \\ \itshape \normalsize Bäume}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\footnotesize
+	Wir wollen einen binären Termbaum auswerten. 
+	\begin{lstlisting}
+nat (0).
+nat(s(X)) :- nat(X).
+sum(0, Y, Y) :- nat(Y).
+sum(s(X), Y, s(S)) :- sum(X, Y, S).
+	\end{lstlisting}
+
+	\textbf{Beispiel:} 
+	
+	\begin{minipage}{\dimexpr0.35\linewidth-\fboxrule-\fboxsep}		
+		\begin{forest}
+			[\texttt{minus} [\texttt{<4>}] [\texttt{plus} [\texttt{<2>}] [\texttt{<1>}]]]
+		\end{forest}
+	\end{minipage}
+	\begin{minipage}{\dimexpr0.65\linewidth-\fboxrule-\fboxsep}
+		Kodierung über zweistelligen Konstruktoren \texttt{plus} und \texttt{minus} 
+		\begin{lstlisting}[style=refutation]
+minus( 
+	<4>,
+	plus(<2>, <1>)
+)
+		\end{lstlisting}
+	\end{minipage}
+
+	$\leadsto \operatorname{minus}(4, \operatorname{plus}(2,1)) = 4 - (2 + 1) = 1$
+	
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\footnotesize
+	
+	Wir wollen einen binären Termbaum auswerten. 
+	\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+nat (0).
+nat(s(X)) :- nat(X).
+sum(0, Y, Y)       :- nat(Y).
+sum(s(X), Y, s(S)) :- sum(X, Y, S).
+	\end{lstlisting}
+	
+	\pause
+	
+	\begin{lstlisting}[firstnumber=5, basicstyle=\ttfamily\tiny]
+eval( X         , X ) :-  nat(X). 
+eval( plus (L,R), X ) :-  eval(L, LE), eval(R, RE), sum(LE, RE,  X). 
+eval( minus(L,R), X ) :-  eval(L, LE), eval(R, RE), sum(RE,  X, LE).
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (b)}
+	\scriptsize
+	\textbf{Gegeben:} zwei Bäume
+	\begin{align*}
+	\texttt{<t1>} &= \texttt{tree(a, tree(b, nil, nil), tree(v, nil, nil))} \\
+	\texttt{<t2>} &= \texttt{tree(c, nil, tree(d, nil, nil))}
+	\end{align*}
+	\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+istree(nil).
+istree(tree(_, L, R)) :- istree(L), istree(R).
+
+insert(nil, _, nil).
+insert(tree(v, _, _), T, T) :- istree(T).
+insert(tree(X, L, R), T, tree(X, LT, RT)) :- insert(L, T, LT), insert(R, T, RT).
+	\end{lstlisting}
+	\textbf{Anschauung:} \texttt{insert(B, T, X)} ist wahr falls \texttt{X} ensteht, indem alle Knoten \texttt{v} in \texttt{B} durch den Baum \texttt{T} ersetzt werden oder nicht
+	
+	\textbf{Beispiel:}
+	\vspace{-1em}
+	\begin{tabular}{ccc}
+		\texttt{B} & \texttt{T} & \texttt{X} \\
+		\texttt{<t1>} & \texttt{<t2>} & Ergebnis(se) \\
+		\scalebox{0.7}{ \adjustbox{valign=t}{
+				\begin{forest}{for tree = {l=1em}}
+					[\texttt{a} [\texttt{b} [\texttt{nil}] [\texttt{nil}]] [\texttt{v} [\texttt{nil}] [\texttt{nil}]]]
+			\end{forest} } }
+		&
+		\scalebox{0.7}{ \adjustbox{valign=t}{
+				\begin{forest}{for tree = {l=1em}}
+					[\texttt{c} [\texttt{nil}] [\texttt{d} [\texttt{nil}] [\texttt{nil}]]]
+			\end{forest} } }
+		&
+		\scalebox{0.7}{ \adjustbox{valign=t}{ 
+				\begin{forest}{for tree = {l=1em}}
+					[\texttt{a} [\texttt{b} [\texttt{nil}] [\texttt{nil}]] [\texttt{v} [\texttt{nil}] [\texttt{nil}]]]
+			\end{forest} } 
+			\adjustbox{valign=b}{oder}
+			\adjustbox{valign=t}{ 
+				\begin{forest}{for tree = {l=1em}}
+					[\texttt{a} [\texttt{b} [\texttt{nil}] [\texttt{nil}]] [\texttt{c} [\texttt{nil}] [\texttt{d} [\texttt{nil}] [\texttt{nil}]]]]
+			\end{forest} } }
+	\end{tabular}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (b)}
+	\scriptsize
+	\textbf{Gegeben:} zwei Bäume
+	\begin{align*}
+		\texttt{<t1>} &= \texttt{tree(a, tree(b, nil, nil), tree(v, nil, nil))} \\
+		\texttt{<t2>} &= \texttt{tree(c, nil, tree(d, nil, nil))}
+	\end{align*}
+	\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+istree(nil).
+istree(tree(_, L, R)) :- istree(L), istree(R).
+
+insert(nil, _, nil).
+insert(tree(v, _, _), T, T) :- istree(T).
+insert(tree(X, L, R), T, tree(X, LT, RT)) :- insert(L, T, LT), insert(R, T, RT).
+	\end{lstlisting}
+	\textbf{Gesucht:} eine Belegungen für \texttt{X}, die \texttt{?- insert(<t1>, <t2>, X).} erfüllt
+	
+
+
+	\textbf{Alternative 1:}
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\tiny]
+                           ?-  insert(<t1>, <t2>, X).
+{X = tree(a, LT1, RT1)}    ?-  insert(tree(b, nil, nil), <t2>, LT1), 
+                               insert(tree(v, nil, nil), <t2>, RT1).   % 6
+{LT1 = tree(b, LT2, RT2)}  ?-  insert(nil , <t2>, LT2), 
+                               insert(nil, <t2>, RT2), 
+                               insert(tree(v, nil, nil), <t2>, RT1).   % 6
+{LT2 = nil, RT2 = nil}     ?-* insert(tree(v, nil, nil), <t2>, RT1).   % 4
+{RT1 = <t2>}               ?-  istree(<t2>).                           % 5
+                           ?-* istree(nil), istree(nil), istree(nil).  % 2
+                           ?-* .                                       % 4
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (b)}
+	\scriptsize
+	\textbf{Gegeben:} zwei Bäume
+	\begin{align*}
+	\texttt{<t1>} &= \texttt{tree(a, tree(b, nil, nil), tree(v, nil, nil))} \\
+	\texttt{<t2>} &= \texttt{tree(c, nil, tree(d, nil, nil))}
+	\end{align*}
+	\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+	istree(nil).
+	istree(tree(_, L, R)) :- istree(L), istree(R).
+	
+	insert(nil, _, nil).
+	insert(tree(v, _, _), T, T) :- istree(T).
+	insert(tree(X, L, R), T, tree(X, LT , RT)) 
+	:- insert(L, T, LT), insert(R, T, RT).
+	\end{lstlisting}
+	\textbf{Gesucht:} eine Belegungen für \texttt{X}, die \texttt{?- insert(<t1>, <t2>, X).} erfüllt
+
+	
+	\textbf{Alternative 2:} 
+	{\tiny die ersten vier Goals stimmen mit Alternative 1 überein}
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\tiny\color{cdgray}]
+                           ?-  insert(<t1>, <t2>, X).
+{X = tree(a, LT1, RT1)}    ?-  insert(tree(b, nil, nil), <t2>, LT1), 
+                               insert(tree(v, nil, nil), <t2>, RT1).   % 6
+{LT1 = tree(b, LT2, RT2)}  ?-  insert(nil , <t2>, LT2), 
+                               insert(nil, <t2>, RT2), 
+                               insert(tree(v, nil, nil), <t2>, RT1).   % 6
+{LT2 = nil, RT2 = nil}     ?-* insert(tree(v, nil, nil), <t2>, RT1).   % 4
+	\end{lstlisting} \vspace{-.5\baselineskip}
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\tiny]
+{RT1 = tree(v, LT3, RT3)}  ?-  insert(nil, <t2>, LT3),
+                               insert(nil, <t2>, RT3).                 % 6
+{RT3 = nil, LT3 = nil}     ?-* .                                       % 4
+	\end{lstlisting}
+	
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Ein weiteres Beispiel \\ \itshape \normalsize aus der Aufgabensammlung}
+
+\setbeamercolor{frametitle}{fg=white, bg=cdgray}	
+
+\begin{frame}[fragile] \frametitle{Aufgabe AGS 13.5 -- Teil (a)}
+	\footnotesize
+	\textcolor{cdblue}{Gegeben} sei folgender Prolog-Code:
+	\begin{lstlisting}
+subt( X  , X         ). 
+subt( S1 , s(_ , T2) ) :- subt(S1,T2).
+subt( S1 , s(T1, _ ) ) :- subt(S1,T1).
+	\end{lstlisting}
+	\textcolor{cdblue}{Gesucht} sind Belegungen für \texttt{X} und {Y} für das Goal \texttt{?- subt(s(X, Y), s(s(a, b), s(b, a))).}
+	\pause
+	
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\scriptsize]
+                        ?-  subt(s(X,Y), s(s(a,b), s(b,a))). 
+{X = s(a,b), Y=s(b,a)}  ?-  .                       % 1  
+
+                        ?-  subt(s(X,Y), s(s(a,b), s(b,a))).
+                        ?-  subt(s(X,Y), s(b,a)).   % 2
+{X = b, Y=a}            ?-  .                       % 1
+
+                        ?-  subt(s(X,Y), s(s(a,b), s(b,a))).
+                        ?-  subt(s(X,Y), s(a,b)).   % 3
+{X = a, Y=b }           ?-  .                       % 1
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe AGS 13.5 -- Teil (b)}
+	\footnotesize
+	\textcolor{cdblue}{Gegeben}  sei folgender Prolog-Code:
+	\begin{lstlisting}
+subt( X  , X         ). 
+subt( S1 , s(_ , T2) ) :- subt(S1,T2).
+subt( S1 , s(T1, _ ) ) :- subt(S1,T1).
+	\end{lstlisting}
+	\textcolor{cdblue}{Gesucht} sind drei Lösungen für das Goal \texttt{?- subt(s(a, a), X).} 
+	\pause
+
+	\begin{lstlisting}[style=refutation, basicstyle=\ttfamily\scriptsize]
+                  ?-  subt(s(a,a), X). 
+{X = s(a,a)}      ?-  .                  % 1
+                                         (*@\centering$\Rightarrow$@*) X = s(a,a))
+                  ?-  subt(s(a,a), X). 
+{X = s(_ , X1)}   ?-  subt(s(a,a), X1).  % 2 
+{X1 = s(a,a)}     ?-  .                  % 1 
+                                         (*@\centering$\Rightarrow$@*) X = s(a,s(a,a))
+
+                  ?-  subt(s(a,a), X). 
+{X = s(X2, _)}    ?-  subt(s(a,a), X2).  % 3 
+{X2 = s(a,a) }    ?-  .                  % 1 
+                                         (*@\centering$\Rightarrow$@*) X = s(s(a,a),c)
+	\end{lstlisting}
+\end{frame}
+
+\end{document}
+

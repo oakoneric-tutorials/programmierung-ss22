@@ -1,0 +1,299 @@
+\documentclass{beamer}
+\usepackage{../tut-slides}
+\usepackage{../mathoperatorsAuD}
+
+\usepackage{csquotes}
+\usepackage{cancel}
+
+\usepackage{amsmath,amssymb}
+
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tabu}
+\newcommand*\head{\rowfont{\bfseries}}
+\newcommand*{\tw}{\rowfont{\ttfamily}}
+
+\renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
+
+\usepackage{listings}
+\usepackage[skins]{tcolorbox}
+\tcbuselibrary{listings}
+
+\newtcblisting{codebox}{%
+	top=-6pt,
+	bottom=-6pt,
+	left=0pt,
+	right=0pt,
+	boxsep=5pt,
+	enhanced,clip upper,
+	colback=white,
+	colframe=cddarkblue,
+	fonttitle=\bfseries,
+	listing only,
+	listing options={basicstyle=\scriptsize\ttfamily}
+}
+\newtcblisting{smallcodebox}{%
+	top=0pt,
+	bottom=0pt,
+	left=0pt,
+	right=0pt,
+	boxsep=5pt,
+	enhanced,clip upper,
+	colback=white,
+	colframe=cddarkblue,
+	listing only}
+
+
+\newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
+\newcommand{\step}[2][]{\ensuremath{\overset{{#1} (\text{#2})}{=}}}
+\newcommand*{\astep}[2][]{\ensuremath{\overset{{#1} (\text{#2})}&{=}}}
+
+\begin{document}	
+	\title{Programmierung}
+	\subtitle{Übung 5: Induktion}
+	\author{Eric Kunze}
+	\email{eric.kunze@tu-dresden.de}
+%	\city{TU Dresden}
+	\date{}
+%	\institute{Lehrstuhl für Grundlagen der Programmierung}
+%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	
+	\maketitle
+	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile] \frametitle{Inhalt}
+	\begin{enumerate}
+		\item Funktionale Programmierung
+		\begin{enumerate}
+			\item Einführung in Haskell
+			\item Listen \& Algebraische Datentypen
+			\item Funktionen höherer Ordnung
+			\item Typpolymorphie \& Unifikation
+			\item \textbf{Beweis von Programmeigenschaften}
+			\item $\lambda$ -- Kalkül
+		\end{enumerate}
+		\item Logikprogrammierung
+		\item Implementierung einer imperativen Programmiersprache
+		\item Verifikation von Programmeigenschaften
+		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
+	\end{enumerate}
+\end{frame}
+
+
+
+\section{Induktionsbeweise \\ \textit{\normalsize Aufgaben 1 und 2}}
+
+\begin{frame} \frametitle{Vollständige Induktion auf $\N$}
+	\footnotesize
+	
+	\textbf{Definition:} natürliche Zahlen $\N \defeq \menge{0, 1, \dots}$
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad &&0 &\in \N \\
+			\text{Rekursionsfall: }\quad &&x + 1 &\in \N
+			\quad \text{ für } \quad x \in \N
+		\end{aligned}
+	\end{equation*}
+	
+	\textbf{Beweis von Eigenschaften:}
+	Eigenschaft $=$ Prädikat $P$
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle $x \in \N$ gilt $P(x)$}
+	\end{center}
+	
+	\textbf{vollständige Induktion:}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(x)$ für $x = 0$
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Sei $x \in \N$, sodass $P(x)$ gilt.
+		\hfill
+		\textcolor{cdgray}{$P(x)$ gilt noch nicht für \textit{alle} $x \in \N$}
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(x+1)$ unter Nutzung der Induktionsvoraussetzung
+	\end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Induktion auf Listen}
+\footnotesize
+
+	\textbf{Erinnerung:} Rekursion über Listen \texttt{xs}
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad \texttt{xs} &= \texttt{[]} \\
+			\text{Rekursionsfall: }\quad \texttt{xs} &= \texttt{(y:ys)} \quad \text{ für } \quad \texttt{ys :: [a]}
+		\end{aligned}
+	\end{equation*}
+	\pause
+	
+	\textbf{Beweis von Programmeigenschaften:}
+	Eigenschaft $=$ Prädikat $P$
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle \texttt{xs :: [a]} gilt $P(\texttt{xs})$}
+	\end{center}
+	\pause
+	
+	\textbf{Induktion auf Listen:} \vspace{-0.5\baselineskip}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(\texttt{xs})$ für \texttt{xs == []}
+		\pause
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Sei \texttt{xs :: [a]} eine Liste für die $P(\texttt{xs})$ gilt. \pause
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(\texttt{x:xs})$ für alle \texttt{x :: a} unter Nutzung der Induktionsvoraussetzung
+		\pause
+	\end{itemize}
+	
+	\fbox{\emph{Allgemeiner Hinweis:} Es müssen immer \alert{alle} Variablen quantifiziert werden!}
+\end{frame}
+
+\begin{frame} \frametitle{Strukturelle Induktion}
+	\footnotesize
+	
+	\textbf{Erinnerung:} Rekursion über Bäume
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad &\texttt{Nil} \text{ oder } \texttt{Leaf x} \text{ für } \texttt{x :: a} \\
+			\text{Rekursionsfall: }\quad &\texttt{Branch x l r} \text{ für } \texttt{x :: a} \text{ und } \texttt{l,r :: BinTree a}
+		\end{aligned}
+	\end{equation*}
+	\pause
+
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle \texttt{t :: BinTree a} gilt $P(\texttt{t})$}
+	\end{center}
+	\pause
+	
+	\textbf{strukturelle Induktion:} \vspace{-0.5\baselineskip}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(\texttt{t})$ für \texttt{t == Nil} oder \texttt{t == Leaf x} für alle \texttt{x :: a}
+		\pause
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Seien \texttt{l, r :: BinTree a} zwei Bäume, sodass $P(\texttt{l})$ und $P(\texttt{r})$ gilt. \pause
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(\texttt{Branch x l r})$ für alle \texttt{x :: a} unter Nutzung der Induktionsvoraussetzung
+		\pause
+	\end{itemize}
+	
+	\fbox{\emph{Allgemeiner Hinweis:} Es müssen immer \alert{alle} Variablen quantifiziert werden!}
+\end{frame}
+
+\begin{frame} \frametitle{Fehlerquellen}
+	\footnotesize
+	\begin{itemize}
+		\item kein Induktionsprinzip
+		\item IV wird im Induktionsschritt nicht verwendet
+		\item fehlende Quantifizierung (nur Gleichungen bringen kaum Punkte)
+		\item \textit{Missachtung freier Variablen} \pause
+		\item zu beweisende Eigenschaft $P$ wird für \texttt{xs} angenommen, um sie dann im Induktionsschritt nochmal für \texttt{xs} zu beweisen –- eine Tautologie
+		\item Annahme, dass $P$ bereits für alle Listen gilt, um es dann für \texttt{x:xs} nochmal zu zeigen		
+	\end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 1}
+	\scriptsize
+	Zu zeigen ist die Gleichung
+	\begin{equation*}
+		\texttt{sum (foo xs) = 2 * sum xs - length xs} \qquad \text{für alle } \texttt{xs :: Int}
+	\end{equation*}
+	mittels Induktion über Listen.
+	
+	\textbf{Induktionsanfang:} Sei \texttt{xs == []}. 
+	\begin{align*}
+		\intertext{linke Seite: }
+		\texttt{sum (foo [])} &\step{2} \texttt{sum [] \step{6} 0} \\
+		\intertext{rechte Seite: }
+		\texttt{2 * sum [] - length []} &\step{10} \texttt{2 * sum [] - 0 \step{6} 2 * 0 - 0 = 0}
+	\end{align*}
+	
+	\textbf{Induktionsvoraussetzung:} Sei \texttt{xs :: [Int]}, sodass
+	\begin{equation*}
+		\texttt{sum (foo xs) = 2 * sum xs - length xs}
+	\end{equation*}
+	gilt.
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 1 (Fortsetzung)}
+	\scriptsize
+	
+	\textbf{Induktionsschritt:} Sei \texttt{x :: Int}. Es gilt
+	\begin{align*}
+		\texttt{sum (foo (x:xs))} \astep{3} \texttt{sum (x : x : (-1) : foo xs)} \\
+		\astep[3*]{7} \texttt{x + x + (-1) + sum (foo xs)} \\
+		\astep{IV} \texttt{x + x + (-1) + 2 * sum xs - length xs} \\
+		\astep{Komm.} \texttt{2 * x + 2 * sum xs - 1 - length xs)} \\
+		\astep{Dist.} \texttt{2 * (x + sum xs) - (1 + length xs)} \\
+		\astep{7} \texttt{2 * sum (x:xs) - (1 + length xs)} \\
+		\astep{11} \texttt{2 * sum (x:xs) - length (x:xs)} 
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 --- Teil (a)}
+	\scriptsize
+	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
+	\begin{equation}
+		\begin{aligned}
+			\texttt{[x] ++ rev ys ++ rev xs = rev (xs ++ ys ++ [x])} \\ \text{ für alle } \texttt{xs, ys :: [a]}
+		\end{aligned}
+		\tag{H3}
+	\end{equation}
+	
+	Der Beweis funktioniert ohne Induktion:
+	\begin{align*}
+		\texttt{[x] ++ rev ys ++ rev xs}
+		\astep{Ass.} 
+		\texttt{[x] ++ (rev ys ++ rev xs)} \\
+		\astep{H2} \texttt{[x] ++ rev (xs ++ ys)} \\
+		\astep{H1} \texttt{rev [x] ++ rev (xs ++ ys)} \\
+		\astep{H2} \texttt{rev ((xs ++ ys) ++ [x])} \\
+		\astep{Ass.} \texttt{rev (xs ++ ys ++ [x])}
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
+	\scriptsize
+	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
+	\begin{equation*}
+		\texttt{preOrder t = rev (mPostOrder t)} \qquad \text{für alle} \qquad \texttt{t :: BinTree a}
+	\end{equation*}
+	mittels struktureller Induktion.
+	
+	\textbf{Induktionsanfang:} Sei \texttt{x :: a} beliebig und \texttt{t = Leaf x}. 
+	\begin{align*}
+		\text{linke Seite: } \quad &\texttt{preOrder (Leaf x)} \step{4} \texttt{[x]} \\
+		\text{rechte Seite: } \quad & \texttt{rev (mPostOrder (Leaf x))} \step{8} \texttt{rev [x] \step{H1} [x]}
+	\end{align*}
+	
+	\textbf{Induktionsvoraussetzung:} Seien \texttt{l, r:: BinTree a}, sodass
+	\begin{align}
+		\texttt{preOrder l} &= \texttt{rev(mPostOrder l)} \tag{IV1} \\
+		\texttt{preOrder r} &= \texttt{rev(mPostOrder r)} \tag{IV2}
+	\end{align}
+	gilt.
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 -- Teil (b) (Fortsetzung)}
+	\scriptsize
+	
+	\textbf{Induktionsschritt:} Sei \texttt{x :: a} beliebig. Es gilt
+	\begin{align*}
+		\texttt{preOrder (Node x l r)} \astep{5} \texttt{[x] ++ preOrder l ++ preOrder r} \\
+		\astep{IV1} \texttt{[x] ++ rev(mPostOrder l) ++ preOrder r} \\
+		\astep{IV2} \texttt{[x] ++ rev(mPostOrder l) ++ rev(mPostOrder r)} \\
+		\astep{H3} \texttt{rev(mPostOrder r ++ mPostOrder l ++ [x])} \\
+		\astep{9} \texttt{rev(mPostOrder (Node x l r))}
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Ende}
+	\centering
+	\textbf{Fragen?}
+\end{frame}
+
+\end{document}
+

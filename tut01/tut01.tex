@@ -1,0 +1,516 @@
+\documentclass{beamer}
+\usepackage{../tut-slides}
+\usepackage{../mathoperatorsAuD}
+
+\usepackage{csquotes}
+\usepackage{cancel}
+
+\usepackage{amsmath,amssymb}
+\usepackage{enumerate}
+\usepackage[inline]{enumitem} 		%customize label
+\newcommand{\labelitemi}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
+\newcommand{\labelitemii}{$\vartriangleright$}
+\newcommand{\labelitemiii}{--}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tabu}
+\newcommand*\head{\rowfont{\bfseries}}
+\newcommand*{\tw}{\rowfont{\ttfamily}}
+\renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings}
+
+%\lstset{ 
+%	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+%	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+%	breaklines=true,                 % sets automatic line breaking
+%	commentstyle=\itshape,    	     % comment style
+%	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+%	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+%	firstnumber=1,                % start line enumeration with line 1000
+%	frame=single,
+%	keywordstyle=\bfseries,       % keyword style
+%	language=Haskell,                 % the language of the code
+%	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+%	numbersep=5pt,                   % how far the line-numbers are from the code
+%	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+%	rulecolor=\color{cddarkblue}, 
+%	tabsize=2,	                   % sets default tabsize to 2 spaces
+%}
+
+\newtcblisting{codebox}{%
+	colback=white,
+	colframe=cddarkblue,
+	fonttitle=\bfseries,
+	listing only}
+
+\newtcblisting{commandshell}{%
+	colback=black,colupper=white,colframe=yellow!75!black,
+	listing only,listing options={style=tcblatex,language=sh},
+	every listing line={\textcolor{red}{\small\ttfamily\bfseries root \$> }}}
+
+\begin{document}	
+	\title{Programmierung}
+	\subtitle{Übung 1: Einleitung}
+	\author{Eric Kunze}
+	\email{eric.kunze@mailbox.tu-dresden.de}
+	\city{TU Dresden}
+	\date{13. April 2021}
+%	\institute{Lehrstuhl für Grundlagen der Programmierung}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+
+	\maketitle
+	
+	\begin{frame} \frametitle{Wer bin ich?}
+		\begin{minipage}{\dimexpr0.75\linewidth-\fboxrule-\fboxsep}
+			\begin{itemize}
+				\item Eric \textcolor{cdgray!50}{Kunze}
+				\item E-Mail: \\
+				\url{eric.kunze@mailbox.tu-dresden.de}
+				\item Telegram: \url{@oakoneric}
+				\item Fragen, Wünsche, Vorschläge, \dots \\
+				gern jederzeit über alle möglichen Wege
+			\end{itemize}
+		\end{minipage}
+		\begin{minipage}{\dimexpr0.25\linewidth-\fboxrule-\fboxsep}
+			\includegraphics[width=3cm]{./tut01_pic.jpg}
+		\end{minipage}
+	\end{frame}
+
+	\begin{frame} \frametitle{Ein weiteres Online-Semester}
+		\footnotesize
+		\begin{itemize}[leftmargin=*]
+			\item Vorlesungsvideo und Übungsblatt jeden Freitag im \textbf{OPAL-Kurs}
+			\item Lehrveranstaltungswebsite: \\ \url{www.orchid.inf.tu-dresden.de/teaching/2021ss/prog/}
+			\bigskip \pause
+			\item \textbf{Übungen}
+			\begin{itemize}
+				\item Einschreibung im OPAL
+				\item Zugangslink im OPAL-Kurs und meiner Website
+			\end{itemize} 
+			\bigskip \pause
+			\item \textbf{meine Website:} \\[.5em]
+			\begin{tcolorbox}[boxsep=0pt,colframe=cddarkblue,colback=cdblue!10]
+				\centering
+				\textbf{\url{https://oakoneric.github.io}}
+			\end{tcolorbox}
+			\begin{itemize}
+				\item Vorlesungsmaterialien verlinkt
+				\item Slides, Handout, Mitschrift/Code
+				\item Übung als Videoaufzeichnung (passwortgeschützt)
+				\item Github: \url{https://github.com/oakoneric/programmierung-ss21}
+				\item \alert{\textbf{kein Anspruch auf Vollständigkeit \& Korrektheit}}
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame} \frametitle{Hinweise}
+		\footnotesize
+		\textbf{Literatur}
+		\begin{itemize}
+			\item \textit{Learn You a Haskell For Great Good!}
+			\begin{itemize}
+				\item sehr gut geschrieben, ausführlich und kurzweilig
+			\end{itemize}
+			\item \textit{Real World Haskell}
+			\begin{itemize}
+				\item sehr gut, wesentlich mehr Inhalte als benötigt
+			\end{itemize}
+		\end{itemize}
+		beide Bücher als Online-Versionen verfügbar (siehe Website)
+		
+		\medskip \pause
+		
+		\textbf{Altklausuren}
+		\begin{itemize}
+			\item FTP-Server des iFSR:
+			\url{https://ftp.ifsr.de/klausuren/Grundstudium/Programmierung/}
+			\item VPN-Verbindung notwendig
+		\end{itemize}
+	\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Einführung in Haskell}
+
+    \begin{frame}[fragile] \frametitle{Haskell \& funktionale Programmierung}
+    	\footnotesize
+        \fbox{Haskell $=$ funktionale Programmiersprache}
+        
+        Wir programmieren nicht \textit{wie} berechnet wird, sondern \textit{was} berechnet wird.
+    	
+    	\pause
+        \medskip
+        
+        \textbf{Mathe:} Wir kennen Funktionen bereits aus dem Mathe-Unterricht und den Mathe-Vorlesungen. Zum Beispiel ist 
+        \begin{equation*}
+        	\begin{split}
+        		f \colon \N &\to \N \\
+        		f(x) &= x + 3
+        	\end{split}
+        \end{equation*}
+    	eine Funktion, die natürliche Zahlen auf natürliche Zahlen abbildet.
+    	
+    	\pause
+    	
+    	\textbf{Haskell:} 
+    	Diese würde in Haskell wie folgt aussehen:
+        \begin{codebox}
+f :: Int -> Int
+f x = x + 3
+        \end{codebox}
+    \end{frame}
+
+	\begin{frame}[fragile] \frametitle{Ein weiteres Beispiel}
+		\footnotesize
+		Um zu verdeutlichen, wie ähnlich sich mathematische Funktionen und Haskell-Funktionen sind, betrachten wir folgendes Beispiel. 
+		Wir können Funktionen auf ihren Argumenten definieren, d.h.
+		\begin{equation*}
+			\begin{split}
+				g \colon \N &\to \N \\
+				g(0) &= 1 \\
+				g(x) &= x^2
+			\end{split}
+		\end{equation*}
+		bzw. in Haskell
+		\begin{codebox}
+g :: Int -> Int
+g 0 = 1
+g x = x * x
+		\end{codebox}
+	\end{frame}
+
+	\begin{frame}[fragile] \frametitle{Ein weiteres Beispiel}
+		\footnotesize
+		Wir können auch deutlich wichtigere und kompliziertere Funktionen programmieren. Zum Beispiel lässt sich die Addition $n+m$ auch als Funktion schreiben.
+		\begin{equation*}
+			\operatorname{add} \colon \mathbb{N} \times \mathbb{N} \to \mathbb{N}, \quad
+			\operatorname{add}(n,m) = n + m = 
+			\begin{cases}
+				n & m = 0 \\
+				1 + \operatorname{add} ( n , m-1 ) &\text{sonst} \\
+			\end{cases}
+		\end{equation*}
+		definieren.
+		
+		\medskip \pause
+		
+		Als Haskell-Funktion sieht das dann so aus:
+		\begin{codebox}
+add :: Int -> Int -> Int
+add n 0 = n
+add n m = 1 + add n (m-1)
+		\end{codebox}
+	\end{frame}
+	
+	
+	\section{Aufgabe 1 \\ \textit{\normalsize Haskell installieren und compilieren}}
+
+	\begin{frame}[fragile] \frametitle{Aufgabe 1}
+		Gegeben sei eine Haskell-Funktion
+		\begin{codebox}
+sum3 :: Int -> Int -> Int -> Int
+sum3 x y z = x + y + z
+		\end{codebox}
+	
+		\pause
+		
+		Die entspricht der mathematische Funktion
+		\begin{equation*}
+			\operatorname{sum3} \colon \N \times \N \times \N \to \N \quad \text{mit} \quad \operatorname{sum3}(x,y,z) = x + y + z
+		\end{equation*}
+	\end{frame}
+
+	\begin{frame}\frametitle{Haskell installieren und compilieren}
+		\textbf{Glasgow Haskell Compiler} (ghc(i)) :  \url{https://www.haskell.org/ghc/}
+		
+		\pause
+		
+		\begin{itemize}
+			\item \textbf{Terminal:} \texttt{ghci <modulname>}
+			\item \textbf{Module laden: } \texttt{:load <modulname>} oder \texttt{:l}
+			\item \textbf{Module neu laden: } \texttt{:reload} oder \texttt{:r}
+			\item \textbf{Hilfe: } \texttt{:?} oder \texttt{:help}
+			\item \textbf{Interpreter verlassen: } \texttt{:quit} oder \texttt{:q}
+			
+			\bigskip \pause
+			
+			\item \texttt{:type <exp>} --- Typ des Ausdrucks \texttt{<exp>} bestimmen
+			\item \texttt{:info <fkt>} --- kurze Dokumentation für \texttt{<fkt>}
+			\item \texttt{:browse} --- alle geladenen Funktionen anzeigen
+			
+			\bigskip \pause
+			
+			\item einzeilige Kommentare mit \texttt{--}
+			\item mehrzeilige Kommentare mit \texttt{\{- ... -\}}
+		\end{itemize}
+	\end{frame}
+
+
+
+	\section{Aufgabe 2 \\ \textit{\normalsize Rekursion, Pattern Matching \& Conditionals}}
+	
+	\begin{frame}\frametitle{Das Prinzip der Rekursion}
+		\footnotesize
+		Ein wichtiges Prinzip in der funktionalen Programmierung ist das Prinzip der Rekursion.
+		
+		\begin{itemize}
+			\item \textbf{Rekursionsfall}
+			\onslide<2->{\begin{itemize}
+				\item Reduktion eines großen Prolems auf ein kleineres Problem
+				\item \texttt{Int}-Funktionen: Reduktion von $n$ auf $n-1$
+				\item Liste: Reduktion durch Abspaltung eines Listenelements
+			\end{itemize}}
+		
+			\bigskip
+			
+			\item \textbf{Basisfall}
+			\onslide<3->{\begin{itemize}
+				\item kleinste Probleme - einfach zu lösen
+				\item rechte Seite deterministisch
+				\item \texttt{Int}-Funktionen: rechte Seite hängt nicht von $n$ ab
+				\item Liste: leere Liste
+			\end{itemize}}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}[fragile] \frametitle{Pattern Matching}
+		\footnotesize
+		Mit Pattern Matching kann man prüfen, ob Funktionsargumente eine bestimmte Form aufweisen.
+		
+		Damit kann man verschiedene Fälle in einfacher Form nacheinander abgreifen, z.B. Basis- und Rekursionsfall. Vergleiche dazu auch das Beispiel mit der \texttt{add}-Funktion:
+		\begin{itemize}
+			\item Der Aufruf \texttt{add 5 0} matched mit Zeile 2, also berechnen wir \texttt{add 5 0 = 5}.
+			\item Der Aufruf \texttt{add 5 1} matched nicht auf Zeile 2, also probieren wir Zeile 3. Das matched mit \texttt{n = 5} und \texttt{m = 1} und wir berechnen
+			\begin{align*}
+				\texttt{add} \ 5 \ 1 &= 1 + \texttt{add} \ 5 \ 0 \\
+				        &= 1 + 5 \\
+				        &= 6
+			\end{align*}
+		\end{itemize}
+		Beachte, dass dabei von oben nach unten getestet wird!
+	\end{frame}
+
+	\begin{frame}\frametitle{Aufgabe 2a -- Fakultätsfunktion}
+		\footnotesize
+		Fakultät
+		\begin{equation*}
+			n! = \prod_{i=1}^n i
+		\end{equation*}
+		
+		\medskip
+		\pause
+		
+		Rekursionsvorschrift: $n \leadsto n-1$ \pause
+		\begin{equation*}
+			n! = \boldsymbol{n} * \prod_{i=1}^{\boldsymbol{n-1}} i= n * (n-1)!
+		\end{equation*}
+		\begin{itemize}
+			\item links: $n!$ hängt von $n$ ab
+			\item rechts: $(n-1)!$ hängt nur von $n-1$ ab
+		\end{itemize}
+		
+		\medskip
+		\pause
+		
+		Um die Rekursion vollständig zu definieren, benötigen wir einen \textit{Basisfall}. Wann können wir also die Rekursion der Fakultät abbrechen?
+		\begin{equation*}
+			0 ! = 1 \qquad 1 ! = 1 \qquad 2! = 2 \qquad \cdots
+		\end{equation*}
+		$\Rightarrow$ Welcher Basisfall ist sinnvoll? \qquad $0! = 1$
+	\end{frame}
+
+	\begin{frame}[fragile] \frametitle{Aufgabe 2a -- Lösung}
+		\begin{codebox}
+fac :: Int -> Int
+fac 0 = 1
+fac n = n * fac (n-1)
+		\end{codebox}
+		
+		\scriptsize
+		\textbf{Hinweis:} In der Musterlösung werden noch \texttt{undefined}-Fälle angegeben. Das ist für uns erst einmal optional, aber natürlich schöner.
+	\end{frame}
+
+
+	\begin{frame}[fragile] \frametitle{Conditionals}
+		\footnotesize
+		Um Bedingungen zu testen, gibt es die Möglichkeit auf \texttt{if}-\texttt{then}-\texttt{else} zu verzichten und sogenannte \textit{guards} mit \textit{pipes} zu verwenden. Das sieht dann wieder so aus, wie eine geschweifte Klammer in mathematischen Fallunterscheidungen. 
+		\begin{equation*}
+			h(x) = \begin{cases}
+			x^2 & \text{für } x < 0 \\
+			0.5*x & \text{für } \onslide*<1>{x \ge 0} \onslide*<2>{\cancel{x \ge 0} \text{ \textbf{sonst}}}
+			\end{cases} 
+		\end{equation*}
+		\begin{onlyenv}<1>
+			\begin{codebox}
+h :: Int -> Int
+h x 
+    | x < 0  = x^2 
+    | x >= 0 = 0.5 * x
+			\end{codebox}
+		\end{onlyenv}
+		\begin{onlyenv}<2>
+			\begin{codebox}
+h :: Int -> Int
+h x 
+    | x < 0     = x^2 
+    | otherwise = 0.5 * x
+			\end{codebox}
+		\end{onlyenv}
+		\pause
+		Wie auch in Mathe sollte man bei gegensätzlichen Bedingungen ein \enquote{sonst} bzw. \texttt{otherwise} verwenden.
+	\end{frame}
+
+	\begin{frame}[fragile] \frametitle{Aufgabe 2b --- Summierte Fakultäten (1)}
+		\footnotesize
+		\begin{equation*}
+			f(n,m) = \sum_{i=n}^{m} i!
+		\end{equation*}
+		\pause
+		\begin{itemize}[leftmargin=*]
+			\item Rekursionsfall: 
+			\begin{equation*}
+				f(n,m) = \sum_{i=n}^{m} i! = \boldsymbol{m}! + \sum_{i=n}^{\boldsymbol{m-1}} i! = m! + f(n,m-1) 
+			\end{equation*}
+			\item Basisfall: $f(n,m) = 0$ für $n > m$
+		\end{itemize}
+		\pause
+		
+		\textbf{Lösung:} \\[0.5em]
+		\begin{codebox}
+sumFacs :: Int -> Int -> Int
+sumFacs n m
+	| n > m = 0
+	| otherwise = fac m + sumFacs n (m-1)
+		\end{codebox}
+	\end{frame}
+
+	\begin{frame}[fragile] \frametitle{Aufgabe 2b --- Summierte Fakultäten (2)}
+		\footnotesize
+		\begin{equation*}
+			f(n,m) = \sum_{i=n}^{m} i!
+		\end{equation*}
+		\pause
+		\begin{itemize}[leftmargin=*]
+			\item Rekursionsfall: 
+			\begin{equation*}
+				f(n,m) = \sum_{i=n}^{m} i! = \boldsymbol{n}! + \sum_{i=\boldsymbol{n+1}}^{m} i! = n! + f(n+1,m) 
+			\end{equation*}
+			\item Basisfall: $f(n,m) = 0$ für $n > m$
+		\end{itemize}
+		\pause
+		
+		\textbf{Lösung:} \\[0.5em]
+		\begin{codebox}
+sumFacs :: Int -> Int -> Int
+sumFacs n m
+	| n > m = 0
+	| otherwise = fac n + sumFacs (n+1) m
+		\end{codebox}
+	\end{frame}
+
+
+	\section{Aufgabe 3}
+	
+	\begin{frame}\frametitle{Aufgabe 3 -- Fibonacci-Zahlen}
+		\scriptsize
+		\begin{equation*}
+		f_n := \begin{cases}
+		\enskip 1 & \text{falls } n = 0 \\
+		\enskip 1 & \text{falls } n = 1 \\
+		\enskip f_{n-1} + f_{n-2} & \text{sonst}
+		\end{cases}
+		\end{equation*}
+		
+		\medskip
+		\pause
+		
+		$\Rightarrow$ Rekursionsvorschrift schon gegeben. \\
+		
+		\bigskip 
+		\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\textbf{Verfahren ohne Rekursion.} \\
+			
+			\begin{tikzpicture}[]%
+			\pgfmathsetseed{1237}%
+			\node (n1) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (0,0) {$f_{i-2}$};%
+			\node (n2) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (1.5,0) {$f_{i-1}$};%
+			\node (n3) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (3,0) {$n$};%
+			\node (n4) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (0,-1) {$f_{i-1}$};%
+			\node (n5) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (1.5,-1) {$f_{i-2} + f_{i-1}$};%
+			\node (n6) [draw=cdindigo, fill=cdindigo!10,thick,align=justify, , inner ysep=2mm, inner xsep=2mm, rectangle] at (3,-1) {$n-1$};%
+			\path[->] (n2) edge [bend left=0] (n4);
+			\end{tikzpicture}%
+		\end{minipage}
+		\pause
+		\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\textbf{Explizite Formel.}
+			\begin{align*}
+				f_n = \frac{\Phi^n - \left(-\frac{1}{\Phi} \right)^n}{\sqrt{5}}
+				\text{mit} \Phi &= \frac{1 + \sqrt{5}}{2}
+			\end{align*}
+		\end{minipage}
+	\end{frame}
+	
+	\begin{frame}[fragile] \frametitle{Aufgabe 3 -- Lösung}
+		\begin{codebox}
+fib :: Int -> Int
+fib 0 = 1
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
+		\end{codebox}
+	
+		\begin{codebox}
+fib' :: Int -> Int
+fib' n = fib_help 1 1 n
+
+fib_help :: Int -> Int -> Int
+fib_help x _ 0 = x
+fib_help x y n = fib_help y (x+y) (n-1)
+		\end{codebox}
+	\end{frame}
+
+
+
+%	%
+%	\begin{frame}[fragile] \frametitle{Haskell \& Listen}
+%		\begin{description}
+%			\item[Listen] Wenn \texttt{a} ein Typ ist, dann bezeichnet \texttt{[a]} den Typ ``Liste mit Elementen vom Typ \texttt{a}'', insbesondere
+%			haben alle Elemente einer Liste den gleichen Typ
+%			\pause
+%			\item[cons-Operator `` \texttt{:} '']  Trennung von head und tail einer Liste \\
+%			\lstinline{[ x1 , x2 , x3 , x4 , x5] = x1 : [x2 , x3 , x4 , x5]}
+%			\bigskip \pause
+%			\item[Verkettungsoperator `` \texttt{++} ''] Verkettung zweier Listen gleichen Typs \\
+%			\lstinline{[x1 , x2 ] ++ [x3 , x4 , x5] = [x1 , x2 , x3 , x4 , x5]}
+%		\end{description}
+%	\end{frame}
+%
+%	\begin{frame}[fragile] \frametitle{Zeichen \& Zeichenketten}
+%		\textbf{Zeichen}
+%		\begin{itemize}
+%			\item Datentyp \texttt{Char}
+%			\item Eingabe in einfachen Anführungszeichen
+%			\item z.B. \texttt{'a'}, \texttt{'e'}, \texttt{'3'}
+%		\end{itemize}
+%	
+%		\textbf{Zeichenketten}
+%		\begin{itemize}
+%			\item Datentyp \texttt{String = [Char]}
+%			\item Eingabe in doppelten Anführungszeichen
+%			\item z.B. \texttt{"hallo"}, \texttt{"welt"}
+%			\item Konkatenation von Zeichenketten: 
+%			\begin{lstlisting}[basicstyle=\ttfamily, numbers=none, frame=none, showstringspaces=false]
+%"hallo " ++ "welt" = "hallo welt"
+%			\end{lstlisting}
+%		\end{itemize}
+%	\end{frame}
+%
+%
+%\section{Übungsblatt 1}
+%
+
+%
+
+\end{document}

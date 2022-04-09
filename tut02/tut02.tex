@@ -1,0 +1,418 @@
+\documentclass{beamer}
+\usepackage{../tut-slides}
+\usepackage{../mathoperatorsAuD}
+
+\usepackage{csquotes}
+\usepackage{cancel}
+
+\usepackage{amsmath,amssymb}
+\usepackage{enumerate}
+\usepackage[inline]{enumitem} 		%customize label
+\newcommand{\labelitemi}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
+\newcommand{\labelitemii}{$\vartriangleright$}
+\newcommand{\labelitemiii}{--}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tabu}
+\newcommand*\head{\rowfont{\bfseries}}
+\newcommand*{\tw}{\rowfont{\ttfamily}}
+
+\renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
+
+\usepackage[skins]{tcolorbox}
+\tcbuselibrary{listings}
+\newtcblisting{codebox}{%
+	top=0pt,
+	bottom=0pt,
+	left=0pt,
+	right=0pt,
+	boxsep=5pt,
+	enhanced,clip upper,
+	colback=white,
+	colframe=cddarkblue,
+	fonttitle=\bfseries,
+	listing only}
+\newtcblisting{smallcodebox}{%
+	top=0pt,
+	bottom=0pt,
+	left=0pt,
+	right=0pt,
+	boxsep=5pt,
+	enhanced,clip upper,
+	colback=white,
+	colframe=cddarkblue,
+	fonttitle=\bfseries,
+	fontupper=\tiny,
+	listing only}
+
+\newtcblisting{commandshell}{%
+	colback=black,colupper=white,colframe=yellow!75!black,
+	listing only,listing options={style=tcblatex,language=sh},
+	every listing line={\textcolor{red}{\small\ttfamily\bfseries root \$> }}}
+
+\begin{document}	
+	\title{Programmierung}
+	\subtitle{Übung 2: Listen, Zeichenketten \& Bäume}
+	\author{Eric Kunze}
+	\email{eric.kunze@mailbox.tu-dresden.de}
+%	\city{TU Dresden}
+	\date{}
+%	\institute{Lehrstuhl für Grundlagen der Programmierung}
+%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	
+	\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Übungsblatt 1 \\ \textit{\normalsize Zusatzaufgabe}}
+
+\begin{frame} \frametitle{Übungsblatt 1 -- Zusatzaufgabe}
+	\footnotesize
+	\textbf{Ziel:} Anzahl der vollständigen Binärbäume mit $n$ Knoten
+	
+	\textbf{Idee:} Wie erhalten wir volle Binärbäume? --- Ein voller Binärbaum ist
+	\begin{itemize}
+		\item entweder ein Blatt
+		\item oder er besteht aus einer Wurzel und \textit{zwei} Kindern 
+	\end{itemize}
+
+	\textbf{Umsetzung:}  
+	\begin{itemize}
+		\item Rekursionsfall: $n \ge 3$ Knoten 
+		\begin{itemize}
+			\item ein Wurzelknoten
+			\item $n-1$ Knoten für linken und rechten Teilbaum \\ (systematisch alle Möglichkeiten durchlaufen)
+		\end{itemize}
+		\item Basisfall: 
+		\begin{itemize}
+			\item $n = 0$: es gibt keinen Baum mit keinen Knoten
+			\item $n = 1$: Baum mit einem Knoten $=$ Blatt (davon gibt es genau einen)
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Übungsblatt 1 -- Zusatzaufgabe}
+	\footnotesize
+	\begin{codebox}
+countBinTrees :: Int -> Int
+countBinTrees 0 = 0
+countBinTrees 1 = 1
+countBinTrees n = go (n-1)
+  where
+    go 0 = 0
+    go m = go (m-1) + countBinTrees (n - 1 - m) * 
+                      countBinTrees m
+	\end{codebox}
+
+	\textbf{Hinweis:} \texttt{go} durchläuft alle Möglichkeiten $n-1$ Knoten so auf zwei (Kind-)Bäume zu verteilen, dass der linke Teilbaum $m$ Knoten und der rechte Teilbaum die übrigen $n - 1 - m$ Knoten besitzt.
+\end{frame}
+
+
+\section{Aufgabe 1 \\ \textit{\normalsize Listen}}
+	%
+	\begin{frame}[fragile] \frametitle{Listen}
+		\begin{description}
+			\item[Listen] Wenn \texttt{a} ein Typ ist, dann bezeichnet \texttt{[a]} den Typ ``Liste mit Elementen vom Typ \texttt{a}'', insbesondere haben alle Elemente einer Liste den gleichen Typ
+			\bigskip \pause
+			\item[cons-Operator `` \texttt{:} '']  ~\\ 
+			Trennung von \textit{head} und \textit{tail} einer Liste \\
+			\texttt{[x1, x2, x3, x4, x5] = x1 : [x2, x3, x4, x5]}
+			\bigskip \pause
+			\item[Verkettungsoperator `` \texttt{++} ''] ~\\ 
+			Verkettung zweier Listen gleichen Typs \\
+			\texttt{[x1, x2] ++ [x3, x4, x5] = [x1, x2, x3, x4, x5]}
+		\end{description}
+	\end{frame}
+
+
+\begin{frame}[t, fragile] \frametitle{Rekursion auf Listen --- Beispiel}
+	\textbf{Multiplikation einer Liste}
+	
+	\texttt{prod :: [Int] -> Int}
+	
+	\pause \bigskip
+	
+	\begin{codebox}
+prod :: [Int] -> Int
+prod []     = 1
+prod (x:xs) = x * prod xs
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+	\textbf{Umkehrung einer Liste}
+	
+	\texttt{rev :: [Int] -> [Int]}
+	
+	\pause \bigskip
+	
+	\begin{codebox}
+rev :: [Int] -> [Int]
+rev []     = []
+rev (x:xs) = rev xs ++ [x]
+	\end{codebox}
+
+	\begin{alertblock}{WICHTIG}
+		\begin{itemize}
+			\item \texttt{Element : [Liste]}
+			\item \texttt{[Liste] ++ [Liste]}
+		\end{itemize}
+	\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\small 
+	\textbf{Sortierung einer Liste prüfen}
+	
+	\texttt{isOrd :: [Int] -> Bool}
+	
+	\pause \bigskip
+	\begin{codebox}
+isOrd :: [Int] -> Bool
+isOrd []  = True
+isOrd [x] = True
+isOrd (x:y:xs)
+	| x <= y    = isOrd (y:xs)
+	| otherwise = False
+	\end{codebox}
+	\pause
+	\begin{codebox}
+isOrd' :: [Int] -> Bool
+isOrd' []       = True
+isOrd' [x]      = True
+isOrd' (x:y:xs) = x <= y && isOrd' (y:xs)
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (c)}
+	\small
+	\textbf{sortiertes Zusammenfügen zweier (sortierten) Listen}
+	
+	\texttt{merge :: [Int] -> [Int] -> [Int]}
+	
+	\pause \bigskip
+	\begin{codebox}
+merge :: [Int] -> [Int] -> [Int]
+merge [] ys = ys
+merge xs [] = xs
+merge (x:xs) (y:ys)
+	| x < y     = x : merge xs (y:ys)
+	| otherwise = y : merge (x:xs) ys
+	\end{codebox}
+	\pause
+	Wir können Listen auch ``benennen'' --- Rekursionsfall:
+	\begin{codebox}
+merge xxs@(x:xs) yys@(y:ys)
+	| x < y     = x : merge xs yys
+	| otherwise = y : merge xxs ys
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (d)}
+	\small
+	\textbf{(unendliche) Liste der Fibonacci-Zahlen}
+	
+	\texttt{fibs :: [Int]}
+	
+	\pause \bigskip
+	\begin{codebox}
+fib :: Int -> Int
+fib 0 = 1
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
+
+fibs :: [Int]
+fibs = fibAppend 0
+	where fibAppend x = fib x : fibAppend (x+1)
+	\end{codebox}
+	\pause
+	\begin{codebox}
+fibs :: [Int]
+fibs = fibs' 0 1
+	where fibs' n m = n : fibs' m (n+m)
+	\end{codebox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 2 \\ \textit{\normalsize Zeichen \& Zeichenketten}}
+
+	\begin{frame}[fragile] \frametitle{Zeichen \& Zeichenketten}
+		\textbf{Zeichen}
+		\begin{itemize}
+			\item Datentyp \texttt{Char}
+			\item Eingabe in einfachen Anführungszeichen
+			\item z.B. \texttt{'a'}, \texttt{'e'}, \texttt{'3'}
+		\end{itemize}
+		\pause
+		\textbf{Zeichenketten}
+		\begin{itemize}
+			\item Datentyp \texttt{String = [Char]}
+			\item Eingabe in doppelten Anführungszeichen
+			\item z.B. \texttt{"hallo"}, \texttt{"welt"}
+			\item Konkatenation von Zeichenketten: \\[6pt] 
+			\begin{codebox}
+"hallo " ++ "welt" = "hallo welt"
+			\end{codebox}
+		\end{itemize}
+	\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\textbf{Präfix -- Test}
+	
+	\texttt{isPrefix :: String -> String -> Bool}
+	
+	\pause \bigskip
+	
+	\begin{codebox}
+isPrefix :: String -> String -> Bool
+isPrefix [] _ = True
+isPrefix _ [] = False
+isPrefix (p:ps) (c:cs) = p == c && isPrefix ps cs
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2 -- Teil (b)}
+	\textbf{Vorkommen eines Patterns zählen}
+	
+	\texttt{countPattern :: String -> String -> Int}
+	
+	\pause\bigskip
+
+	\begin{codebox}
+countPattern :: String -> String -> Int
+countPattern "" "" = 1
+countPattern _  "" = 0
+countPattern xs yys@(y:ys)
+	| isPrefix xs yys = 1 + countPattern xs ys
+	| otherwise       = countPattern xs ys
+	\end{codebox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 3 \\ \textit{\normalsize Algebraische Datentypen}}
+
+\begin{frame}[fragile] \frametitle{Algebraische Datentypen}
+	\footnotesize
+	\begin{itemize}
+		\item Ziel: problemspezifische Datenkonstruktoren
+		\item z.B. in \textit{C}: Aufzählungstypen
+		\item funktionale Programmierung: algebraische Datentypen
+	\end{itemize}
+
+	\textbf{Aufbau:}
+	\begin{codebox}
+data Typename 
+	= Con1 t11 ... t1k1
+	| Con2 t21 ... t2k2
+	| ...
+	| Conr tr1 ... trkr
+	\end{codebox}
+	\begin{itemize}
+		\item \texttt{Typename} ist ein Name (Großbuchstabe)
+		\item \texttt{Con1, ... Conr} sind Datenkonstruktoren (Großbuchstabe)
+		\item \texttt{tij} sind Typnamen (Großbuchstaben)
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Algebraische Datentypen -- Beispiele}
+	
+	\begin{codebox}
+data Typename 
+	= Con1 t11 ... t1k1
+	| Con2 t21 ... t2k2
+	| ...
+	| Conr tr1 ... trkr
+	\end{codebox}
+	
+	\begin{codebox}
+data Season = Spring | Summer | Autumn | Winter
+	\end{codebox}
+	\pause
+	\begin{codebox}
+goSkiing :: Season -> Bool
+goSkiing Winter = True
+goSkiing _      = False
+	\end{codebox}
+	\pause
+	\begin{codebox}
+data Weather = Sunny Int Int Bool | Cloudy Float 
+                                  | Rainy String Int 
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (a)}
+	\begin{codebox}
+data BinTree = Branch Int BinTree BinTree | Nil
+	\end{codebox}
+	\pause
+	
+	Ein Beispielbaum: \\[6pt]
+	\begin{codebox}
+mytree :: BinTree 
+mytree = Branch 0 
+         ( Nil )
+         ( Branch 3 
+           ( Branch 1 Nil Nil )
+           ( Branch 5 Nil Nil )
+         )
+	\end{codebox}
+	... erfüllt die Suchbaumeigenschaft.
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (b)}
+	\textbf{Test auf Baum-Gleichheit}
+	
+	\pause
+	
+	\begin{codebox}
+data BinTree = Branch Int BinTree BinTree | Nil
+equal :: BinTree -> BinTree -> Bool
+	\end{codebox}
+	
+	\bigskip \pause
+	
+	\begin{codebox}
+equal :: BinTree -> BinTree -> Bool
+equal Nil              Nil              = True
+equal Nil              (Branch y l2 r2) = False
+equal (Branch x l1 r1) Nil              = False
+equal (Branch x l1 r1) (Branch y l2 r2)
+	= (x == y) && (equal l1 l2) && (equal r1 r2)
+	\end{codebox}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (c)}
+	\textbf{Einfügen von Schlüsseln in einen Binärbaum}
+	
+	\begin{codebox}
+data BinTree = Branch Int BinTree BinTree | Nil 
+insert :: BinTree -> [Int] -> BinTree
+	\end{codebox}
+	
+	\bigskip \pause
+	
+	\begin{codebox}
+insert :: BinTree -> [Int] -> BinTree
+insert t     [] = t
+insert t (x:xs) = insert t' xs
+    where t' = insertSingle t x
+        insertSingle Nil            x = Branch x Nil Nil
+        insertSingle (Branch y l r) x
+            | x < y     = Branch y (insertSingle l x) r
+            | otherwise = Branch y l (insertSingle r x)
+	\end{codebox}
+\end{frame}
+
+
+
+\begin{frame} \frametitle{Ende}
+	\centering
+	\textbf{Fragen?}
+\end{frame}
+
+\end{document}

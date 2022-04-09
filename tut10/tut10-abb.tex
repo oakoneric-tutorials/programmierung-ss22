@@ -1,0 +1,50 @@
+\documentclass[margin=5pt]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,automata, matrix, trees}
+\usetikzlibrary{calc,backgrounds}
+\usetikzlibrary{arrows}
+\usepackage[default]{opensans}
+\begin{document}
+%	\sffamily
+	\begin{tikzpicture}[scale=1]
+%		\foreach \i in {0,...,4} {
+%			\draw[draw=black] (0,-\i) rectangle ++(3,-1) node[pos=.5] (h\i) {$h.\i$};
+%			\draw[draw=black] (7,-\i) rectangle ++(3,-1) node[pos=.5] (d\i) {$d.\i$};
+%		}
+		
+%		\node[below=of h4](HSText){Hauptspeicher};
+%		\node[below=of d4](DKText){Datenkeller};
+%		\node[above right=of h2](HS){};
+%		\node[above left=of d2](DK){};
+%		\node[below right=of h2](HS2){};
+%		\node[below left=of d2](DK2){};
+%		\draw[->] (HS) -- (DK);
+%		\draw[->] (DK2) -- (HS2);
+		
+		\foreach \i in {0,1,2,3} {
+			\draw[] (\i,2) rectangle ++(1,1) node[pos=.5] (inp\i) {};
+			\draw[] (\i+5,2) rectangle ++(1,1) node[pos=.5] (out\i) {};
+		}
+		\node[above=of inp0](inpText){Input};
+		\node[above=of out3](outText){Output};
+	
+		\foreach \i in {0,...,8} {
+			\draw[] (\i,-4) rectangle ++(1,1) node[pos=.5] (h\i) {$h.\i$};
+		}
+		\draw[draw=none] (9,-4) rectangle ++(1,1) node[pos=.5] (...) {$\dots$};
+		\node[above=of h4](HSText){Hauptspeicher};
+%				\draw[arrow,  bend angle=45, bend left] (HSText) -- (4.5,2);
+		\draw[->] (HSText) to[bend right] (7,2);
+		\draw[<-] (HSText) to[bend left] (2,2);
+		
+		\foreach \i in {1,...,6} {
+			\draw[] (5,-6 - \i) rectangle ++(-1,-1) node[pos=.5] (d\i) {$d.\i$};
+		}
+		\draw[-] (3,-13) to (6,-13);
+		\node[left=of d3](DKText){Datenkeller};
+		
+		\draw[->] (d1) to[bend right] (4.5,-4);
+		\draw[<-] (d1) to[bend left] (4.5,-4);
+	\end{tikzpicture}
+\end{document}
