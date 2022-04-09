@@ -2,15 +2,19 @@
 \usepackage{../tut-slides}
 \usepackage{../mathoperatorsAuD}
 
-\usepackage{csquotes}
-\usepackage{cancel}
-
+\usepackage{lmodern}
 \usepackage{amsmath,amssymb}
+\usepackage{wasysym}
+\usepackage{stmaryrd}
 \usepackage{enumerate}
-\usepackage[inline]{enumitem} 		%customize label
-\newcommand{\labelitemi}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
-\newcommand{\labelitemii}{$\vartriangleright$}
-\newcommand{\labelitemiii}{--}
+%\usepackage[inline]{enumitem} 		%customize label
+%\newcommand{\labelitemi}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
+%\newcommand{\labelitemii}{$\vartriangleright$}
+%\newcommand{\labelitemiii}{--}
+\setbeamertemplate{itemize item}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
+\setbeamertemplate{itemize subitem}{$\vartriangleright$}
+
+
 
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -18,6 +22,40 @@
 \newcommand*\head{\rowfont{\bfseries}}
 \newcommand*{\tw}{\rowfont{\ttfamily}}
 \renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
+\usepackage{multirow}
+
+\usepackage{cancel}
+
+\usepackage{empheq}
+\newcommand*\widefbox[1]{\fbox{\hspace{2em} #1 \hspace{2em}}}
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\newtcolorbox{mymathbox}[1][]{colback=white, sharp corners, #1}
+
+\usepackage{xcolor}
+\usepackage{MnSymbol}
+
+\usepackage{tikz}
+\usetikzlibrary{patterns,arrows, arrows.meta,calc,decorations.pathmorphing,backgrounds, positioning,fit,automata,shapes,matrix}
+
+\newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
+\newcolumntype{R}[1]{>{\centering\arraybackslash}p{#1}}
+\usepackage{tabularx}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+
+\usepackage{ragged2e}
+\usepackage{csquotes}
+
+\newcommand{\ghost}[1]{\raisebox{0pt}[0pt][0pt]{\makebox[0pt][l]{#1}}}
+
+%%%% FARBEN %%%%%
+\newcommand{\orange}[1]{\textcolor{cdorange}{#1}}
+\newcommand{\green}[1]{\textcolor{cdgreen}{#1}}
+\newcommand{\purple}[1]{\textcolor{cdpurple}{#1}}
+\newcommand{\gray}[1]{\textcolor{cdgray}{#1}}
+
+
 \usepackage{listings}
 \usepackage{tcolorbox}
 \tcbuselibrary{listings}
@@ -40,74 +78,119 @@
 %	tabsize=2,	                   % sets default tabsize to 2 spaces
 %}
 
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!10},
+%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
+
 \newtcblisting{codebox}{%
 	colback=white,
 	colframe=cddarkblue,
 	fonttitle=\bfseries,
 	listing only}
 
-\newtcblisting{commandshell}{%
-	colback=black,colupper=white,colframe=yellow!75!black,
-	listing only,listing options={style=tcblatex,language=sh},
-	every listing line={\textcolor{red}{\small\ttfamily\bfseries root \$> }}}
+
+
 
 \begin{document}	
 	\title{Programmierung}
 	\subtitle{Übung 1: Einleitung}
 	\author{Eric Kunze}
-	\email{eric.kunze@mailbox.tu-dresden.de}
+	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{13. April 2021}
+	\date{11. April 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 
 	\maketitle
 	
 	\begin{frame} \frametitle{Wer bin ich?}
+		\footnotesize
 		\begin{minipage}{\dimexpr0.75\linewidth-\fboxrule-\fboxsep}
+			\flushleft \normalsize
 			\begin{itemize}
-				\item Eric \textcolor{cdgray!50}{Kunze}
-				\item E-Mail: \\
-				\url{eric.kunze@mailbox.tu-dresden.de}
-				\item Telegram: \url{@oakoneric}
-				\item Fragen, Wünsche, Vorschläge, \dots \\
-				gern jederzeit über alle möglichen Wege
+				\item \textbf{Eric} \textcolor{cdgray!50}{Kunze}
+				\item \url{eric.kunze@tu-dresden.de}
+				\item Fragen, Wünsche, Vorschläge, \dots 
+				\item \textbf{Telegram:} \\ 
+				\texttt{@oakoneric} bzw. \url{t.me/oakoneric}
 			\end{itemize}
 		\end{minipage}
 		\begin{minipage}{\dimexpr0.25\linewidth-\fboxrule-\fboxsep}
 			\includegraphics[width=3cm]{./tut01_pic.jpg}
-		\end{minipage}
+		\end{minipage}		
+	
+		Meine Materialien sind auf meiner Website \url{https://oakoneric.github.io/prog22} zu finden.
+		\begin{itemize}
+			\item Slides (mit Lösungen); evtl. zusätzliche Materialien (nach Bedarf)
+			\item \alert{\textbf{kein Anspruch auf Vollständigkeit \& Korrektheit}}
+		\end{itemize}
+		
+		Source Code auf Github \\
+		\url{https://github.com/oakoneric-tutorials/programmierung-ss22}
 	\end{frame}
-
-	\begin{frame} \frametitle{Ein weiteres Online-Semester}
-		\footnotesize
-		\begin{itemize}[leftmargin=*]
-			\item Vorlesungsvideo und Übungsblatt jeden Freitag im \textbf{OPAL-Kurs}
-			\item Lehrveranstaltungswebsite: \\ \url{www.orchid.inf.tu-dresden.de/teaching/2021ss/prog/}
-			\bigskip \pause
-			\item \textbf{Übungen}
-			\begin{itemize}
-				\item Einschreibung im OPAL
-				\item Zugangslink im OPAL-Kurs und meiner Website
-			\end{itemize} 
-			\bigskip \pause
-			\item \textbf{meine Website:} \\[.5em]
-			\begin{tcolorbox}[boxsep=0pt,colframe=cddarkblue,colback=cdblue!10]
-				\centering
-				\textbf{\url{https://oakoneric.github.io}}
-			\end{tcolorbox}
-			\begin{itemize}
-				\item Vorlesungsmaterialien verlinkt
-				\item Slides, Handout, Mitschrift/Code
-				\item Übung als Videoaufzeichnung (passwortgeschützt)
-				\item Github: \url{https://github.com/oakoneric/programmierung-ss21}
-				\item \alert{\textbf{kein Anspruch auf Vollständigkeit \& Korrektheit}}
-			\end{itemize}
+	
+	\begin{frame}\frametitle{Infos \& Co}		
+		\textbf{OPAL-Kurs}: 
+		\url{https://tud.link/y47l}
+		
+		\begin{itemize}
+			\item alle Informationen zur Lehrveranstaltung
+			\item Link zur Vorlesung: Freitag, 2. DS via Zoom
+			\item Übungsblätter
+			\item Forum
+		\end{itemize}
+		
+		\textbf{Materialien}: 
+		\begin{itemize}
+			\item Slides der Vorlesung (ersetzen ehemaliges Skript)
+			\item Aufgabensammlung
+		\end{itemize}
+		
+		
+		\textbf{Verlegung am Ostermontag}: \\
+		Ersatztermin am \textit{Mittwoch, 20.04.2022 um 13 Uhr}
+		\begin{itemize}
+			\item Information per Mail zu Raum/online
 		\end{itemize}
 	\end{frame}
+	
+	
+%	\begin{frame} \frametitle{Was wird in der Übung erwartet?}
+%		\textbf{Ziel:} viel Interaktivität
+%		
+%		\textbf{Mein Input}
+%		\begin{itemize}
+%			\item Zusammenfassung einiger Vorlesungsinhalte
+%			\item beispielhafte Lösungsansätze und Lösungen
+%			\item Fragen, Fragen, Fragen
+%		\end{itemize}
+%		
+%		\pause
+%		
+%		\textbf{Euer Input}
+%		\begin{itemize}
+%			\item Grundverständnis aus der Vorlesung
+%			\item Vorbereitung der Übungsaufgaben
+%			\item aktive Mitarbeit und Fragen
+%		\end{itemize}
+%	\end{frame}
 
 	\begin{frame} \frametitle{Hinweise}
-		\footnotesize
 		\textbf{Literatur}
 		\begin{itemize}
 			\item \textit{Learn You a Haskell For Great Good!}
@@ -145,10 +228,10 @@
         
         \textbf{Mathe:} Wir kennen Funktionen bereits aus dem Mathe-Unterricht und den Mathe-Vorlesungen. Zum Beispiel ist 
         \begin{equation*}
-        	\begin{split}
-        		f \colon \N &\to \N \\
+        	\begin{aligned}
+        		f : \N &\to \N \\
         		f(x) &= x + 3
-        	\end{split}
+        	\end{aligned}
         \end{equation*}
     	eine Funktion, die natürliche Zahlen auf natürliche Zahlen abbildet.
     	
@@ -156,10 +239,10 @@
     	
     	\textbf{Haskell:} 
     	Diese würde in Haskell wie folgt aussehen:
-        \begin{codebox}
+        \begin{lstlisting}[style=bg]
 f :: Int -> Int
 f x = x + 3
-        \end{codebox}
+        \end{lstlisting}
     \end{frame}
 
 	\begin{frame}[fragile] \frametitle{Ein weiteres Beispiel}
@@ -167,25 +250,25 @@ f x = x + 3
 		Um zu verdeutlichen, wie ähnlich sich mathematische Funktionen und Haskell-Funktionen sind, betrachten wir folgendes Beispiel. 
 		Wir können Funktionen auf ihren Argumenten definieren, d.h.
 		\begin{equation*}
-			\begin{split}
-				g \colon \N &\to \N \\
+			\begin{aligned}
+				g : \N &\to \N \\
 				g(0) &= 1 \\
 				g(x) &= x^2
-			\end{split}
+			\end{aligned}
 		\end{equation*}
 		bzw. in Haskell
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 g :: Int -> Int
 g 0 = 1
 g x = x * x
-		\end{codebox}
+		\end{lstlisting}
 	\end{frame}
 
 	\begin{frame}[fragile] \frametitle{Ein weiteres Beispiel}
 		\footnotesize
 		Wir können auch deutlich wichtigere und kompliziertere Funktionen programmieren. Zum Beispiel lässt sich die Addition $n+m$ auch als Funktion schreiben.
 		\begin{equation*}
-			\operatorname{add} \colon \mathbb{N} \times \mathbb{N} \to \mathbb{N}, \quad
+			\operatorname{add} : \mathbb{N} \times \mathbb{N} \to \mathbb{N}, \quad
 			\operatorname{add}(n,m) = n + m = 
 			\begin{cases}
 				n & m = 0 \\
@@ -197,11 +280,11 @@ g x = x * x
 		\medskip \pause
 		
 		Als Haskell-Funktion sieht das dann so aus:
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 add :: Int -> Int -> Int
 add n 0 = n
 add n m = 1 + add n (m-1)
-		\end{codebox}
+		\end{lstlisting}
 	\end{frame}
 	
 	
@@ -209,10 +292,10 @@ add n m = 1 + add n (m-1)
 
 	\begin{frame}[fragile] \frametitle{Aufgabe 1}
 		Gegeben sei eine Haskell-Funktion
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 sum3 :: Int -> Int -> Int -> Int
 sum3 x y z = x + y + z
-		\end{codebox}
+		\end{lstlisting}
 	
 		\pause
 		
@@ -257,7 +340,7 @@ sum3 x y z = x + y + z
 		
 		\begin{itemize}
 			\item \textbf{Rekursionsfall}
-			\onslide<2->{\begin{itemize}
+			\onslide<2->{\begin{itemize} \footnotesize
 				\item Reduktion eines großen Prolems auf ein kleineres Problem
 				\item \texttt{Int}-Funktionen: Reduktion von $n$ auf $n-1$
 				\item Liste: Reduktion durch Abspaltung eines Listenelements
@@ -266,7 +349,7 @@ sum3 x y z = x + y + z
 			\bigskip
 			
 			\item \textbf{Basisfall}
-			\onslide<3->{\begin{itemize}
+			\onslide<3->{\begin{itemize} \footnotesize
 				\item kleinste Probleme - einfach zu lösen
 				\item rechte Seite deterministisch
 				\item \texttt{Int}-Funktionen: rechte Seite hängt nicht von $n$ ab
@@ -280,7 +363,7 @@ sum3 x y z = x + y + z
 		Mit Pattern Matching kann man prüfen, ob Funktionsargumente eine bestimmte Form aufweisen.
 		
 		Damit kann man verschiedene Fälle in einfacher Form nacheinander abgreifen, z.B. Basis- und Rekursionsfall. Vergleiche dazu auch das Beispiel mit der \texttt{add}-Funktion:
-		\begin{itemize}
+		\begin{itemize} \footnotesize
 			\item Der Aufruf \texttt{add 5 0} matched mit Zeile 2, also berechnen wir \texttt{add 5 0 = 5}.
 			\item Der Aufruf \texttt{add 5 1} matched nicht auf Zeile 2, also probieren wir Zeile 3. Das matched mit \texttt{n = 5} und \texttt{m = 1} und wir berechnen
 			\begin{align*}
@@ -291,6 +374,37 @@ sum3 x y z = x + y + z
 		\end{itemize}
 		Beachte, dass dabei von oben nach unten getestet wird!
 	\end{frame}
+
+
+	\begin{frame}[fragile] \frametitle{Conditionals}
+		\footnotesize
+		Um Bedingungen zu testen, gibt es die Möglichkeit auf \texttt{if}-\texttt{then}-\texttt{else} zu verzichten und sogenannte \textit{guards} mit \textit{pipes} zu verwenden. Das sieht dann wieder so aus, wie eine geschweifte Klammer in mathematischen Fallunterscheidungen. 
+		\begin{equation*}
+			h(x) = \begin{cases}
+				x^2 & \text{für } x < 0 \\
+				0.5*x & \text{für } \onslide*<1>{x \ge 0} \onslide*<2>{\cancel{x \ge 0} \text{ \textbf{sonst}}}
+			\end{cases} 
+		\end{equation*}
+		\begin{onlyenv}<1>
+			\begin{lstlisting}[style=bg]
+				h :: Int -> Int
+				h x 
+				| x < 0  = x^2 
+				| x >= 0 = 0.5 * x
+			\end{lstlisting}
+		\end{onlyenv}
+		\begin{onlyenv}<2>
+			\begin{lstlisting}[style=bg]
+				h :: Int -> Int
+				h x 
+				| x < 0     = x^2 
+				| otherwise = 0.5 * x
+			\end{lstlisting}
+		\end{onlyenv}
+		\pause
+		Wie auch in Mathe sollte man bei gegensätzlichen Bedingungen ein \enquote{sonst} bzw. \texttt{otherwise} verwenden.
+	\end{frame}
+
 
 	\begin{frame}\frametitle{Aufgabe 2a -- Fakultätsfunktion}
 		\footnotesize
@@ -322,45 +436,16 @@ sum3 x y z = x + y + z
 	\end{frame}
 
 	\begin{frame}[fragile] \frametitle{Aufgabe 2a -- Lösung}
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 fac :: Int -> Int
 fac 0 = 1
 fac n = n * fac (n-1)
-		\end{codebox}
+		\end{lstlisting}
 		
 		\scriptsize
 		\textbf{Hinweis:} In der Musterlösung werden noch \texttt{undefined}-Fälle angegeben. Das ist für uns erst einmal optional, aber natürlich schöner.
 	\end{frame}
 
-
-	\begin{frame}[fragile] \frametitle{Conditionals}
-		\footnotesize
-		Um Bedingungen zu testen, gibt es die Möglichkeit auf \texttt{if}-\texttt{then}-\texttt{else} zu verzichten und sogenannte \textit{guards} mit \textit{pipes} zu verwenden. Das sieht dann wieder so aus, wie eine geschweifte Klammer in mathematischen Fallunterscheidungen. 
-		\begin{equation*}
-			h(x) = \begin{cases}
-			x^2 & \text{für } x < 0 \\
-			0.5*x & \text{für } \onslide*<1>{x \ge 0} \onslide*<2>{\cancel{x \ge 0} \text{ \textbf{sonst}}}
-			\end{cases} 
-		\end{equation*}
-		\begin{onlyenv}<1>
-			\begin{codebox}
-h :: Int -> Int
-h x 
-    | x < 0  = x^2 
-    | x >= 0 = 0.5 * x
-			\end{codebox}
-		\end{onlyenv}
-		\begin{onlyenv}<2>
-			\begin{codebox}
-h :: Int -> Int
-h x 
-    | x < 0     = x^2 
-    | otherwise = 0.5 * x
-			\end{codebox}
-		\end{onlyenv}
-		\pause
-		Wie auch in Mathe sollte man bei gegensätzlichen Bedingungen ein \enquote{sonst} bzw. \texttt{otherwise} verwenden.
-	\end{frame}
 
 	\begin{frame}[fragile] \frametitle{Aufgabe 2b --- Summierte Fakultäten (1)}
 		\footnotesize
@@ -368,7 +453,7 @@ h x
 			f(n,m) = \sum_{i=n}^{m} i!
 		\end{equation*}
 		\pause
-		\begin{itemize}[leftmargin=*]
+		\begin{itemize}
 			\item Rekursionsfall: 
 			\begin{equation*}
 				f(n,m) = \sum_{i=n}^{m} i! = \boldsymbol{m}! + \sum_{i=n}^{\boldsymbol{m-1}} i! = m! + f(n,m-1) 
@@ -378,12 +463,12 @@ h x
 		\pause
 		
 		\textbf{Lösung:} \\[0.5em]
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 sumFacs :: Int -> Int -> Int
 sumFacs n m
 	| n > m = 0
 	| otherwise = fac m + sumFacs n (m-1)
-		\end{codebox}
+		\end{lstlisting}
 	\end{frame}
 
 	\begin{frame}[fragile] \frametitle{Aufgabe 2b --- Summierte Fakultäten (2)}
@@ -392,7 +477,7 @@ sumFacs n m
 			f(n,m) = \sum_{i=n}^{m} i!
 		\end{equation*}
 		\pause
-		\begin{itemize}[leftmargin=*]
+		\begin{itemize}
 			\item Rekursionsfall: 
 			\begin{equation*}
 				f(n,m) = \sum_{i=n}^{m} i! = \boldsymbol{n}! + \sum_{i=\boldsymbol{n+1}}^{m} i! = n! + f(n+1,m) 
@@ -402,12 +487,12 @@ sumFacs n m
 		\pause
 		
 		\textbf{Lösung:} \\[0.5em]
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 sumFacs :: Int -> Int -> Int
 sumFacs n m
 	| n > m = 0
 	| otherwise = fac n + sumFacs (n+1) m
-		\end{codebox}
+		\end{lstlisting}
 	\end{frame}
 
 
@@ -454,21 +539,21 @@ sumFacs n m
 	\end{frame}
 	
 	\begin{frame}[fragile] \frametitle{Aufgabe 3 -- Lösung}
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 fib :: Int -> Int
 fib 0 = 1
 fib 1 = 1
 fib n = fib (n-1) + fib (n-2)
-		\end{codebox}
+		\end{lstlisting}
 	
-		\begin{codebox}
+		\begin{lstlisting}[style=bg]
 fib' :: Int -> Int
 fib' n = fib_help 1 1 n
 
 fib_help :: Int -> Int -> Int
 fib_help x _ 0 = x
 fib_help x y n = fib_help y (x+y) (n-1)
-		\end{codebox}
+		\end{lstlisting}
 	\end{frame}
 
 
