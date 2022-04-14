@@ -112,7 +112,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{11. April 2022}
+	\date{13. April 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 
@@ -387,18 +387,18 @@ sum3 x y z = x + y + z
 		\end{equation*}
 		\begin{onlyenv}<1>
 			\begin{lstlisting}[style=bg]
-				h :: Int -> Int
-				h x 
-				| x < 0  = x^2 
-				| x >= 0 = 0.5 * x
+h :: Int -> Int
+h x 
+	| x < 0  = x^2 
+	| x >= 0 = 0.5 * x
 			\end{lstlisting}
 		\end{onlyenv}
 		\begin{onlyenv}<2>
 			\begin{lstlisting}[style=bg]
-				h :: Int -> Int
-				h x 
-				| x < 0     = x^2 
-				| otherwise = 0.5 * x
+h :: Int -> Int
+h x 
+	| x < 0     = x^2 
+	| otherwise = 0.5 * x
 			\end{lstlisting}
 		\end{onlyenv}
 		\pause
