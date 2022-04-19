@@ -1,15 +1,90 @@
 -- Aufgabe 2
+------------------------------------------------------------------------
 
--- (a) Präfix-Test
-isPrefix :: String -> String -> Bool
-isPrefix [] _ = True
-isPrefix _ [] = False
-isPrefix (p:ps) (c:cs) = p == c && isPrefix ps cs
+-- (a) Produkt einer Liste
+prod :: [Int] -> Int
+prod []     = 1
+prod (x:xs) = x * prod xs
 
--- (b) Vorkommen zählen
-countPattern :: String -> String -> Int
-countPattern "" "" = 1
-countPattern _  "" = 0
-countPattern xs yys@(y:ys)
-    | isPrefix xs yys = 1 + countPattern xs ys
-    | otherwise       = countPattern xs ys
+------------------------------------------------------------------------
+
+-- (b) Umkehrung einer Liste
+rev :: [Int] -> [Int]
+rev [] = []
+rev (x:xs) = rev xs ++ [x]
+-- mit ++ können Listen zusammengeführt werden
+
+------------------------------------------------------------------------
+
+-- (c) Listenelemente entfernen
+excl :: Int -> [Int] -> [Int]
+excl _  []    = []
+excl y (x:xs)
+  | x == y    = excl y xs
+  | otherwise = x : excl y xs
+
+------------------------------------------------------------------------
+
+-- (d) Sortierung prüfen
+isOrd :: [Int] -> Bool
+isOrd [] = True
+isOrd [x] = True
+isOrd (x:y:xs)
+  | x <= y = isOrd (y:xs)
+  | otherwise = False
+
+-- oder besser:
+isOrd' :: [Int] -> Bool
+isOrd' [] = True
+isOrd' [x] = True
+isOrd' (x:y:xs) = x <= y && isOrd' (y:xs)
+
+------------------------------------------------------------------------
+
+-- (e) sortiertes Zusammenfügen zweier Listen
+merge :: [Int] -> [Int] -> [Int]
+merge [] ys = ys
+merge xs [] = xs
+merge (x:xs) (y:ys)
+  | x < y = x : merge xs (y:ys)
+  | otherwise = y : merge (x:xs) ys
+
+-- oder:
+merge' :: [Int] -> [Int] -> [Int]
+merge' [] ys = ys
+merge' xs [] = xs
+merge' xxs@(x:xs) yys@(y:ys)
+  | x < y = x : merge' xs yys
+  | otherwise = y : merge' xxs ys
+
+------------------------------------------------------------------------
+
+-- (f) Fibonacci-Liste
+fib :: Int -> Int
+fib 0 = 1
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
+
+fib' :: Int -> Int
+fib' i = stack 1 1 i
+    where stack f0 f1 0 = f0
+          stack f0 f1 i = stack f1 (f0 + f1) (i-1)
+
+
+fibs :: [Int] -- Standardvariante
+fibs = fibAppend 0
+  where
+    fibAppend x = fib x : fibAppend (x+1)
+
+fibs' :: [Int] -- mit iterativer Berechnung
+fibs' = fibAppend 0
+  where
+    fibAppend x = fib' x : fibAppend (x+1)
+
+fibs'' :: [Int] -- integrierte iterative Variante
+fibs'' = fibs''' 0 1
+  where
+    fibs''' n m = n : fibs''' m (n+m)
+
+-- take 7 fibs liefert die ersten 7 Fibonacci-Zahlen
+-- interessant sind insbesondere die Werte größer als 30
