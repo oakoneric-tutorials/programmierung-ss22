@@ -556,6 +556,48 @@ fib_help x y n = fib_help y (x+y) (n-1)
 		\end{lstlisting}
 	\end{frame}
 
+	\section{Zusatzaufgabe 1}
+	
+	\begin{frame} \frametitle{Zusatzaufgabe 1}
+		\footnotesize
+		\textbf{Ziel:} Anzahl der vollständigen Binärbäume mit $n$ Knoten
+		
+		\textbf{Idee:} Wie erhalten wir volle Binärbäume? --- Ein voller Binärbaum ist
+		\begin{itemize}
+			\item entweder ein Blatt
+			\item oder er besteht aus einer Wurzel und \textit{zwei} Kindern 
+		\end{itemize}
+		
+		\textbf{Umsetzung:}  
+		\begin{itemize}
+			\item Rekursionsfall: $n \ge 3$ Knoten 
+			\begin{itemize} \footnotesize
+				\item ein Wurzelknoten
+				\item $n-1$ Knoten für linken und rechten Teilbaum \\ (systematisch alle Möglichkeiten durchlaufen)
+			\end{itemize}
+			\item Basisfall: 
+			\begin{itemize} \footnotesize
+				\item $n = 0$: es gibt keinen Baum mit keinen Knoten
+				\item $n = 1$: Baum mit einem Knoten $=$ Blatt (davon gibt es genau einen)
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}[fragile] \frametitle{Zusatzaufgabe 1}
+		\footnotesize
+		\begin{lstlisting}[style=bg]
+countBinTrees :: Int -> Int
+countBinTrees 0 = 0
+countBinTrees 1 = 1
+countBinTrees n = go (n-1)
+	where
+		go 0 = 0
+		go m = go (m-1) + countBinTrees (n - 1 - m) * 
+		                  countBinTrees m
+		\end{lstlisting}
+		
+		\textbf{Hinweis:} \texttt{go} durchläuft alle Möglichkeiten $n-1$ Knoten so auf zwei (Kind-)Bäume zu verteilen, dass der linke Teilbaum $m$ Knoten und der rechte Teilbaum die übrigen $n - 1 - m$ Knoten besitzt.
+	\end{frame}
 
 
 %	%
