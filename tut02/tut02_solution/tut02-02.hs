@@ -82,7 +82,7 @@ fibs' = fibAppend 0
     fibAppend x = fib' x : fibAppend (x+1)
 
 fibs'' :: [Int] -- integrierte iterative Variante
-fibs'' = fibs''' 0 1
+fibs'' = fibs''' 1 1
   where
     fibs''' n m = n : fibs''' m (n+m)
 
