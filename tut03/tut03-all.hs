@@ -54,8 +54,8 @@ unwind :: BinTree -> [Int]
 unwind t = go [t]
     where
         go []                  = []
-        go ((Branch a Nil Nil) : ts) = a : go ts
-        go ((Branch a l r)     : ts) = a : go (ts ++ [l,r])
+        go (Nil            : ts) = go ts
+        go ((Branch n l r) : ts) = n : go (ts ++ [l,r])
 
 ------------------------------------------------------------------------
 
