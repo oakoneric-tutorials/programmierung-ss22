@@ -262,12 +262,12 @@ insert :: BinTree -> [Int] -> BinTree
 	\begin{lstlisting}[style=bg]
 insert :: BinTree -> [Int] -> BinTree
 insert t     [] = t
-insert t (x:xs) = insert t' xs
-    where t' = insertSingle t x
-        insertSingle Nil            x = Branch x Nil Nil
-        insertSingle (Branch y l r) x
-            | x < y     = Branch y (insertSingle l x) r
-            | otherwise = Branch y l (insertSingle r x)
+insert t (n:ns) = insert t' ns
+    where t' = insertSingle t n
+        insertSingle Nil            n = Branch n Nil Nil
+        insertSingle (Branch x l r) n
+            | n < x     = Branch x (insertSingle l n) r
+            | otherwise = Branch x l (insertSingle r n)
 	\end{lstlisting}
 \end{frame}
 
@@ -289,8 +289,8 @@ unwind :: BinTree -> [Int]
 unwind t = go [t]
 	where
 		go []                  = []
-		go ((Branch a Nil Nil) : ts) = a : go ts
-		go ((Branch a l r)     : ts) = a : go (ts ++ [l,r])
+		go ( Nil           : ts) = go ts
+		go ((Branch x l r) : ts) = x : go (ts ++ [l,r])
 	\end{lstlisting}
 \end{frame}
 
