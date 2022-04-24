@@ -20,7 +20,6 @@
 
 \renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
 
-\usepackage{listings}
 \usepackage[skins]{tcolorbox}
 \tcbuselibrary{listings}
 \newtcblisting{codebox}{%
@@ -47,28 +46,98 @@
 	fontupper=\tiny,
 	listing only}
 
-\newtcblisting{commandshell}{%
-	colback=black,colupper=white,colframe=yellow!75!black,
-	listing only,listing options={style=tcblatex,language=sh},
-	every listing line={\textcolor{red}{\small\ttfamily\bfseries root \$> }}}
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{\%*},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!10},
+	%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	showstringspaces=false,
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
 
 \begin{document}	
 	\title{Programmierung}
-	\subtitle{Übung 3: Bäume \& Funktionen höherer Ordnung}
+	\subtitle{Übung 3: Zeichenketten \& Bäume}
 	\author{Eric Kunze}
-	\email{eric.kunze@mailbox.tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\email{eric.kunze@tu-dresden.de}
+	\city{TU Dresden}
+	\date{25.04.2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 %	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 1 \\ \textit{\normalsize Zeichen \& Zeichenketten}}
+
+	\begin{frame}[fragile] \frametitle{Zeichen \& Zeichenketten}
+		\textbf{Zeichen}
+		\begin{itemize}
+			\item Datentyp \texttt{Char}
+			\item Eingabe in einfachen Anführungszeichen
+			\item z.B. \texttt{'a'}, \texttt{'e'}, \texttt{'3'}
+		\end{itemize}
+		\pause
+		\textbf{Zeichenketten}
+		\begin{itemize}
+			\item Datentyp \texttt{String = [Char]}
+			\item Eingabe in doppelten Anführungszeichen
+			\item z.B. \texttt{"hallo"}, \texttt{"welt"}
+			\item Konkatenation von Zeichenketten: \\[6pt] 
+			\begin{lstlisting}[style=bg]
+"hallo " ++ "welt" = "hallo welt"
+			\end{lstlisting}
+		\end{itemize}
+	\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+	\textbf{Präfix -- Test}
 	
+	\texttt{isPrefix :: String -> String -> Bool}
+	
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+isPrefix :: String -> String -> Bool
+isPrefix [] _ = True
+isPrefix _ [] = False
+isPrefix (p:ps) (c:cs) = p == c && isPrefix ps cs
+	\end{lstlisting}
+\end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\textbf{Vorkommen eines Patterns zählen}
+	
+	\texttt{countPattern :: String -> String -> Int}
+	
+	\pause\bigskip
 
+	\begin{lstlisting}[style=bg]
+countPattern :: String -> String -> Int
+countPattern "" "" = 1
+countPattern _  "" = 0
+countPattern xs yys@(y:ys)
+	| isPrefix xs yys = 1 + countPattern xs ys
+	| otherwise       = countPattern xs ys
+	\end{lstlisting}
+\end{frame}
 
-\section{Übungsblatt 2 --- Aufgabe 3 \\ \textit{\normalsize Algebraische Datentypen}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 2 \\ \textit{\normalsize Algebraische Datentypen}}
 
 \begin{frame}[fragile] \frametitle{Algebraische Datentypen}
 	\footnotesize
@@ -77,356 +146,153 @@
 		\item z.B. in \textit{C}: Aufzählungstypen
 		\item funktionale Programmierung: algebraische Datentypen
 	\end{itemize}
-	
+
 	\textbf{Aufbau:}
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 data Typename 
 	= Con1 t11 ... t1k1
 	| Con2 t21 ... t2k2
 	| ...
 	| Conr tr1 ... trkr
-	\end{codebox}
+	\end{lstlisting}
 	\begin{itemize}
-		\item \texttt{Typename} ist ein Name (Großbuchstabe)
-		\item \texttt{Con1, ... Conr} sind Datenkonstruktoren (Großbuchstabe)
-		\item \texttt{tij} sind Typnamen (Großbuchstaben)
+		\item \texttt{Typename} ist ein Typkonstruktor
+		\item \texttt{Con1, ... Conr} sind Datenkonstruktoren
+		\item \texttt{tij} sind Typnamen
 	\end{itemize}
+	Konstruktoren beginnen mit Großbuchstaben.
 \end{frame}
 
 \begin{frame}[fragile] \frametitle{Algebraische Datentypen -- Beispiele}
 	
-	\begin{codebox}
-data Typename 
-	= Con1 t11 ... t1k1
-	| Con2 t21 ... t2k2
-	| ...
-	| Conr tr1 ... trkr
-	\end{codebox}
-	
-	\begin{codebox}
-data Season = Spring | Summer | Autumn | Winter
-	\end{codebox}
-	\pause
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
+data Season = Spring | Summer | Autumn | Winter %* \pause %*
+
 goSkiing :: Season -> Bool
 goSkiing Winter = True
-goSkiing _      = False
-	\end{codebox}
-	\pause
-	\begin{codebox}
+goSkiing _      = False %* \pause %*
+
 data Weather = Sunny Int Int Bool | Cloudy Float 
-                                  | Rainy String Int 
-	\end{codebox}
+                                  | Rainy String Int %* \pause %*
+                           
+data Bool =  True | False %* \pause %*
+
+data BinTree = Branch Int BinTree BinTree | Nil
+	\end{lstlisting}
+	\begin{itemize}
+		\item Konstruktor \texttt{Branch}: erzeugt Knoten mit Beschriftung und zwei Kindern  
+		\hfill $\leadsto$ \textit{Rekursionsfall}
+		\item Konstruktor \texttt{Nil}: erzeugt leeren Baum \hfill $\leadsto$ \textit{Basisfall}
+	\end{itemize}
 \end{frame}
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (a)}
-	\begin{codebox}
+\begin{frame}[fragile] \frametitle{Algebraische Datentypen -- Rekursion}
+	\small
+	\begin{itemize}
+		\item Basisfall: nulläre Wertkonstruktoren (z.B. \texttt{Nil})
+		\item Rekursionsfall: Konstruktoren mit Stelligkeit $>0$ (z.B. \texttt{Branch})
+	\end{itemize}
+	\pause
+	
+	Man \textbf{erzeugt} konkrete Bäume, indem man \texttt{Int} und \texttt{BinTree} aus der Typdefinition durch konkrete Werte ersetzt, z.B. \texttt{Int} durch \texttt{3} und \texttt{BinTree} durch \texttt{Nil} oder \texttt{Branch ...}.
+	\pause
+	
+	\textbf{Pattern Matching} funktioniert weiterhin; man nutzt dafür die Wertkonstruktoren (hier: \texttt{Branch} und \texttt{Nil}):
+	\begin{lstlisting}[style=bg]
+foo :: BinTree -> ...
+foo Nil = ...
+foo (Branch x l r) = ...
+	\end{lstlisting}
+	\pause
+
+	Um in GHCi eine \textbf{Ausgabe} der Bäume zu erhalten, muss \texttt{deriving Show} hinter die Typdefinition geschrieben werden. 
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\begin{lstlisting}[style=bg]
 data BinTree = Branch Int BinTree BinTree | Nil
-	\end{codebox}
+	\end{lstlisting}
 	\pause
 	
 	Ein Beispielbaum: \\[6pt]
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 mytree :: BinTree 
 mytree = Branch 0 
          ( Nil )
          ( Branch 3 
-            ( Branch 1 Nil Nil )
-            ( Branch 5 Nil Nil )
+           ( Branch 1 Nil Nil )
+           ( Branch 5 Nil Nil )
          )
-	\end{codebox}
+	\end{lstlisting}
 	... erfüllt die Suchbaumeigenschaft.
 \end{frame}
 
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (b)}
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2 -- Teil (b)}
 	\textbf{Test auf Baum-Gleichheit}
 	
 	\pause
 	
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 data BinTree = Branch Int BinTree BinTree | Nil
 equal :: BinTree -> BinTree -> Bool
-	\end{codebox}
+	\end{lstlisting}
 	
 	\bigskip \pause
 	
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 equal :: BinTree -> BinTree -> Bool
 equal Nil              Nil              = True
 equal Nil              (Branch y l2 r2) = False
 equal (Branch x l1 r1) Nil              = False
 equal (Branch x l1 r1) (Branch y l2 r2)
 	= (x == y) && (equal l1 l2) && (equal r1 r2)
-	\end{codebox}
+	\end{lstlisting}
 \end{frame}
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (c)}
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2 -- Teil (c)}
 	\textbf{Einfügen von Schlüsseln in einen Binärbaum}
 	
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 data BinTree = Branch Int BinTree BinTree | Nil 
 insert :: BinTree -> [Int] -> BinTree
-	\end{codebox}
+	\end{lstlisting}
 	
 	\bigskip \pause
 	
-	\begin{codebox}
+	\begin{lstlisting}[style=bg]
 insert :: BinTree -> [Int] -> BinTree
 insert t     [] = t
 insert t (x:xs) = insert t' xs
-  where 
-    t' = insertSingle t x
-    insertSingle Nil            x = Branch x Nil Nil
-    insertSingle (Branch y l r) x
-  	    | x < y     = Branch y (insertSingle l x) r
-  	    | otherwise = Branch y l (insertSingle r x)
-	\end{codebox}
+    where t' = insertSingle t x
+        insertSingle Nil            x = Branch x Nil Nil
+        insertSingle (Branch y l r) x
+            | x < y     = Branch y (insertSingle l x) r
+            | otherwise = Branch y l (insertSingle r x)
+	\end{lstlisting}
 \end{frame}
 
-\section{Übungsblatt 3 --- Aufgabe 1 \\ \textit{\normalsize Algebraische Datentypen}}
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
-	\textbf{Anzahl der Blätter}
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (d)}
+	\small
+	\textbf{Levelorder-Traversierung}
 	
-	\begin{codebox}
-data RoseTree = Node Int [RoseTree]
-countLeaves :: RoseTree -> Int
-	\end{codebox}
+	\begin{lstlisting}[style=bg]
+data BinTree = Branch Int BinTree BinTree | Nil 
+unwind :: BinTree -> [Int]
+	\end{lstlisting}
+	\smallskip \pause
 	
+	\textbf{Idee}: Nutze Liste von Bäumen als Zwischenspeicher (Hilfsfunktion) und hänge Kindbäume hinten an diese Liste an
+	\bigskip \pause
 	
-	\pause \bigskip
-	
-	\begin{codebox}
-countLeaves :: RoseTree -> Int
-countLeaves (Node _ [] )    = 1
-countLeaves (Node _ [t])    = countLeaves t
-countLeaves (Node x (t:ts)) 
-	= countLeaves t + countLeaves (Node x ts)
-	\end{codebox}
-\end{frame}
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (b)}
-	\textbf{gerade Anzahl an Kindern}
-	
-	\begin{codebox}
-data RoseTree = Node Int [RoseTree]
-evenNodes :: RoseTree -> Bool
-	\end{codebox}
-	
-	
-	\pause \bigskip
-	\begin{onlyenv}<2>
-		\begin{codebox}
-evenNodes :: RoseTree -> Bool
-evenNodes (Node _  []       ) = True
-evenNodes (Node x  [t]      ) = False
-evenNodes (Node x (t1:t2:ts)) 
-	= evenNodes (Node x ts) && evenNodes t1 && 
-	  evenNodes t2
-		\end{codebox}
-	\end{onlyenv}
-
-	\begin{onlyenv}<3>
-		\begin{codebox}
-evenNodes' :: RoseTree -> Bool
-evenNodes' (Node _ []) = True
-evenNodes' (Node _ ts)
-	= mod (length ts) 2 == 0 && evenNodes'' ts
+	\begin{lstlisting}[style=bg, tabsize=1]
+unwind :: BinTree -> [Int]
+unwind t = go [t]
 	where
-		evenNodes'' :: [RoseTree] -> Bool
-		evenNodes'' []     = True
-		evenNodes'' (t:ts) 
-			= evenNodes' t && evenNodes'' ts
-		\end{codebox}
-	\end{onlyenv}
+		go []                  = []
+		go ((Branch a Nil Nil) : ts) = a : go ts
+		go ((Branch a l r)     : ts) = a : go (ts ++ [l,r])
+	\end{lstlisting}
 \end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Übungsblatt 3 --- Aufgaben 2 \& 3 \\ \textit{\normalsize Funktionen höherer Ordnung}}
-
-
-\begin{frame}[fragile] \frametitle{Funktionen}
-	\footnotesize
-	Wir kennen bereits einige Möglichkeiten Funktionen zu notieren. Hier seien einige weitere erwähnt.
-	\begin{description}
-		\item[anonyme Funktionen.] Funktionen ohne konkreten Namen \\
-		z.B. \lstinline[basicstyle=\ttfamily\normalsize]|(\x -> x+1)| ist die Addition mit \texttt{1} 
-		\begin{codebox}
-(\x -> x+1) 4 = 5
-		\end{codebox}
-		%
-		\pause
-		%
-		\item[Operator $\leftrightarrow$ Funktion] Aus Operatoren (wie z.B. \texttt{+}) kann man eine Funktion machen und vice versa.
-		\begin{itemize}
-			\item Operator $\to$ Funktion: Klammern
-			\begin{codebox}
-(+) :: Int -> Int -> Int
-(+) x y =  x + y
-			\end{codebox}
-			\item Funktion $\to$ Operator: Backticks \texttt{`...`}
-			\begin{codebox}
-5 `mod` 2 = 1
-			\end{codebox}
-		\end{itemize}
-	\end{description}
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Funktionskomposition}
-	Analog zur mathematischen Notation $f = g \circ h$ für $f(x) = g(h(x))$ versteht auch Haskell das Kompositionsprinzip mit dem Operator \texttt{.} \\
-	z.B. 
-	\begin{codebox}
-sqAdd :: Int -> Int
-sqAdd = (^2) . (+ 5)
-	\end{codebox} 
-	statt \lstinline[basicstyle=\ttfamily\normalsize]|sqAdd x = (x + 5)^2| für das Quadrat des fünften Nachfolgers
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Partielle Applikation}
-	\footnotesize
-	Funktionen müssen nicht immer mit allen Argumenten versorgt werden. Lässt man (hintere) Argumente weg, so spricht man von Unterversorgung.
-	Die Modulo Funktion hat eigentlich zwei Argumente. Lassen wir das zweite Argument weg, so liefert dies uns eine neue Funktion, die noch ein Argument entgegennimmt und sodann die Restberechnung ausführt.
-	\begin{codebox}
-mod :: Int -> Int -> Int
-mod m n = ...
-
-mod 10 :: Int -> Int
-(mod 10) n = mod 10 n
-	\end{codebox}
-	\pause
-	\begin{codebox}
-(> 3) :: Int -> Bool
-(> 3) x = x > 3
-	\end{codebox}
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- map}
-	\footnotesize
-	Funktionen können als Argumente von Funktionen auftreten. Wir lernen drei Basics kennen: \pause
-	
-	\textbf{Die Funktion map}
-	\begin{itemize}
-		\item \texttt{map} ermöglicht es eine Funktion \texttt{f} auf alle Elemente einer Liste anzuwenden \\[6pt]
-		\begin{codebox}
-map :: (Int -> Int) -> [Int] -> [Int] 
-map f [] = [] 
-map f (x:xs) = f x : map f xs
-		\end{codebox}
-		\item \textit{Beispiel.} \\[6pt]
-		\begin{codebox}
-map square [1,2,7,12,3,20] = [1,4,49,144,9,400]
-		\end{codebox}
-	\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- filter}
-	\footnotesize
-	\textbf{Die Funktion filter}
-	\begin{itemize}
-		\item \texttt{filter p xs} liefert eine Liste, die genau die Elemente von \texttt{xs} enthält, welche das Prädikat \texttt{p} erfüllen \\[6pt]
-		\begin{codebox}
-filter :: (a -> Bool) -> [a] -> [a] 
-filter p xs = [ x | x <- xs, p x]
-		\end{codebox}
-		\item \textit{Beispiel.} \\[6pt]
-		\begin{codebox}
-filter odd [1,2,7,12,3,20] = [1,7,3]
-		\end{codebox}
-	\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- foldr}
-	\footnotesize
-	\textbf{Die Funktion foldr}
-	\begin{itemize}
-		\item \texttt{foldr f z xs} faltet eine Liste \texttt{xs} und verknüpft jeweils durch die Funktion \texttt{f}; gestartet wird mit \texttt{z} und dem rechtesten Element \\[6pt]
-		\begin{codebox}
-foldr :: (a -> b -> b) -> b -> [a] -> b
-foldr f z []     = z 
-foldr f z (x:xs) = f x (foldr f z xs) 
-		\end{codebox}
-		\item \emph{Beispiel.} \\[6pt]
-		\begin{codebox}
-foldr (+) 3 [1,2,3,4,5] = 18
-length xs = foldr (+) 0 (map (\x -> 1) xs)
-		\end{codebox}
-	\end{itemize}
-\end{frame}
-
-
-\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung -- Übersicht}
-	\footnotesize
-	\begin{itemize}
-		\item \texttt{map} wendet Funktion auf alle Listenelemente an \\[6pt]
-		\begin{codebox}
-map :: (a -> b) -> [a] -> [b]
-map f [] = []
-map f (x:xs) = f x : map f xs
-		\end{codebox}
-		\item \texttt{filter} wählt Listenelemente anhand einer Funktion aus \\[6pt]
-		\begin{codebox}
-filter :: (a -> Bool) -> [a] -> [a]
-filter p xs = [ x | x <- xs, p x]
-		\end{codebox}
-		\item \texttt{foldr} faltet eine Liste mit Verknüpfungsfunktion (von rechts beginnend) \\[6pt]
-		\begin{codebox}
-foldr :: (a -> b -> b) -> b -> [a] -> b
-foldr f z []     = z
-foldr f z (x:xs) = f x (foldr f z xs) 
-		\end{codebox}
-	\end{itemize}
-\end{frame}
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 2}
-	\footnotesize
-	\textbf{Produkt der Quadrate aller geraden Zahlen einer Liste} \\[6pt]
-	\begin{codebox}
-f :: [Int] -> Int
-	\end{codebox}
-	
-	\pause \bigskip 
-	
-	\begin{codebox}
-f xs 
-  = foldr (+) 0 (map (^2) (filter (`mod` 2) == 0) xs))
-	\end{codebox}
-	\pause
-	\begin{codebox}
-f' xs = foldr (*) 1 (map (^2) (filter even xs))
-	\end{codebox}
-	\pause
-	\begin{codebox}
-f'' = foldr (*) 1 . map (^2) . filter even
-	\end{codebox}
-	\begin{codebox}
-f''' 
-  = foldr (*) 1 . map (^2) . filter ((== 0) . (`mod` 2))
-	\end{codebox}
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 3}
-	\textbf{Faltung einer Liste von \textit{links}} \\[6pt]
-	\begin{codebox}
-foldleft ::  (Int -> Int -> Int) -> Int -> [Int] -> Int
-	\end{codebox}
-	
-	
-	\pause \bigskip
-	
-	\begin{codebox}
-foldleft :: (Int -> Int -> Int) -> Int -> [Int] -> Int
-foldleft f x []     = x
-foldleft f x (y:ys) = foldleft f (f x y) ys
-	\end{codebox}
-\end{frame}
-
 
 \begin{frame} \frametitle{Ende}
 	\centering
@@ -434,4 +300,3 @@ foldleft f x (y:ys) = foldleft f (f x y) ys
 \end{frame}
 
 \end{document}
-
