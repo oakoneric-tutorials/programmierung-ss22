@@ -10,12 +10,14 @@ TMP_EXT = '_tmp'
 SLIDES_EXT = '-slides'
 HANDOUT_EXT = '-handout'
 
+def remove_file_if_existent(file):
+    if os.path.exists(file):
+            os.remove(file)
+            print('-- ' + file + ' removed')
 
-def remove_tmp_files(filename, tmp):
-    for end in ['.aux', '.log', '.nav', '.out', '.snm', '.toc', '.vrb', '.listing']:
-        if os.path.exists(filename + end):
-            os.remove(filename + end)
-    os.remove(tmp + TEX)
+def remove_tex_files(base):
+    for ext in ['.aux', '.log', '.nav', '.out', '.snm', '.toc', '.vrb', '.listing', '.synctex.gz']:
+        remove_file_if_existent(base + ext)
 
 
 def read_tutorial():
@@ -33,21 +35,16 @@ def read_tutorial():
     return tutorial
 
 
-tutorial = read_tutorial()
+tut = read_tutorial()
 
-
-dir = "." + os.sep + tutorial + os.sep
-filename = tutorial
-filename_handout = tutorial + HANDOUT_EXT
-filename_slides = tutorial + SLIDES_EXT
-filename_tmp = tutorial + TMP_EXT
-
+dir = "." + os.sep + tut + os.sep
 os.chdir(dir)
 
-# =============================================================================
-# OPEN AND READ INPUT
-with io.open(filename + TEX, mode='r', encoding='UTF8') as f:
-    content = f.readlines()
+
+filename_handout = tut + HANDOUT_EXT
+filename_slides  = tut + SLIDES_EXT
+filename_tmp     = tut + TMP_EXT
+
 
 # =============================================================================
 # OPTIONS
@@ -65,6 +62,11 @@ handout_colours = ['\\setbeamercolor{title}{fg=black}\n',
                    '\\setbeamercolor{block title}{fg=white, bg=cdgray}\n',
                    '\\setbeamercolor{section title}{fg=black}\n',
                    '\n']
+
+# =============================================================================
+# OPEN AND READ INPUT
+with io.open(tut + TEX, mode='r', encoding='UTF8') as f:
+    content = f.readlines()
 
 # =============================================================================
 # HANDOUT
@@ -92,7 +94,9 @@ os.system(shell_command)
 os.system(shell_command)
 print('... finished.')
 
-remove_tmp_files(filename_handout, filename_tmp)
+# remove files
+remove_tex_files(filename_handout)
+remove_file_if_existent(filename_tmp + TEX)
 
 
 # =============================================================================
@@ -110,6 +114,12 @@ os.system(shell_command)
 os.system(shell_command)
 print('... finished.')
 
-remove_tmp_files(filename_slides, filename_tmp)
+# remove files
+remove_tex_files(filename_slides)
+remove_file_if_existent(filename_tmp + TEX)
 
-os.remove('texfot')
+remove_file_if_existent('texfot')
+
+# remove files from compilations done outside of this script
+remove_tex_files(tut)
+remove_file_if_existent(tut + PDF)
