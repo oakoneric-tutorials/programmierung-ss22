@@ -6,7 +6,11 @@
 \usepackage{cancel}
 
 \usepackage{amsmath,amssymb}
-
+\usepackage{enumerate}
+\usepackage[inline]{enumitem} 		%customize label
+\newcommand{\labelitemi}{\raisebox{1pt}{\scalebox{.9}{$\blacktriangleright$}}}
+\newcommand{\labelitemii}{$\vartriangleright$}
+\newcommand{\labelitemiii}{--}
 
 \usepackage{booktabs}
 \usepackage{tabularx}
@@ -19,25 +23,9 @@
 \usepackage{listings}
 \usepackage[skins]{tcolorbox}
 \tcbuselibrary{listings}
-%\lstset{
-%	basicstyle=\footnotesize\ttfamily\color{black},
-%	backgroundcolor=\color{white},
-%	fillcolor=\color{white},
-%	rulecolor=\color{gray},
-%	tabsize=2,
-%	% German umlauts
-%	literate=%
-%	{Ö}{{\"O}}1
-%	{Ä}{{\"A}}1
-%	{Ü}{{\"U}}1
-%	{ß}{{\ss}}1
-%	{ü}{{\"u}}1
-%	{ä}{{\"a}}1
-%	{ö}{{\"o}}1
-%}
 \newtcblisting{codebox}{%
-	top=-6pt,
-	bottom=-6pt,
+	top=0pt,
+	bottom=0pt,
 	left=0pt,
 	right=0pt,
 	boxsep=5pt,
@@ -45,9 +33,7 @@
 	colback=white,
 	colframe=cddarkblue,
 	fonttitle=\bfseries,
-	listing only,
-	listing options={basicstyle=\scriptsize\ttfamily}
-}
+	listing only}
 \newtcblisting{smallcodebox}{%
 	top=0pt,
 	bottom=0pt,
@@ -57,23 +43,38 @@
 	enhanced,clip upper,
 	colback=white,
 	colframe=cddarkblue,
+	fonttitle=\bfseries,
+	fontupper=\tiny,
 	listing only}
 
-\newtcblisting{commandshell}{%
-	colback=black,colupper=white,colframe=yellow!75!black,
-	listing only,listing options={style=tcblatex,language=sh},
-	every listing line={\textcolor{red}{\small\ttfamily\bfseries root \$> }}}
-
-\newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{\%*},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!10},
+	%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	showstringspaces=false,
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
 
 
 \begin{document}	
 	\title{Programmierung}
-	\subtitle{Übung 4: Typpolymorphie \& Unifikation}
+	\subtitle{Übung 4: Funktionen höherer Ordnung}
 	\author{Eric Kunze}
-	\email{eric.kunze@mailbox.tu-dresden.de}
+	\email{eric.kunze@tu-dresden.de}
 %	\city{TU Dresden}
-	\date{}
+	\date{02. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 %	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -82,459 +83,247 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile] \frametitle{Inhalt}
-	\begin{enumerate}
-		\item Funktionale Programmierung
-		\begin{enumerate}
-			\item Einführung in Haskell
-			\item Listen \& Algebraische Datentypen
-			\item Funktionen höherer Ordnung
-			\item \textbf{Typpolymorphie \& Unifikation}
-			\item Beweis von Programmeigenschaften
-			\item $\lambda$ -- Kalkül
-		\end{enumerate}
-		\item Logikprogrammierung
-		\item Implementierung einer imperativen Programmiersprache
-		\item Verifikation von Programmeigenschaften
-		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
-	\end{enumerate}
+\section{Übungsblatt 4 --- Aufgabe 1 \\ \textit{\normalsize Algebraische Datentypen}}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+	\textbf{Anzahl der Blätter}
+	
+	\begin{lstlisting}[style=bg]
+data RoseTree = Node Int [RoseTree]
+countLeaves :: RoseTree -> Int
+	\end{lstlisting}
+	
+	
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+countLeaves :: RoseTree -> Int
+countLeaves (Node _ [] )    = 1
+countLeaves (Node _ [t])    = countLeaves t
+countLeaves (Node x (t:ts)) 
+	= countLeaves t + countLeaves (Node x ts)
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\textbf{gerade Anzahl an Kindern}
+	
+	\begin{lstlisting}[style=bg]
+data RoseTree = Node Int [RoseTree]
+evenNodes :: RoseTree -> Bool
+	\end{lstlisting}
+	
+	
+	\pause \bigskip
+	\begin{onlyenv}<2>
+		\begin{lstlisting}[style=bg]
+evenNodes :: RoseTree -> Bool
+evenNodes (Node _  []       ) = True
+evenNodes (Node x  [t]      ) = False
+evenNodes (Node x (t1:t2:ts)) 
+	= evenNodes (Node x ts) && evenNodes t1 && 
+	  evenNodes t2
+		\end{lstlisting}
+	\end{onlyenv}
+
+	\begin{onlyenv}<3>
+		\begin{lstlisting}[style=bg]
+evenNodes' :: RoseTree -> Bool
+evenNodes' (Node _ []) = True
+evenNodes' (Node _ ts)
+	= mod (length ts) 2 == 0 && evenNodes'' ts
+	where
+		evenNodes'' :: [RoseTree] -> Bool
+		evenNodes'' []     = True
+		evenNodes'' (t:ts) 
+			= evenNodes' t && evenNodes'' ts
+		\end{lstlisting}
+	\end{onlyenv}
 \end{frame}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Typpolymorphie \\ \textit{\normalsize Aufgabe 1}}
+\section{Übungsblatt 4 --- Aufgaben 2 \& 3 \\ \textit{\normalsize Funktionen höherer Ordnung}}
 
-\begin{frame}[fragile, t] \frametitle{Typpolymorphie}
+
+\begin{frame}[fragile] \frametitle{Funktionen}
 	\footnotesize
-	\begin{itemize}
-		\item \textbf{bisher}: Funktionen mit konkreten Datentypen \\
-		z.B. \texttt{length :: [Int] -> Int}
-		\item \textbf{Problem}: Funktion würde auch auf anderen Datentypen funktionieren \\
-		z.B. \texttt{length :: [Bool] -> Int} oder \texttt{length :: String -> Int}
-		\item \textbf{Lösung}: Typvariablen und polymorphe Funktionen \\
-		z.B. \texttt{length :: [\alert{a}] -> Int}
-	\end{itemize}
-	
-	\pause
-	
-	Bei konkreter Instanziierung wird Typvariable an entsprechenden Typbezeichner gebunden (z.B. \texttt{\alert{a} = Int} oder \texttt{\alert{a} = Bool}).
-	
-	\begin{itemize}
-		\item Der Aufruf \texttt{length [1,5,2,7]} liefert für die Typvariable \texttt{\alert{a} = Int}.
-		\item Der Aufruf \texttt{length [True, False, True, True, False]} liefert die Belegung \texttt{\alert{a} = Bool}.
-		\item Der Aufruf \texttt{length "hello"} impliziert \texttt{\alert{a} = Char}.
-	\end{itemize}
-\end{frame}
-
-
-\begin{frame}[fragile, t] \frametitle{Aufgabe 1 --- Teil (a)}
-	\textbf{Beispielbaum mit mindestens 5 Blättern} \\[6pt]
-	\begin{codebox}
-data BinTree a = Branch a (BinTree a) (BinTree a) | Leaf a
-	\end{codebox}
-	\pause
-	\begin{codebox}
-testTree :: BinTree Int
-testTree = Branch 5
-             (Leaf 1)
-             (Branch 12
-                (Branch 4
-                   (Leaf 0)
-                   (Leaf 0))
-                (Branch 12
-                   (Leaf 0)
-                   (Leaf 1)))
-	\end{codebox}
-\end{frame}
-
-\begin{frame}[fragile, t] \frametitle{Aufgabe 1 --- Teil (b)}
-	\textbf{minimale Tiefe eines Baumes}
-	
-	\begin{codebox}
-data BinTree a = Branch a (BinTree a) (BinTree a) | Leaf a
-depth :: BinTree a -> Int
-	\end{codebox}
-	
-	\bigskip \pause
-	
-	\begin{codebox}
-depth :: BinTree a -> Int
-depth (Leaf   _    ) = 1
-depth (Branch _ l r) = 1 + min (depth l) (depth r)
-	\end{codebox}
-\end{frame}
-
-
-\begin{frame}[fragile, t] \frametitle{Aufgabe 1 --- Teil (c)}
-	\textbf{Baum mit Beschriftungsfolge neu beschriften}
-	
-	\begin{codebox}
-data BinTree a = Branch a (BinTree a) (BinTree a) | Leaf a
-paths :: BinTree a -> BinTree [a]
-	\end{codebox}
-	
-	\bigskip \pause
-	
-	\begin{codebox}
-paths :: BinTree a -> BinTree [a]
-paths = go []
-  where
-      go :: [a] -> BinTree a -> BinTree [a]
-      go prefix (Leaf   x    ) = Leaf (prefix ++ [x])
-      go prefix (Branch x l r) 
-      	= Branch (prefix ++ [x]) 
-      	    (go (prefix ++ [x]) l) 
-      	    (go (prefix ++ [x]) r)
-	\end{codebox}
-\end{frame}
-
-
-\begin{frame}[fragile, t] \frametitle{Aufgabe 1 --- Teil (d)}
-	\textbf{Map für Bäume}
-	
-	\begin{codebox}
-data BinTree a = Branch a (BinTree a) (BinTree a) | Leaf a
-tmap :: (a -> b) -> BinTree a -> BinTree b
-	\end{codebox}
-	
-	\bigskip \pause
-	
-	\begin{codebox}
-tmap :: (a -> b) -> BinTree a -> BinTree b
-tmap f (Leaf   x    ) = Leaf   (f x)
-tmap f (Branch x l r) = Branch (f x) (tmap f l) (tmap f r)
-	\end{codebox}
-\end{frame}
-
-
-{
-\setbeamercolor{frametitle}{fg=white, bg=cdgray}	
-\color{cdgray}
-\begin{frame}[fragile, t] \frametitle{Einschub: Auswertung eines Funktionsaufrufs}
-	\begin{codebox}
-map :: (a -> b) -> [a] -> [b]
-map _ []       = []
-map f (x : xs) = f x : map f xs
-
-uncurry :: (a -> b -> c) -> (a, b) -> c
-uncurry f (x, y) = f x y
-	\end{codebox}
-	
-	\footnotesize
-	\begin{ttfamily}
-		map (uncurry (+)) [(1,2), (3,4)] \\ \pause
-		= map (uncurry (+)) ((1,2):[(3,4)]) \\
-		= uncurry (+) (1,2) : map (uncurry (+)) [(3,4)] \\
-		= (1 + 2) : map (uncurry (+)) [(3,4)] \\
-		= 3 : map (uncurry (+)) [(3,4)] \\
-		= 3 : map (uncurry (+)) ((3,4);[]) \\
-		= 3 : uncurry (+) (3,4) : map (uncurry (+)) [] \\
-		= 3 : (3 + 4) : map (uncurry (+)) [] \\
-		= 3 : 7 : map (uncurry (+)) [] \\
-		= 3 : 7 : [] \\
-		= [3, 7]
-	\end{ttfamily}
-
-\end{frame}
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section{Unifikation \& Unifikationsalgorithmus \\ \textit{\normalsize Aufgabe 2}}
-
-
-\begin{frame}[fragile] \frametitle{Unifikation}
-	\footnotesize
-	\textbf{Motivation:} Typüberprüfung
-		 
-	\begin{codebox}
-f :: (t, Char) -> (t, [Char])
-f (...) = ... 
-
-g :: (Int, [u]) -> Int
-g (...) = ...
-
-h = g . f
-	\end{codebox}
-	
-	\pause
-	
-	Wie müssen die Typvariablen \texttt{t} und \texttt{u} belegt werden, damit die Funktion \texttt{h} wohldefiniert ist, d.h. damit die Ergebnisse aus \texttt{f} wirklich in \texttt{g} eingesetzt werden dürfen?
-\end{frame}
-
-\begin{frame}[fragile] \frametitle{Typausdruck $\to$ Typterm}
-	\footnotesize
-	
-	\textbf{Ziel:} theoretischere Form von Typausdrücken
-	
-	\textbf{Typausdrücke}
-	\begin{itemize}
-		\item \texttt{Int}, \texttt{Bool}, \texttt{Float}, \texttt{Char}, \texttt{String}
-		\item Typvariablen
-		\item Listen, Tupel, Funktionen
-	\end{itemize}
-
-	\textbf{Typterme}
-	\begin{itemize}
-		\item Übersetzung \textit{trans}: Typausdruck $\to$ Typterm
+	Wir kennen bereits einige Möglichkeiten Funktionen zu notieren. Hier seien einige weitere erwähnt.
+	\begin{description}
+		\item[anonyme Funktionen.] Funktionen ohne konkreten Namen \\
+		z.B. \lstinline[basicstyle=\ttfamily\normalsize]|(\x -> x+1)| ist die Addition mit \texttt{1} 
+		\begin{lstlisting}[style=bg]
+(\x -> x+1) 4 = 5
+		\end{lstlisting}
+		%
 		\pause
-		\item z.B.
-		\begin{equation*}
-			\begin{aligned}
-				trans(\texttt{(t,[Char])}) &= ()^2(t, [](Char)) \\
-				trans(\texttt{(Int, [u])}) &= ()^2(Int, [](u))
-			\end{aligned}
-		\end{equation*}
-	\end{itemize}
+		%
+		\item[Operator $\leftrightarrow$ Funktion] Aus Operatoren (wie z.B. \texttt{+}) kann man eine Funktion machen und vice versa.
+		\begin{itemize}
+			\item Operator $\to$ Funktion: Klammern
+			\begin{lstlisting}[style=bg]
+(+) :: Int -> Int -> Int
+(+) x y =  x + y
+			\end{lstlisting}
+			\item Funktion $\to$ Operator: Backticks \texttt{`...`}
+			\begin{lstlisting}[style=bg]
+5 `mod` 2 = 1
+			\end{lstlisting}
+		\end{itemize}
+	\end{description}
+\end{frame}
 
+\begin{frame}[fragile] \frametitle{Funktionskomposition}
+	Analog zur mathematischen Notation $f = g \circ h$ für $f(x) = g(h(x))$ versteht auch Haskell das Kompositionsprinzip mit dem Operator \texttt{.} \\
+	z.B. 
+	\begin{lstlisting}[style=bg]
+sqAdd :: Int -> Int
+sqAdd = (^2) . (+ 5)
+	\end{lstlisting} 
+	statt \lstinline[basicstyle=\ttfamily\normalsize]|sqAdd x = (x + 5)^2| für das Quadrat des fünften Nachfolgers
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Partielle Applikation}
+	\footnotesize
+	Funktionen müssen nicht immer mit allen Argumenten versorgt werden. Lässt man (hintere) Argumente weg, so spricht man von Unterversorgung.
+	Die Modulo Funktion hat eigentlich zwei Argumente. Lassen wir das zweite Argument weg, so liefert dies uns eine neue Funktion, die noch ein Argument entgegennimmt und sodann die Restberechnung ausführt.
+	\begin{lstlisting}[style=bg]
+mod :: Int -> Int -> Int
+mod m n = ...
+
+mod 10 :: Int -> Int
+(mod 10) n = mod 10 n
+	\end{lstlisting}
 	\pause
-	
-	Beide Typausdrücke können in Übereinstimmung gebracht werden, wenn die Typterme $trans(\texttt{(t,[Char])})$ und $trans(\texttt{(Int, [u])})$ unifizierbar sind.
-	\\ \pause
-	$\to$ \texttt{t = Int} und \texttt{u = Char}
+	\begin{lstlisting}[style=bg]
+(> 3) :: Int -> Bool
+(> 3) x = x > 3
+	\end{lstlisting}
 \end{frame}
 
-\begin{frame}\frametitle{Unifikationsalgorithmus}
+\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- map}
+	\footnotesize
+	Funktionen können als Argumente von Funktionen auftreten. Wir lernen drei Basics kennen: \pause
+	
+	\textbf{Die Funktion map}
+	\begin{itemize}
+		\item \texttt{map} ermöglicht es eine Funktion \texttt{f} auf alle Elemente einer Liste anzuwenden \\[6pt]
+		\begin{lstlisting}[style=bg]
+map :: (Int -> Int) -> [Int] -> [Int] 
+map f [] = [] 
+map f (x:xs) = f x : map f xs
+		\end{lstlisting}
+		\item \textit{Beispiel.} \\[6pt]
+		\begin{lstlisting}[style=bg]
+map square [1,2,7,12,3,20] = [1,4,49,144,9,400]
+		\end{lstlisting}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- filter}
+	\footnotesize
+	\textbf{Die Funktion filter}
+	\begin{itemize}
+		\item \texttt{filter p xs} liefert eine Liste, die genau die Elemente von \texttt{xs} enthält, welche das Prädikat \texttt{p} erfüllen \\[6pt]
+		\begin{lstlisting}[style=bg]
+filter :: (a -> Bool) -> [a] -> [a] 
+filter p xs = [ x | x <- xs, p x]
+		\end{lstlisting}
+		\item \textit{Beispiel.} \\[6pt]
+		\begin{lstlisting}[style=bg]
+filter odd [1,2,7,12,3,20] = [1,7,3]
+		\end{lstlisting}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung --- foldr}
+	\footnotesize
+	\textbf{Die Funktion foldr}
+	\begin{itemize}
+		\item \texttt{foldr f z xs} faltet eine Liste \texttt{xs} und verknüpft jeweils durch die Funktion \texttt{f}; gestartet wird mit \texttt{z} und dem rechtesten Element \\[6pt]
+		\begin{lstlisting}[style=bg]
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f z []     = z 
+foldr f z (x:xs) = f x (foldr f z xs) 
+		\end{lstlisting}
+		\item \emph{Beispiel.} \\[6pt]
+		\begin{lstlisting}[style=bg]
+foldr (+) 3 [1,2,3,4,5] = 18
+length xs = foldr (+) 0 (map (\x -> 1) xs)
+		\end{lstlisting}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile] \frametitle{Funktionen höherer Ordnung -- Übersicht}
 	\footnotesize
 	\begin{itemize}
-		\item \textbf{gegeben:} zwei Typ\textit{terme} $t_1$, $t_2$ 
-		\item \textbf{Ziel:} entscheide, ob $t_1$ und $t_2$ unifizierbar sind
+		\item \texttt{map} wendet Funktion auf alle Listenelemente an \\[6pt]
+		\begin{lstlisting}[style=bg]
+map :: (a -> b) -> [a] -> [b]
+map f [] = []
+map f (x:xs) = f x : map f xs
+		\end{lstlisting}
+		\item \texttt{filter} wählt Listenelemente anhand einer Funktion aus \\[6pt]
+		\begin{lstlisting}[style=bg]
+filter :: (a -> Bool) -> [a] -> [a]
+filter p xs = [ x | x <- xs, p x]
+		\end{lstlisting}
+		\item \texttt{foldr} faltet eine Liste mit Verknüpfungsfunktion (von rechts beginnend) \\[6pt]
+		\begin{lstlisting}[style=bg]
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f z []     = z
+foldr f z (x:xs) = f x (foldr f z xs) 
+		\end{lstlisting}
 	\end{itemize}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2}
+	\footnotesize
+	\textbf{Produkt der Quadrate aller geraden Zahlen einer Liste} \\[6pt]
+	\begin{lstlisting}[style=bg]
+f :: [Int] -> Int
+	\end{lstlisting}
 	
-	Wir notieren die beiden Typterme als Spalte:
-	\begin{equation*}
-		\begin{pmatrix}
-			t_1 \\ t_2
-		\end{pmatrix} 
-		\qquad \bzw \qquad 
-		\begin{pmatrix}
-			()^2(t, [](Char)) \\ ()^2(Int, [](u))
-		\end{pmatrix} 
-	\end{equation*}
+	\pause \bigskip 
 	
-	Unifikationsalgorithmus erstellt eine Folge von Mengen $M_i$, wobei die $M_{i+1}$ aus $M_i$ hervorgeht, indem eine der vier Regeln angewendet wird.
-	\begin{equation*}
-		M_1 \defeq \left\{ \begin{pmatrix}
-			t_1 \\ t_2
-		\end{pmatrix} \right\}
-		\qquad \bzw \qquad 
-		M_1 \defeq \left\{ \begin{pmatrix}
-			()^2(t, [](Char)) \\ ()^2(Int, [](u))
-		\end{pmatrix} \right\}
-	\end{equation*}
-\end{frame}
-
-\begin{frame}\frametitle{Unifikationsalgorithmus -- Regeln}
-	\footnotesize
-	\begin{itemize}
-		\item \textbf{Dekomposition.} Sei $\delta \in \Sigma$ ein $k$-stelliger Konstruktor, $s_1 , \dots , s_k , t_1 , \dots , t_k$ Terme über Konstruktoren und Variablen.
-		\begin{equation*}
-			\begin{pmatrix}
-				\delta(s_1, \dots , s_k) \\ \delta(t_1, \dots , t_k)
-			\end{pmatrix}
-			\quad \leadsto \quad
-			\begin{pmatrix} s_1 \\ t_1 \end{pmatrix} , \dots , \begin{pmatrix} s_k \\ t_k \end{pmatrix}
-		\end{equation*}
-		\item \textbf{Elimination.} Sei $x$ eine \alert{Variable} !
-		\begin{equation*}
-			\begin{pmatrix} x \\ x \end{pmatrix}
-			\quad \leadsto \quad
-			\emptyset
-		\end{equation*}
-		\item \textbf{Vertauschung.} Sei $t$ \alert{keine} Variable.
-		\begin{equation*}
-			\begin{pmatrix} t \\ x \end{pmatrix}
-			\quad \leadsto \quad 
-			\begin{pmatrix} x \\ t \end{pmatrix}
-		\end{equation*}
-		\item \textbf{Substitution.} Sei $x$ eine Variable, $t$ keine Variable. \\
-		\textit{Occur Check:} $x$ kommt nicht in $t$ vor \\
-		Dann ersetze in jedem anderen Term die Variable $x$ durch $t$.
-		\begin{equation*}
-			\begin{pmatrix} \alert{x} \\ t \end{pmatrix},
-			\begin{pmatrix} y \\ s(\alert{x}) \end{pmatrix}
-			\quad \leadsto \quad 
-			\begin{pmatrix} x \\ t \end{pmatrix},			\begin{pmatrix} y \\ s(\alert{t}) \end{pmatrix}
-		\end{equation*}
-	\end{itemize}
-\end{frame}
-
-\begin{frame} \frametitle{Unifikationsalgorithmus}
-	\footnotesize
-	\textbf{Ende:} keine Regel mehr anwendbar -- Entscheidung:
-	\begin{itemize}
-		\item $t_1$, $t_2$ \textbf{unifizierbar}: $M$ ist von der Form
-		\begin{equation*}
-			\menge{\binom{u_1}{t_1}, \binom{u_2}{t_2}, \dots, \binom{u_k}{t_k}} \qquad 
-			\begin{array}{c} 
-				\footnotesize \text{\textit{\enquote{Variablen}}} \\ 
-				\footnotesize \text{\textit{\enquote{Terme ohne Variablen}}}
-			\end{array}
-		\end{equation*}
-		wobei $u_1, u_2, \dots, u_k$ paarweise verschiedene Variablen sind und nicht in $t_1, t_2, \dots, t_k$ vorkommen.  \\
-		\textbf{allgemeinster Unifikator} $\phi$: 
-		\begin{equation*}
-			\begin{aligned}
-				\phi(u_i) &= t_i & (i = 1, \dots, k) \\
-				\phi(x) &= x     & \footnotesize \text{für alle nicht vorkommenden Variablen}
-			\end{aligned}
-		\end{equation*}
-		\item $t_1$, $t_2$ sind \textbf{nicht unfizierbar}: $M$ hat nicht diese Form und keine Regel ist anwendbar
-	\end{itemize}
-\end{frame}
-
-\begin{frame} \frametitle{Occur Check}
-	\footnotesize
-	Um endlose Rekursionen zu unterbinden, benötigen die Regeln zum Vertauschen und zur Substitution gewisse Einschränkungen. 
-		
-	\textbf{Occur Check:}
-	Gegeben sei ein Termpaar $\binom{x}{t}$, wobei $x$ eine Variable und $t$ ein Typterm sei.
-	\vspace{-.5\baselineskip}
-	\begin{itemize} 
-		\item Kommt $x$ in $t$ vor, dann schlägt der Check fehl.
-		\item Kommt $x$ nicht in $t$ vor, dann ist der Check okay.
-	\end{itemize}
-
-	\textbf{Beispiel:}
-	\begin{itemize}
-		\item $\displaystyle\binom{x_1}{\gamma(x_1)} \leadsto$ Fehlschlag, da $x_1$ in $\gamma(x_1)$ vorkommt
-		\item $\displaystyle\binom{x_1}{\gamma(x_2)} \leadsto$ okay, da $x_1$ nicht in $\gamma(x_2)$ vorkommt
-	\end{itemize}
-
-	Was passiert, wenn wir substituieren obwohl der Occur Check fehlschlägt?
-	\begin{equation*}
-		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\alert{x_1})}
-		\follows
-		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\alert{\gamma(x_1)})}
-		\follows
-		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\gamma(\alert{\gamma(x_1)})}
-	\end{equation*}
-\end{frame}
-
-
-\begin{frame} \frametitle{Aufgabe 3}
-	\scriptsize
-	\begin{align*}
-		&\left\{\left(\begin{array}{lcrlcl}
-		\col{\sigma(}\sigma(&x_1&,\alpha) \col{,} &\ \sigma(&\gamma(x_3) &, x_3)\col{)} \\
-		\col{\sigma(}\sigma( &\gamma(x_2)&,\alpha) \col{,} &\ \sigma(&x_2 &, x_3)\col{)}
-		\end{array}\right)\right\}\\
-		%
-		\overset{\text{Dek.}}{\Longrightarrow}
-		%
-		&\left\{\left(\begin{array}{lcr}
-			\col{\sigma(} & x_1         & \col{,} \alpha\col{)} \\
-			\col{\sigma(} & \gamma(x_2) & \col{,} \alpha\col{)}
-		\end{array}\right),
-		\left(\begin{array}{lcr}
-			\col{\sigma(}& \gamma(x_3)  & \col{,} x_3)\col{)} \\
-			\col{\sigma(}& x_2          & \col{,} x_3)\col{)}
-		\end{array}\right)\right\} \\
-		\overset{\text{Dek.}}{\Longrightarrow^2}
-		%
-		&\left\{ 
-		\begin{pmatrix}
-			x_1 \\ \gamma(x_2)
-		\end{pmatrix} , \begin{pmatrix}
-			\alpha \\ \alpha
-		\end{pmatrix} , \begin{pmatrix}
-			\gamma(x_3) \\ x_2
-		\end{pmatrix} , \col{\begin{pmatrix}
-			x_3 \\ x_3 
-		\end{pmatrix}} 
-		\right\} \\
-		\overset{\text{El.}}{\Longrightarrow}
-		%
-		&\left\{
-		\begin{pmatrix}
-			x_1 \\ \gamma(x_2)
-		\end{pmatrix} , 
-		\col{\begin{pmatrix}
-			\alpha \\ \alpha
-		\end{pmatrix}} , 
-		\begin{pmatrix}
-			\gamma(x_3) \\ x_2
-		\end{pmatrix}
-		\right\} \\
-		\overset{\text{Dek.}}{\Longrightarrow}
-		%
-		&\left\{
-		\begin{pmatrix}
-		x_1 \\ \gamma(x_2)
-		\end{pmatrix} , \col{\begin{pmatrix}
-			\gamma(x_3) \\ x_2
-			\end{pmatrix}}
-		\right\} \\
-		\overset{\text{Vert.}}{\Longrightarrow}
-		%
-		&\left\{
-		\begin{pmatrix}
-		x_1 \\ \gamma(\col{x_2})
-		\end{pmatrix} , \begin{pmatrix}
-		\col{x_2} \\ \gamma(x_3)
-		\end{pmatrix}
-		\right\} \quad {\textcolor{cdgray}{x_2 \text{ kommt nicht in } \gamma(x_3) \text{ vor}}}\\
-		%
-		\overset{\text{Subst.}}{\Longrightarrow}
-		&\left\{
-		\begin{pmatrix}
-		x_1 \\ \gamma(\gamma(x_3))
-		\end{pmatrix} , \begin{pmatrix}
-		x_2 \\ \gamma(x_3)
-		\end{pmatrix}
-		\right\}
-	\end{align*}
-\end{frame}
-
-\begin{frame} \frametitle{Aufgabe 3}
-	\footnotesize
-	(a) \textbf{allgemeinster Unifikator:}
-	\begin{align*}
-		\qquad x_1 \mapsto \gamma(\gamma(x_3)) \qquad
-		x_2 \mapsto \gamma(x_3) \qquad
-		x_3 \mapsto x_3
-	\end{align*}
-	
+	\begin{lstlisting}[style=bg]
+f xs 
+  = foldr (+) 0 (map (^2) (filter (`mod` 2) == 0) xs))
+	\end{lstlisting}
 	\pause
-	
-	(b) \textbf{weitere Unifikatoren:} 
-	\begin{align*}
-		x_1 &\mapsto \gamma(\gamma(\alpha))
-		&x_2 &\mapsto \gamma(\alpha)
-		&x_3 &\mapsto \alpha \\
-		x_1 &\mapsto \gamma(\gamma(\gamma(\alpha)))
-		&x_2 &\mapsto \gamma(\gamma(\alpha))
-		&x_3 &\mapsto \gamma(\alpha)
-	\end{align*}
-	
+	\begin{lstlisting}[style=bg]
+f' xs = foldr (*) 1 (map (^2) (filter even xs))
+	\end{lstlisting}
 	\pause
-	
-	(c) \textbf{Fehlschlag beim occur-check:}  \\ 
-	\uncover<0>{(c)} \textcolor{cdgray}{Alphabet: $\Sigma = \left\{\gamma^{(1)} \right\}$}
-	\begin{align*}
-		t_1 &= x_1 \\
-		t_2 &= \gamma(x_1)
-	\end{align*}
+	\begin{lstlisting}[style=bg]
+f'' = foldr (*) 1 . map (^2) . filter even
+	\end{lstlisting}
+	\begin{lstlisting}[style=bg]
+f''' 
+  = foldr (*) 1 . map (^2) . filter ((== 0) . (`mod` 2))
+	\end{lstlisting}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 3 --- Teil (d)}
-	\footnotesize
-	\begin{align*}
-		t_1 &= \texttt{(a , [a])} \\
-		t_2 &= \texttt{(Int , [Double])} \\
-		t_3 &= \texttt{(b , c)}
-	\end{align*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3}
+	\textbf{Faltung einer Liste von \textit{links}} \\[6pt]
+	\begin{lstlisting}[style=bg]
+foldleft ::  (Int -> Int -> Int) -> Int -> [Int] -> Int
+	\end{lstlisting}
 	
-	\pause
 	
-	\begin{itemize}
-		\item $t_1$ und $t_2$ sind \uncover<3->{\textit{nicht} unifizierbar}
-		
-		\item $t_1$ und $t_3$ sind \uncover<4->{unifizierbar mit $\texttt{a} \mapsto \texttt{a}$, $\texttt{b} \mapsto \texttt{a}$, $\texttt{c} \mapsto \texttt{[a]}$}
-		
-		\item $t_2$ und $t_3$ sind \uncover<5->{unifizierbar mit $\texttt{b} \mapsto \texttt{Int}$, $\texttt{c} \mapsto \texttt{[Double]}$}
-	\end{itemize}
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+foldleft :: (Int -> Int -> Int) -> Int -> [Int] -> Int
+foldleft f x []     = x
+foldleft f x (y:ys) = foldleft f (f x y) ys
+	\end{lstlisting}
 \end{frame}
 
 
