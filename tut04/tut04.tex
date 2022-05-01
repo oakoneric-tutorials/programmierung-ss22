@@ -111,6 +111,7 @@
 \begin{frame}[fragile] \frametitle{Funktionen}
 	\footnotesize
 	Wir kennen bereits einige Möglichkeiten Funktionen zu notieren. Hier seien einige weitere erwähnt.
+	\pause
 	\begin{description}
 		\item[anonyme Funktionen.] Funktionen ohne konkreten Namen \\
 		z.B. \lstinline[basicstyle=\ttfamily\normalsize]|(\x -> x+1)| ist die Addition mit \texttt{1} 
@@ -171,7 +172,7 @@ mod 10 :: Int -> Int
 	\begin{itemize}
 		\item \texttt{map} ermöglicht es eine Funktion \texttt{f} auf alle Elemente einer Liste anzuwenden \\[6pt]
 		\begin{lstlisting}[style=bg]
-map :: (Int -> Int) -> [Int] -> [Int] 
+map :: (a -> b) -> [a] -> [b] 
 map f [] = [] 
 map f (x:xs) = f x : map f xs
 		\end{lstlisting}
@@ -267,8 +268,8 @@ f' xs = foldr (*) 1 (map (^2) (filter even xs))
 f'' = foldr (*) 1 . map (^2) . filter even
 	\end{lstlisting}
 	\begin{lstlisting}[style=bg]
-f''' 
-  = foldr (*) 1 . map (^2) . filter ((== 0) . (`mod` 2))
+f''' = foldr (*) 1 . map (^2) 
+                   . filter ((== 0) . (`mod` 2))
 	\end{lstlisting}
 \end{frame}
 
@@ -279,14 +280,13 @@ f'''
 \begin{frame}[t, fragile] \frametitle{Aufgabe 2}
 	\textbf{Faltung einer Liste von \textit{links}} \\[6pt]
 	\begin{lstlisting}[style=bg]
-foldleft ::  (Int -> Int -> Int) -> Int -> [Int] -> Int
+foldleft ::  (a -> b -> a) -> a -> [b] -> a
 	\end{lstlisting}
-	
 	
 	\pause \bigskip
 	
 	\begin{lstlisting}[style=bg]
-foldleft :: (Int -> Int -> Int) -> Int -> [Int] -> Int
+foldleft ::  (a -> b -> a) -> a -> [b] -> a
 foldleft f x []     = x
 foldleft f x (y:ys) = foldleft f (f x y) ys
 	\end{lstlisting}
@@ -296,7 +296,7 @@ foldleft f x (y:ys) = foldleft f (f x y) ys
 
 \section{Aufgabe 3 \\ \itshape \normalsize Bäume mit beliebig vielen Kindern}
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (a)}
 	\textbf{Beispielbaum}
 	
 	\begin{lstlisting}[style=bg]
@@ -316,6 +316,51 @@ mytree = Node 'a' [
 	\end{lstlisting}
 \end{frame}
 
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (b)}
+	\textbf{Test auf ungerade Anzahl an Kindern}
+	
+	\begin{lstlisting}[style=bg]
+data Tree a = Node a [Tree a] deriving Show	
+oddTree :: Tree a -> Bool			 
+	\end{lstlisting}
+	
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+oddTree :: Tree a -> Bool
+oddTree (Node _ []) = True
+oddTree (Node _ ts) = (length ts `mod` 2 == 1)
+                      && oddTrees ts
+	where 
+		oddTrees :: [Tree a] -> Bool
+		oddTrees []       = True
+		oddTrees (t : ts) = oddTree t && oddTrees ts
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 3 -- Teil (c)}
+	\textbf{Pre-Order-Traversierung}
+	
+	\begin{lstlisting}[style=bg]
+data Tree a = Node a [Tree a] deriving Show	
+preOrder :: Tree a -> [a]			 
+	\end{lstlisting}
+	
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+preOrder :: Tree a -> [a]
+preOrder (Node x ts) = x : preOrderTrees ts
+	where
+		preOrderTrees :: [Tree a] -> [a]
+		preOrderTrees []       = []
+		preOrderTrees (t : ts) = preOrder t ++ 
+		                         preOrderTrees ts
+-- alternativ:		                         
+preOrder :: Tree a -> [a]
+preOrder (Node x ts) = x : concatMap preOrder ts		                         
+	\end{lstlisting}
+\end{frame}
 
 
 \begin{frame} \frametitle{Ende}
