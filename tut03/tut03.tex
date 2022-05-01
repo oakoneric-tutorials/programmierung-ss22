@@ -72,7 +72,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{25.04.2022}
+	\date{27.04.2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 %	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -263,11 +263,11 @@ insert :: BinTree -> [Int] -> BinTree
 insert :: BinTree -> [Int] -> BinTree
 insert t     [] = t
 insert t (n:ns) = insert t' ns
-    where t' = insertSingle t n
-        insertSingle Nil            n = Branch n Nil Nil
-        insertSingle (Branch x l r) n
-            | n < x     = Branch x (insertSingle l n) r
-            | otherwise = Branch x l (insertSingle r n)
+ 	where t' = insertSingle t n
+      insertSingle Nil            n = Branch n Nil Nil
+      insertSingle (Branch x l r) n
+        | n < x     = Branch x (insertSingle l n) r
+        | otherwise = Branch x l (insertSingle r n)
 	\end{lstlisting}
 \end{frame}
 
