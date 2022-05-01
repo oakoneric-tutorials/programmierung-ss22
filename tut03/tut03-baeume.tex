@@ -169,7 +169,7 @@
 	\begin{center}
 		{\bfseries \sffamily \huge Algebraische Datentypen -- Binärbäume} 
 		
-		\ruleline{\sffamily \Large Übungsblatt 2}
+		\ruleline{\sffamily \Large Übungsblatt 3}
 		
 		{\scshape Eric Kunze --- \today}
 	\end{center}
@@ -181,7 +181,7 @@
 		\small \slshape Keine Garantie auf Vollständigkeit und/oder Korrektheit!
 	\end{center}
 	
-\section*{Aufgabe 3}
+\section*{Aufgabe 2}
 
 Wir betrachten den algebraischen Datentyp \texttt{BinTree} definiert durch
 \begin{lstlisting}[style=noframe]
@@ -190,7 +190,7 @@ Wir betrachten den algebraischen Datentyp \texttt{BinTree} definiert durch
 Wie versteht man nun diese Definition: entweder wir haben einen Knoten mit Beschriftung und zwei Kindern vorliegen oder der Baum ist leer bzw. als Nil kodiert.
 
 
-\subsection*{Teilaufgabe (a)}
+\subsection*{Teilaufgabe (a)} \label{sec: a}
 
 Wir wollen einen Beispielbaum anlegen. Das funktioniert im Prinzip so, dass man die Typdefinition nimmt und dann für die Typen darin konkrete Werte einsetzt. Also:
 \begin{lstlisting}[style=noframe]
@@ -354,5 +354,207 @@ Damit können wir jetzt in \texttt{ghci} testen, z.B. mit dem Aufruf \texttt{ins
 	In der Regel betrachtet man Suchbäume ohne Dopplungen, d.h. jede Zahl sollte nur einmal vorkommen. Dementsprechend macht es wenig Sinn eine bereits bestehende Zahl einzufügen. 
 \end{bemerkung}
 
+\subsection{Teilaufgabe (d)}
+
+\begin{aufgabe}
+	Geben Sie eine Funktion \texttt{unwind :: BinTree -> [Int]} an, welche einen gegebenen Baum ebenenweise traversiert und dabei die Liste der Knotenbeschriftungen in der Reihenfolge der Traversierung berechnet. Dabei soll zunächst die Wurzel besucht werden, dann die direkten Nachfolger der Wurzel von links nach rechts, dann deren direkte Nachfolger von links nach rechts, usw. Zum Beispiel soll für den unten stehenden Baum \texttt{tree} gelten, dass \texttt{unwind tree == [1,2,3,7,6,5,4]}.
+\end{aufgabe}
+
+\begin{figure}[h]
+	\centering
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[ $1$ [$2$ [$7$] [$6$]] [ $3$ [$5$] [$4$] ] ]
+	\end{forest} 
+\end{figure}
+
+Zunächst einmal ist der dargestellte Baum \texttt{tree} in Haskell wie folgt zu notieren (vgl. \cref{sec: a}):
+\begin{lstlisting}[style=noframe]
+tree :: BinTree
+tree = Branch 1
+			( Branch 2
+				( Branch 7 Nil Nil ) 
+				( Branch 6 Nil Nil ) )
+			( Branch 3
+				( Branch 5 Nil Nil )
+				( Branch 4 Nil Nil ) )
+\end{lstlisting}
+
+Für Umsetzung der ebenenweisen Traversierung nutzen wir folgende Idee: wir speichern uns stets eine Liste von Bäumen. In diese Liste nehmen wir uns immer den ersten Baum heraus, fügen dessen Wurzel zur Ausgabeliste hinzu und hängen die Kindbäume hinten an die Speicherliste an -- diese werden in der nächsten Runde betrachtet. 
+
+Wir beginnen mit der Hauptfunktion \texttt{unwind} und übergeben das Problem vollständig an die Hilfsfunktion, die wir in diesem Fall \texttt{go} nennen. Gemäß der beschriebenen Idee müssen wir dazu das Argument von \texttt{unwind}, ein Binärbaum, in eine Liste eintragen, also
+\begin{lstlisting}[style=noframe]
+undwind :: BinTree -> [Int]
+unwind t = go [t]
+\end{lstlisting} 
+
+Nun können wir uns mit der \texttt{go}-Funktion beschäftigen. Wie bereits erwähnt ist das Argument von \texttt{go} eine Liste von Bäumen, d.h. \texttt{[BinTree]}; die Rückgabe soll und muss um mit dem Ergebnistyp von \texttt{unwind} übereinzustimmen, vom Typ \texttt{[Int]} sein. Damit ist der Typ der Funktion gegeben durch
+\begin{lstlisting}[style=noframe]
+go :: [BinTree] -> [Int]
+\end{lstlisting}
+Nun müssen wir \texttt{go} rekursiv definieren. Jedoch haben wir hier zwei rekursive Datenstrukturen vorliegen: Listen und Bäume. In diesem Beispiel wollen wir auch beide Rekursionen parallel ablaufen lassen.
+Beginnen wir dazu mit der Rekursion auf der Liste (von Bäumen). Diese müssen wir für den Rekursionsfall aufspalten in Head und Tail, also in der Form \texttt{(t:ts)}. Der Basisfall für Listen sieht wie üblich die leere Liste vor. Wir brauchen also für die Listenrekursion folgende zwei Zeilen:
+\begin{lstlisting}[style=noframe]
+go []     = ...
+go (t:ts) = ...
+\end{lstlisting}
+Nun bringen wir die zweite Rekursion ins Spiel: die Rekursion auf der Baumstruktur - und zwar um genau zu sein auf der Baumstruktur des ersten Baumes der Liste, also der Struktur von \texttt{t}. Im Rekursionsfall zerlegen wir diesen in einen Knoten mit Beschriftung \texttt{x} und zwei Kindern \texttt{l} und \texttt{r}, d.h. in $\texttt{t} = \texttt{Branch x l r}$; im Basisfall ist dieser Baum leer, d.h. $\texttt{t} = \texttt{Nil}$. Damit zerlegt sich die bisherige zweite Zeile in zwei weitere Zeilen:
+\begin{lstlisting}[style=noframe]
+go []     = ...
+go ( Nil           : ts) = ...
+go ((Branch x l r) : ts) = ...
+\end{lstlisting}
+Damit ist das Grundgerüst für die Funktion gebaut. Wir müssen uns \enquote{nur} noch Gedanken für die jeweiligen Rückgaben auf der rechten Seite machen. Also los geht's \dots
+
+Wir erinnern uns, dass jeder nichtleere Baum in genau drei Teile zerlegt werden kann: ein Wurzelknoten und ein linkes sowie ein rechtes Kind. Auf diese drei Teile haben wir im Rekursionsfall Zugriff und können sie neu anordnen. Der Wurzelknoten \texttt{x} soll natürlich direkt in die Ausgabeliste wandern. Diese Ausgabeliste ist die Rückgabe von \texttt{go}, also können wir dieses \texttt{x} als Head der Ausgabeliste \enquote{konstruieren}. Die beiden Kindbäume müssen wir an unsere Baum-Speicher-Liste anhängen. Bisher bestand diese Liste aus dem ersten Baum, den wir gerade zerlegen, und den Restbäumen in der Liste \texttt{ts}. Den ersten Baum haben wir soeben abgearbeitet, also entfällt dieser; \texttt{ts} verbleibt; die Bäume \texttt{l} und \texttt{r} hängen wir als zweielementige Liste \texttt{[l, r]} hinten an \texttt{ts} an. Insgesamt haben wir bisher folgendes Ergebnis:
+\begin{lstlisting}[style=noframe]
+go []                    = ...
+go ( Nil           : ts) = ...
+go ((Branch x l r) : ts) = x : go (ts ++ [l, r])
+\end{lstlisting}
+Treffen wir in unserer Merkliste auf einen leeren Baum, dann hat dieser schon keinen Knoten mehr, den wir der Ausgabeliste hinzufügen könnten, also können wir den leeren Baum einfach ignorieren:
+\begin{lstlisting}[style=noframe]
+go []                    = ...
+go ( Nil           : ts) = go ts
+go ((Branch x l r) : ts) = x : go (ts ++ [l, r])
+\end{lstlisting}
+Ist die Merkliste von noch verbleibenden Bäumen schließlich leer, so sind alle Knoten abgearbeitet und wir sind fertig. Da wir im Rekursionsfall immer mit dem cons-Operator einzelne Elemente hintereinander gehangen haben, müssen wir zum Abschluss noch eine leere Liste anhängen. Also:
+\begin{lstlisting}[style=noframe]
+go []                    = []
+go ( Nil           : ts) = go ts
+go ((Branch x l r) : ts) = x : go (ts ++ [l, r])
+\end{lstlisting}
+Die Hilfsfunktion \texttt{go} können wir nun noch in eine lokale Definition schieben und erhalten schließlich die vollständige ebenenweise Traversierung:
+\begin{lstlisting}[style=frame]
+undwind :: BinTree -> [Int]
+unwind t = go [t]
+	where
+		go []                    = []
+		go ( Nil           : ts) = go ts
+		go ((Branch x l r) : ts) = x : go (ts ++ [l, r])
+\end{lstlisting}
+
+Um diese Funktion noch besser zu verstehen, wollen wir anhand des Beispielbaums \texttt{tree} die Abarbeitung veranschaulichen. Wir starten in \texttt{unwind} und packen den vollständigen Baum in eine Liste, also starten wir mit dem Aufruf
+\begin{equation*}
+	\texttt{go} \left[ 
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[ $1$ [$2$ [$7$] [$6$]] [ $3$ [$5$] [$4$] ] ]
+	\end{forest} 
+	\right]
+\end{equation*}
+Wir zerlegen den Baum in Wurzelknoten und die beiden Kinder:
+\begin{equation*}
+	\texttt{x} = 1, \qquad
+	\texttt{l} = \begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$2$ [$7$] [$6$]]
+	\end{forest} , \qquad
+	\texttt{r} = \begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[ $3$ [$5$] [$4$] ]
+	\end{forest} 
+\end{equation*}
+Damit folgt der nächste rekursive Aufruf von \texttt{go} mit
+\begin{equation*}
+	\texttt{1 : go} \left[ 
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$2$ [$7$] [$6$]]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[ $3$ [$5$] [$4$] ]
+	\end{forest} 
+	\right]
+\end{equation*}
+oder in Haskell-Schreibweise
+\begin{align*}
+	\texttt{1 : go \Big[} &\texttt{Branch 2 (Branch 7 Nil Nil) (Branch 7 Nil Nil) , } \\
+	&\texttt{Branch 3 (Branch 5 Nil Nil) (Branch 4 Nil Nil) \Big]}
+\end{align*}
+Nun spalten wir wieder den ersten Baum der Speicherliste in \texttt{go} ab, packen die Wurzel zur Ausgabe und die beiden Kinder hinten an die Speicherliste, also
+\begin{equation*}
+	\texttt{1 : 2 : go} \left[ 
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[ $3$ [$5$] [$4$] ]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$7$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$6$]
+	\end{forest}
+	\right]
+\end{equation*}
+Im Anschluss wird auch der nächste Baum nach diesem Prinzip zerlegt und wir erhalten
+\begin{equation*}
+	\texttt{1 : 2 : 3 : go} \left[ 
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$7$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$6$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$5$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$4$]
+	\end{forest}
+	\right]
+\end{equation*}
+Nun kommen wir an den ersten kleinen kritischen Punkt, denn die Kinder des nächsten Baumes sind leer. Das macht in diesem Moment aber noch nichts aus, da wir dennoch den Knoten $7$ in \texttt{Branch 7 Nil Nil} aufspalten können. Damit erhalten wir im nächsten rekursiven Aufruf
+\begin{equation*}
+	\texttt{1 : 2 : 3 : 7 : go} \left[ 
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$6$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$5$]
+	\end{forest} ,
+	\begin{forest}
+		for tree={ grow=south, circle, draw, minimum size=3ex, inner sep=1pt, s sep=7mm }
+		[$4$]
+	\end{forest} ,
+	\texttt{Nil}, \texttt{Nil}
+	\right]
+\end{equation*}
+Für die nächsten drei Bäume erfolgt das Spiel komplett analog und wir rufen rekursiv wie folgt auf:
+\begin{equation*}
+	\texttt{1 : 2 : 3 : 7 : 6 : 5 : 4 : go} \left[ 
+	\texttt{Nil}, \texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}
+	\right]
+\end{equation*}
+Nun wenden wir den Baum-Basisfall an, da das erste Element der Speicherliste auf \texttt{Nil} passt und keine \texttt{Branch}-Struktur mehr aufweist. Damit entfernen wir dieses erste \texttt{Nil} und rufen \texttt{go} einfach wieder mit der verbleibenden Restliste auf ohne etwas zur Ausgabe hinzuzufügen:
+\begin{equation*}
+	\texttt{1 : 2 : 3 : 7 : 6 : 5 : 4 : go} \left[ 
+	\texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}, \enskip
+	\texttt{Nil}, \texttt{Nil}
+	\right]
+\end{equation*}
+Das gleiche Spiel passiert nun noch sieben Mal und wir erhalten schließlich
+\begin{equation*}
+	\texttt{1 : 2 : 3 : 7 : 6 : 5 : 4 : go []}
+\end{equation*}
+Damit können wir noch den Listen-Basisfall anwenden, der \texttt{go []} zu \texttt{[]} evaluiert:
+\begin{equation*}
+	\texttt{1 : 2 : 3 : 7 : 6 : 5 : 4 : []} 
+\end{equation*}
+Führen wir nun noch alle cons-Operatoren aus, so erhalten wir am Ende die finale Ergebnisliste \texttt{[1,2,3,7,6,5,4]}.
 \end{document}
 

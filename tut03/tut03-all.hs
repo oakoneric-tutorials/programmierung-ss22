@@ -53,7 +53,7 @@ insert t (x:xs) = insert t' xs
 unwind :: BinTree -> [Int]
 unwind t = go [t]
     where
-        go []                  = []
+        go []                    = []
         go (Nil            : ts) = go ts
         go ((Branch n l r) : ts) = n : go (ts ++ [l,r])
 
