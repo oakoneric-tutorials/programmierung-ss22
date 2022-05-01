@@ -34,6 +34,7 @@
 	colframe=cddarkblue,
 	fonttitle=\bfseries,
 	listing only}
+	
 \newtcblisting{smallcodebox}{%
 	top=0pt,
 	bottom=0pt,
@@ -73,7 +74,7 @@
 	\subtitle{Übung 4: Funktionen höherer Ordnung}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
+	\city{TU Dresden}
 	\date{02. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 %	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
@@ -83,70 +84,29 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Übungsblatt 4 --- Aufgabe 1 \\ \textit{\normalsize Algebraische Datentypen}}
+\section{Typpolymorphie \& \\ Funktionen höherer Ordnung}
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
-	\textbf{Anzahl der Blätter}
+\begin{frame}[fragile, t] \frametitle{Typpolymorphie}
+	\footnotesize
+	\begin{itemize}
+		\item \textbf{bisher}: Funktionen mit konkreten Datentypen \\
+		z.B. \texttt{length :: [Int] -> Int}
+		\item \textbf{Problem}: Funktion würde auch auf anderen Datentypen funktionieren \\
+		z.B. \texttt{length :: [Bool] -> Int} oder \texttt{length :: String -> Int}
+		\item \textbf{Lösung}: Typvariablen und polymorphe Funktionen \\
+		z.B. \texttt{length :: [\alert{a}] -> Int}
+	\end{itemize}
 	
-	\begin{lstlisting}[style=bg]
-data RoseTree = Node Int [RoseTree]
-countLeaves :: RoseTree -> Int
-	\end{lstlisting}
+	\pause
 	
+	Bei konkreter Instanziierung wird Typvariable an entsprechenden Typbezeichner gebunden (z.B. \texttt{\alert{a} = Int} oder \texttt{\alert{a} = Bool}).
 	
-	\pause \bigskip
-	
-	\begin{lstlisting}[style=bg]
-countLeaves :: RoseTree -> Int
-countLeaves (Node _ [] )    = 1
-countLeaves (Node _ [t])    = countLeaves t
-countLeaves (Node x (t:ts)) 
-	= countLeaves t + countLeaves (Node x ts)
-	\end{lstlisting}
+	\begin{itemize}
+		\item Der Aufruf \texttt{length [1,5,2,7]} liefert für die Typvariable \texttt{\alert{a} = Int}.
+		\item Der Aufruf \texttt{length [True, False, True, True, False]} liefert die Belegung \texttt{\alert{a} = Bool}.
+		\item Der Aufruf \texttt{length "hello"} impliziert \texttt{\alert{a} = Char}.
+	\end{itemize}
 \end{frame}
-
-\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (b)}
-	\textbf{gerade Anzahl an Kindern}
-	
-	\begin{lstlisting}[style=bg]
-data RoseTree = Node Int [RoseTree]
-evenNodes :: RoseTree -> Bool
-	\end{lstlisting}
-	
-	
-	\pause \bigskip
-	\begin{onlyenv}<2>
-		\begin{lstlisting}[style=bg]
-evenNodes :: RoseTree -> Bool
-evenNodes (Node _  []       ) = True
-evenNodes (Node x  [t]      ) = False
-evenNodes (Node x (t1:t2:ts)) 
-	= evenNodes (Node x ts) && evenNodes t1 && 
-	  evenNodes t2
-		\end{lstlisting}
-	\end{onlyenv}
-
-	\begin{onlyenv}<3>
-		\begin{lstlisting}[style=bg]
-evenNodes' :: RoseTree -> Bool
-evenNodes' (Node _ []) = True
-evenNodes' (Node _ ts)
-	= mod (length ts) 2 == 0 && evenNodes'' ts
-	where
-		evenNodes'' :: [RoseTree] -> Bool
-		evenNodes'' []     = True
-		evenNodes'' (t:ts) 
-			= evenNodes' t && evenNodes'' ts
-		\end{lstlisting}
-	\end{onlyenv}
-\end{frame}
-
-\section{Übungsblatt 3 --- Aufgabe 1 \\ \textit{\normalsize Algebraische Datentypen}}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Übungsblatt 4 --- Aufgaben 2 \& 3 \\ \textit{\normalsize Funktionen höherer Ordnung}}
-
 
 \begin{frame}[fragile] \frametitle{Funktionen}
 	\footnotesize
@@ -280,7 +240,12 @@ foldr f z (x:xs) = f x (foldr f z xs)
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgaben 1 \& 2 \\ \textit{\normalsize Funktionen höherer Ordnung}}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1}
 	\footnotesize
 	\textbf{Produkt der Quadrate aller geraden Zahlen einer Liste} \\[6pt]
 	\begin{lstlisting}[style=bg]
@@ -311,7 +276,7 @@ f'''
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\begin{frame}[t, fragile] \frametitle{Aufgabe 3}
+\begin{frame}[t, fragile] \frametitle{Aufgabe 2}
 	\textbf{Faltung einer Liste von \textit{links}} \\[6pt]
 	\begin{lstlisting}[style=bg]
 foldleft ::  (Int -> Int -> Int) -> Int -> [Int] -> Int
@@ -326,6 +291,31 @@ foldleft f x []     = x
 foldleft f x (y:ys) = foldleft f (f x y) ys
 	\end{lstlisting}
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Aufgabe 3 \\ \itshape \normalsize Bäume mit beliebig vielen Kindern}
+
+\begin{frame}[t, fragile] \frametitle{Aufgabe 1 -- Teil (a)}
+	\textbf{Beispielbaum}
+	
+	\begin{lstlisting}[style=bg]
+data Tree a = Node a [Tree a] deriving Show				 
+	\end{lstlisting}
+	
+	
+	\pause \bigskip
+	
+	\begin{lstlisting}[style=bg]
+mytree :: Tree Char
+mytree = Node 'a' [ 
+			Node 'b' [ Node 'c' [], Node 'd' [] ] ,
+			Node 'e' [ Node 'f' [] ],
+			Node 'g' []
+		 ]
+	\end{lstlisting}
+\end{frame}
+
 
 
 \begin{frame} \frametitle{Ende}

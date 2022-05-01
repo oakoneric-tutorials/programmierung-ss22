@@ -45,6 +45,8 @@ foldleft f x (y:ys) = foldleft f (f x y) ys
 ------------------------------------------------------------------------
 -- Aufgabe 3
 
+data Tree a = Node a [Tree a] deriving Show
+
 -- (a)
 mytree :: Tree Char
 mytree = Node ’a’ [ 
