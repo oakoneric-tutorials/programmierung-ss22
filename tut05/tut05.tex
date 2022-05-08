@@ -19,7 +19,22 @@
 \usepackage{listings}
 \usepackage[skins]{tcolorbox}
 \tcbuselibrary{listings}
-
+%\lstset{
+%	basicstyle=\footnotesize\ttfamily\color{black},
+%	backgroundcolor=\color{white},
+%	fillcolor=\color{white},
+%	rulecolor=\color{gray},
+%	tabsize=2,
+%	% German umlauts
+%	literate=%
+%	{Ö}{{\"O}}1
+%	{Ä}{{\"A}}1
+%	{Ü}{{\"U}}1
+%	{ß}{{\ss}}1
+%	{ü}{{\"u}}1
+%	{ä}{{\"a}}1
+%	{ö}{{\"o}}1
+%}
 \newtcblisting{codebox}{%
 	top=-6pt,
 	bottom=-6pt,
@@ -44,18 +59,39 @@
 	colframe=cddarkblue,
 	listing only}
 
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{\%*},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!10},
+	%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	showstringspaces=false,
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
 
 \newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
 \newcommand{\step}[2][]{\ensuremath{\overset{{#1} (\text{#2})}{=}}}
 \newcommand*{\astep}[2][]{\ensuremath{\overset{{#1} (\text{#2})}&{=}}}
 
+
+
 \begin{document}	
 	\title{Programmierung}
-	\subtitle{Übung 5: Induktion}
+	\subtitle{Übung 5: Unifikation \& Induktion auf Listen}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{09. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 %	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -71,7 +107,7 @@
 			\item Einführung in Haskell
 			\item Listen \& Algebraische Datentypen
 			\item Funktionen höherer Ordnung
-			\item Typpolymorphie \& Unifikation
+			\item Typpolymorphie \& \textbf{Unifikation}
 			\item \textbf{Beweis von Programmeigenschaften}
 			\item $\lambda$ -- Kalkül
 		\end{enumerate}
@@ -80,6 +116,331 @@
 		\item Verifikation von Programmeigenschaften
 		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
 	\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Unifikation \& Unifikationsalgorithmus \\ \textit{\normalsize Aufgabe 1}}
+
+\begin{frame}[fragile, t] \frametitle{Erinnerung: Typpolymorphie}
+	\footnotesize
+	\begin{itemize}
+		\item \textbf{bisher}: Funktionen mit konkreten Datentypen \\
+		z.B. \texttt{length :: [Int] -> Int}
+		\item \textbf{Problem}: Funktion würde auch auf anderen Datentypen funktionieren \\
+		z.B. \texttt{length :: [Bool] -> Int} oder \texttt{length :: String -> Int}
+		\item \textbf{Lösung}: Typvariablen und polymorphe Funktionen \\
+		z.B. \texttt{length :: [\alert{a}] -> Int}
+	\end{itemize}
+	
+	\pause
+	
+	Bei konkreter Instanziierung wird Typvariable an entsprechenden Typbezeichner gebunden (z.B. \texttt{\alert{a} = Int} oder \texttt{\alert{a} = Bool}).
+	
+	\begin{itemize}
+		\item Der Aufruf \texttt{length [1,5,2,7]} liefert für die Typvariable \texttt{\alert{a} = Int}.
+		\item Der Aufruf \texttt{length [True, False, True, True, False]} liefert die Belegung \texttt{\alert{a} = Bool}.
+		\item Der Aufruf \texttt{length "hello"} impliziert \texttt{\alert{a} = Char}.
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile] \frametitle{Unifikation}
+	\footnotesize
+	\textbf{Motivation:} Typüberprüfung
+		 
+	\begin{codebox}
+f :: (t, Char) -> (t, [Char])
+f (...) = ... 
+
+g :: (Int, [u]) -> Int
+g (...) = ...
+
+h = g . f
+	\end{codebox}
+	
+	\pause
+	
+	Wie müssen die Typvariablen \texttt{t} und \texttt{u} belegt werden, damit die Funktion \texttt{h} wohldefiniert ist, d.h. damit die Ergebnisse aus \texttt{f} wirklich in \texttt{g} eingesetzt werden dürfen?
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Typausdruck $\to$ Typterm}
+	\footnotesize
+	
+	\textbf{Ziel:} theoretischere Form von Typausdrücken
+	
+	\textbf{Typausdrücke}
+	\begin{itemize}
+		\item \texttt{Int}, \texttt{Bool}, \texttt{Float}, \texttt{Char}, \texttt{String}
+		\item Typvariablen
+		\item Listen, Tupel, Funktionen
+	\end{itemize}
+
+	\textbf{Typterme}
+	\begin{itemize}
+		\item Übersetzung \textit{trans}: Typausdruck $\to$ Typterm
+		\pause
+		\item z.B.
+		\begin{equation*}
+			\begin{aligned}
+				trans(\texttt{(t,[Char])}) &= ()^2(t, [](Char)) \\
+				trans(\texttt{(Int, [u])}) &= ()^2(Int, [](u))
+			\end{aligned}
+		\end{equation*}
+	\end{itemize}
+
+	\pause
+	
+	Beide Typausdrücke können in Übereinstimmung gebracht werden, wenn die Typterme $trans(\texttt{(t,[Char])})$ und $trans(\texttt{(Int, [u])})$ unifizierbar sind.
+	\\ \pause
+	$\to$ \texttt{t = Int} und \texttt{u = Char}
+\end{frame}
+
+\begin{frame}\frametitle{Unifikationsalgorithmus}
+	\footnotesize
+	\begin{itemize}
+		\item \textbf{gegeben:} zwei Typ\textit{terme} $t_1$, $t_2$ 
+		\item \textbf{Ziel:} entscheide, ob $t_1$ und $t_2$ unifizierbar sind
+	\end{itemize}
+	
+	Wir notieren die beiden Typterme als Spalte:
+	\begin{equation*}
+		\begin{pmatrix}
+			t_1 \\ t_2
+		\end{pmatrix} 
+		\qquad \bzw \qquad 
+		\begin{pmatrix}
+			()^2(t, [](Char)) \\ ()^2(Int, [](u))
+		\end{pmatrix} 
+	\end{equation*}
+	
+	Unifikationsalgorithmus erstellt eine Folge von Mengen $M_i$, wobei die $M_{i+1}$ aus $M_i$ hervorgeht, indem eine der vier Regeln angewendet wird.
+	\begin{equation*}
+		M_1 \defeq \left\{ \begin{pmatrix}
+			t_1 \\ t_2
+		\end{pmatrix} \right\}
+		\qquad \bzw \qquad 
+		M_1 \defeq \left\{ \begin{pmatrix}
+			()^2(t, [](Char)) \\ ()^2(Int, [](u))
+		\end{pmatrix} \right\}
+	\end{equation*}
+\end{frame}
+
+\begin{frame}\frametitle{Unifikationsalgorithmus -- Regeln}
+	\footnotesize
+	\begin{itemize}
+		\item \textbf{Dekomposition.} Sei $\delta \in \Sigma$ ein $k$-stelliger Konstruktor, $s_1 , \dots , s_k , t_1 , \dots , t_k$ Terme über Konstruktoren und Variablen.
+		\begin{equation*}
+			\begin{pmatrix}
+				\delta(s_1, \dots , s_k) \\ \delta(t_1, \dots , t_k)
+			\end{pmatrix}
+			\quad \leadsto \quad
+			\begin{pmatrix} s_1 \\ t_1 \end{pmatrix} , \dots , \begin{pmatrix} s_k \\ t_k \end{pmatrix}
+		\end{equation*}
+		\item \textbf{Elimination.} Sei $x$ eine \alert{Variable} !
+		\begin{equation*}
+			\begin{pmatrix} x \\ x \end{pmatrix}
+			\quad \leadsto \quad
+			\emptyset
+		\end{equation*}
+		\item \textbf{Vertauschung.} Sei $t$ \alert{keine} Variable.
+		\begin{equation*}
+			\begin{pmatrix} t \\ x \end{pmatrix}
+			\quad \leadsto \quad 
+			\begin{pmatrix} x \\ t \end{pmatrix}
+		\end{equation*}
+		\item \textbf{Substitution.} Sei $x$ eine Variable, $t$ keine Variable. \\
+		\textit{Occur Check:} $x$ kommt nicht in $t$ vor \\
+		Dann ersetze in jedem anderen Term die Variable $x$ durch $t$.
+		\begin{equation*}
+			\begin{pmatrix} \alert{x} \\ t \end{pmatrix},
+			\begin{pmatrix} y \\ s(\alert{x}) \end{pmatrix}
+			\quad \leadsto \quad 
+			\begin{pmatrix} x \\ t \end{pmatrix},			\begin{pmatrix} y \\ s(\alert{t}) \end{pmatrix}
+		\end{equation*}
+	\end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Unifikationsalgorithmus}
+	\footnotesize
+	\textbf{Ende:} keine Regel mehr anwendbar -- Entscheidung:
+	\begin{itemize}
+		\item $t_1$, $t_2$ \textbf{unifizierbar}: $M$ ist von der Form
+		\begin{equation*}
+			\menge{\binom{u_1}{t_1}, \binom{u_2}{t_2}, \dots, \binom{u_k}{t_k}} \qquad 
+			\begin{array}{c} 
+				\footnotesize \text{\textit{\enquote{Variablen}}} \\ 
+				\footnotesize \text{\textit{\enquote{Terme ohne Variablen}}}
+			\end{array}
+		\end{equation*}
+		wobei $u_1, u_2, \dots, u_k$ paarweise verschiedene Variablen sind und nicht in $t_1, t_2, \dots, t_k$ vorkommen.  \\
+		\textbf{allgemeinster Unifikator} $\phi$: 
+		\begin{equation*}
+			\begin{aligned}
+				\phi(u_i) &= t_i & (i = 1, \dots, k) \\
+				\phi(x) &= x     & \footnotesize \text{für alle nicht vorkommenden Variablen}
+			\end{aligned}
+		\end{equation*}
+		\item $t_1$, $t_2$ sind \textbf{nicht unfizierbar}: $M$ hat nicht diese Form und keine Regel ist anwendbar
+	\end{itemize}
+	
+	Weitere Unifikatoren $\psi$ erhält man durch Anwendung einer Substitution $\sigma$, sodass $\psi = \sigma \circ \phi$.
+\end{frame}
+
+\begin{frame} \frametitle{Occur Check}
+	\footnotesize
+	Um endlose Rekursionen zu unterbinden, benötigen die Regeln zum Vertauschen und zur Substitution gewisse Einschränkungen. 
+		
+	\textbf{Occur Check:}
+	Gegeben sei ein Termpaar $\binom{x}{t}$, wobei $x$ eine Variable und $t$ ein Typterm sei.
+	\vspace{-.5\baselineskip}
+	\begin{itemize} 
+		\item Kommt $x$ in $t$ vor, dann schlägt der Check fehl.
+		\item Kommt $x$ nicht in $t$ vor, dann ist der Check okay.
+	\end{itemize}
+	\pause
+	
+	\textbf{Beispiel:}
+	\begin{itemize}
+		\item $\displaystyle\binom{x_1}{\gamma(x_1)} \leadsto$ Fehlschlag, da $x_1$ in $\gamma(x_1)$ vorkommt
+		\item $\displaystyle\binom{x_1}{\gamma(x_2)} \leadsto$ okay, da $x_1$ nicht in $\gamma(x_2)$ vorkommt
+	\end{itemize}
+	\pause	
+
+	Was passiert, wenn wir substituieren obwohl der Occur Check fehlschlägt?
+	\begin{equation*}
+		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\alert{x_1})}
+		\follows
+		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\alert{\gamma(x_1)})}
+		\follows
+		\binom{x_1}{\gamma(x_1)}, \binom{x_2}{\gamma(\gamma(\alert{\gamma(x_1)})}
+	\end{equation*}
+\end{frame}
+
+
+\begin{frame} \frametitle{Aufgabe 1}
+	\scriptsize
+	\begin{align*}
+		&\left\{\left(\begin{array}{lcrlcl}
+		\col{\sigma(}\sigma(&x_1&,\alpha) \col{,} &\ \sigma(&\gamma(x_3) &, x_3)\col{)} \\
+		\col{\sigma(}\sigma( &\gamma(x_2)&,\alpha) \col{,} &\ \sigma(&x_2 &, x_3)\col{)}
+		\end{array}\right)\right\}\\
+		%
+		\overset{\text{Dek.}}{\Longrightarrow}
+		%
+		&\left\{\left(\begin{array}{lcr}
+			\col{\sigma(} & x_1         & \col{,} \alpha\col{)} \\
+			\col{\sigma(} & \gamma(x_2) & \col{,} \alpha\col{)}
+		\end{array}\right),
+		\left(\begin{array}{lcr}
+			\col{\sigma(}& \gamma(x_3)  & \col{,} x_3)\col{)} \\
+			\col{\sigma(}& x_2          & \col{,} x_3)\col{)}
+		\end{array}\right)\right\} \\
+		\overset{\text{Dek.}}{\Longrightarrow^2}
+		%
+		&\left\{ 
+		\begin{pmatrix}
+			x_1 \\ \gamma(x_2)
+		\end{pmatrix} , \begin{pmatrix}
+			\alpha \\ \alpha
+		\end{pmatrix} , \begin{pmatrix}
+			\gamma(x_3) \\ x_2
+		\end{pmatrix} , \col{\begin{pmatrix}
+			x_3 \\ x_3 
+		\end{pmatrix}} 
+		\right\} \\
+		\overset{\text{El.}}{\Longrightarrow}
+		%
+		&\left\{
+		\begin{pmatrix}
+			x_1 \\ \gamma(x_2)
+		\end{pmatrix} , 
+		\col{\begin{pmatrix}
+			\alpha \\ \alpha
+		\end{pmatrix}} , 
+		\begin{pmatrix}
+			\gamma(x_3) \\ x_2
+		\end{pmatrix}
+		\right\} \\
+		\overset{\text{Dek.}}{\Longrightarrow}
+		%
+		&\left\{
+		\begin{pmatrix}
+		x_1 \\ \gamma(x_2)
+		\end{pmatrix} , \col{\begin{pmatrix}
+			\gamma(x_3) \\ x_2
+			\end{pmatrix}}
+		\right\} \\
+		\overset{\text{Vert.}}{\Longrightarrow}
+		%
+		&\left\{
+		\begin{pmatrix}
+		x_1 \\ \gamma(\col{x_2})
+		\end{pmatrix} , \begin{pmatrix}
+		\col{x_2} \\ \gamma(x_3)
+		\end{pmatrix}
+		\right\} \quad {\textcolor{cdgray}{x_2 \text{ kommt nicht in } \gamma(x_3) \text{ vor}}}\\
+		%
+		\overset{\text{Subst.}}{\Longrightarrow}
+		&\left\{
+		\begin{pmatrix}
+		x_1 \\ \gamma(\gamma(x_3))
+		\end{pmatrix} , \begin{pmatrix}
+		x_2 \\ \gamma(x_3)
+		\end{pmatrix}
+		\right\}
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 1}
+	\footnotesize
+	(a) \textbf{allgemeinster Unifikator:}
+	\begin{align*}
+		\qquad x_1 \mapsto \gamma(\gamma(x_3)) \qquad
+		x_2 \mapsto \gamma(x_3) \qquad
+		x_3 \mapsto x_3
+	\end{align*}
+	
+	\pause
+	
+	(b) \textbf{weitere Unifikatoren:} 
+	\begin{align*}
+		x_1 &\mapsto \gamma(\gamma(\alpha))
+		&x_2 &\mapsto \gamma(\alpha)
+		&x_3 &\mapsto \alpha \\
+		x_1 &\mapsto \gamma(\gamma(\gamma(\alpha)))
+		&x_2 &\mapsto \gamma(\gamma(\alpha))
+		&x_3 &\mapsto \gamma(\alpha)
+	\end{align*}
+	
+	\pause
+	
+	(c) \textbf{Fehlschlag beim occur-check:}  \\ 
+	\uncover<0>{(c)} \textcolor{cdgray}{Alphabet: $\Sigma = \left\{\gamma^{(1)} \right\}$}
+	\begin{align*}
+		t_1 &= x_1 \\
+		t_2 &= \gamma(x_1)
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 1 --- Teil (d)}
+	\footnotesize
+	\begin{align*}
+		t_1 &= \texttt{(a , [a])} \\
+		t_2 &= \texttt{(Int , [Double])} \\
+		t_3 &= \texttt{(b , c)}
+	\end{align*}
+	
+	\pause
+	
+	\begin{itemize}
+		\item $t_1$ und $t_2$ sind \uncover<3->{\textit{nicht} unifizierbar}
+		
+		\item $t_1$ und $t_3$ sind \uncover<4->{unifizierbar mit $\texttt{a} \mapsto \texttt{a}$, $\texttt{b} \mapsto \texttt{a}$, $\texttt{c} \mapsto \texttt{[a]}$}
+		
+		\item $t_2$ und $t_3$ sind \uncover<5->{unifizierbar mit $\texttt{b} \mapsto \texttt{Int}$, $\texttt{c} \mapsto \texttt{[Double]}$}
+	\end{itemize}
 \end{frame}
 
 
@@ -118,8 +479,8 @@
 \end{frame}
 
 \begin{frame} \frametitle{Induktion auf Listen}
-\footnotesize
-
+	\footnotesize
+	
 	\textbf{Erinnerung:} Rekursion über Listen \texttt{xs}
 	\begin{equation*}
 		\begin{aligned}
@@ -162,7 +523,7 @@
 		\end{aligned}
 	\end{equation*}
 	\pause
-
+	
 	\begin{center}
 		\fbox{zu zeigen: \hspace{2em} für alle \texttt{t :: BinTree a} gilt $P(\texttt{t})$}
 	\end{center}
@@ -195,7 +556,7 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 1}
+\begin{frame} \frametitle{Aufgabe 2}
 	\scriptsize
 	Zu zeigen ist die Gleichung
 	\begin{equation*}
@@ -218,7 +579,7 @@
 	gilt.
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 1 (Fortsetzung)}
+\begin{frame} \frametitle{Aufgabe 2 (Fortsetzung)}
 	\scriptsize
 	
 	\textbf{Induktionsschritt:} Sei \texttt{x :: Int}. Es gilt
@@ -233,62 +594,62 @@
 	\end{align*}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (a)}
-	\scriptsize
-	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
-	\begin{equation}
-		\begin{aligned}
-			\texttt{[x] ++ rev ys ++ rev xs = rev (xs ++ ys ++ [x])} \\ \text{ für alle } \texttt{xs, ys :: [a]}
-		\end{aligned}
-		\tag{H3}
-	\end{equation}
-	
-	Der Beweis funktioniert ohne Induktion:
-	\begin{align*}
-		\texttt{[x] ++ rev ys ++ rev xs}
-		\astep{Ass.} 
-		\texttt{[x] ++ (rev ys ++ rev xs)} \\
-		\astep{H2} \texttt{[x] ++ rev (xs ++ ys)} \\
-		\astep{H1} \texttt{rev [x] ++ rev (xs ++ ys)} \\
-		\astep{H2} \texttt{rev ((xs ++ ys) ++ [x])} \\
-		\astep{Ass.} \texttt{rev (xs ++ ys ++ [x])}
-	\end{align*}
-\end{frame}
-
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	\scriptsize
-	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
-	\begin{equation*}
-		\texttt{preOrder t = rev (mPostOrder t)} \qquad \text{für alle} \qquad \texttt{t :: BinTree a}
-	\end{equation*}
-	mittels struktureller Induktion.
-	
-	\textbf{Induktionsanfang:} Sei \texttt{x :: a} beliebig und \texttt{t = Leaf x}. 
-	\begin{align*}
-		\text{linke Seite: } \quad &\texttt{preOrder (Leaf x)} \step{4} \texttt{[x]} \\
-		\text{rechte Seite: } \quad & \texttt{rev (mPostOrder (Leaf x))} \step{8} \texttt{rev [x] \step{H1} [x]}
-	\end{align*}
-	
-	\textbf{Induktionsvoraussetzung:} Seien \texttt{l, r:: BinTree a}, sodass
-	\begin{align}
-		\texttt{preOrder l} &= \texttt{rev(mPostOrder l)} \tag{IV1} \\
-		\texttt{preOrder r} &= \texttt{rev(mPostOrder r)} \tag{IV2}
-	\end{align}
-	gilt.
-\end{frame}
-
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (b) (Fortsetzung)}
-	\scriptsize
-	
-	\textbf{Induktionsschritt:} Sei \texttt{x :: a} beliebig. Es gilt
-	\begin{align*}
-		\texttt{preOrder (Node x l r)} \astep{5} \texttt{[x] ++ preOrder l ++ preOrder r} \\
-		\astep{IV1} \texttt{[x] ++ rev(mPostOrder l) ++ preOrder r} \\
-		\astep{IV2} \texttt{[x] ++ rev(mPostOrder l) ++ rev(mPostOrder r)} \\
-		\astep{H3} \texttt{rev(mPostOrder r ++ mPostOrder l ++ [x])} \\
-		\astep{9} \texttt{rev(mPostOrder (Node x l r))}
-	\end{align*}
-\end{frame}
+%\begin{frame} \frametitle{Aufgabe 2 --- Teil (a)}
+%	\scriptsize
+%	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
+%	\begin{equation}
+%		\begin{aligned}
+%			\texttt{[x] ++ rev ys ++ rev xs = rev (xs ++ ys ++ [x])} \\ \text{ für alle } \texttt{xs, ys :: [a]}
+%		\end{aligned}
+%		\tag{H3}
+%	\end{equation}
+%	
+%	Der Beweis funktioniert ohne Induktion:
+%	\begin{align*}
+%		\texttt{[x] ++ rev ys ++ rev xs}
+%		\astep{Ass.} 
+%		\texttt{[x] ++ (rev ys ++ rev xs)} \\
+%		\astep{H2} \texttt{[x] ++ rev (xs ++ ys)} \\
+%		\astep{H1} \texttt{rev [x] ++ rev (xs ++ ys)} \\
+%		\astep{H2} \texttt{rev ((xs ++ ys) ++ [x])} \\
+%		\astep{Ass.} \texttt{rev (xs ++ ys ++ [x])}
+%	\end{align*}
+%\end{frame}
+%
+%\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
+%	\scriptsize
+%	Sei \texttt{a} ein beliebiger Typ. Zu zeigen ist die Gleichung
+%	\begin{equation*}
+%		\texttt{preOrder t = rev (mPostOrder t)} \qquad \text{für alle} \qquad \texttt{t :: BinTree a}
+%	\end{equation*}
+%	mittels struktureller Induktion.
+%	
+%	\textbf{Induktionsanfang:} Sei \texttt{x :: a} beliebig und \texttt{t = Leaf x}. 
+%	\begin{align*}
+%		\text{linke Seite: } \quad &\texttt{preOrder (Leaf x)} \step{4} \texttt{[x]} \\
+%		\text{rechte Seite: } \quad & \texttt{rev (mPostOrder (Leaf x))} \step{8} \texttt{rev [x] \step{H1} [x]}
+%	\end{align*}
+%	
+%	\textbf{Induktionsvoraussetzung:} Seien \texttt{l, r:: BinTree a}, sodass
+%	\begin{align}
+%		\texttt{preOrder l} &= \texttt{rev(mPostOrder l)} \tag{IV1} \\
+%		\texttt{preOrder r} &= \texttt{rev(mPostOrder r)} \tag{IV2}
+%	\end{align}
+%	gilt.
+%\end{frame}
+%
+%\begin{frame} \frametitle{Aufgabe 2 -- Teil (b) (Fortsetzung)}
+%	\scriptsize
+%	
+%	\textbf{Induktionsschritt:} Sei \texttt{x :: a} beliebig. Es gilt
+%	\begin{align*}
+%		\texttt{preOrder (Node x l r)} \astep{5} \texttt{[x] ++ preOrder l ++ preOrder r} \\
+%		\astep{IV1} \texttt{[x] ++ rev(mPostOrder l) ++ preOrder r} \\
+%		\astep{IV2} \texttt{[x] ++ rev(mPostOrder l) ++ rev(mPostOrder r)} \\
+%		\astep{H3} \texttt{rev(mPostOrder r ++ mPostOrder l ++ [x])} \\
+%		\astep{9} \texttt{rev(mPostOrder (Node x l r))}
+%	\end{align*}
+%\end{frame}
 
 \begin{frame} \frametitle{Ende}
 	\centering
