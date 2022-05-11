@@ -285,7 +285,7 @@ h = g . f
 		\item $t_1$, $t_2$ sind \textbf{nicht unfizierbar}: $M$ hat nicht diese Form und keine Regel ist anwendbar
 	\end{itemize}
 	
-	Weitere Unifikatoren $\psi$ erhält man durch Anwendung einer Substitution $\sigma$, sodass $\psi = \sigma \circ \phi$.
+	Weitere Unifikatoren $\psi$ erhält man durch Anwendung einer Substitution $\sigma$, sodass $\psi = \tilde\sigma \circ \phi$, wobei $\tilde\sigma$ die Erweiterung von $\sigma$ ist, die durch \enquote{Einsetzen} definiert ist (siehe Skript).
 \end{frame}
 
 \begin{frame} \frametitle{Occur Check}
@@ -325,7 +325,7 @@ h = g . f
 		&\left\{\left(\begin{array}{lcrlcl}
 		\col{\sigma(}\sigma(&x_1&,\alpha) \col{,} &\ \sigma(&\gamma(x_3) &, x_3)\col{)} \\
 		\col{\sigma(}\sigma( &\gamma(x_2)&,\alpha) \col{,} &\ \sigma(&x_2 &, x_3)\col{)}
-		\end{array}\right)\right\}\\ \pause
+		\end{array}\right)\right\}\\ 
 		% 
 		\overset{\text{Dek.}}{\Longrightarrow}
 		%
@@ -397,7 +397,7 @@ h = g . f
 	\footnotesize
 	(a) \textbf{allgemeinster Unifikator:}
 	\begin{align*}
-		\qquad x_1 \mapsto \gamma(\gamma(x_3)) \qquad
+		\phi: \qquad x_1 \mapsto \gamma(\gamma(x_3)) \qquad
 		x_2 \mapsto \gamma(x_3) \qquad
 		x_3 \mapsto x_3
 	\end{align*}
@@ -406,12 +406,12 @@ h = g . f
 	
 	(b) \textbf{weitere Unifikatoren:} 
 	\begin{align*}
-		x_1 &\mapsto \gamma(\gamma(\alpha))
-		&x_2 &\mapsto \gamma(\alpha)
-		&x_3 &\mapsto \alpha \\
-		x_1 &\mapsto \gamma(\gamma(\gamma(\alpha)))
-		&x_2 &\mapsto \gamma(\gamma(\alpha))
-		&x_3 &\mapsto \gamma(\alpha)
+		&\psi_1: & x_1 &\mapsto \gamma(\gamma(\col{\alpha}))
+		&x_2 &\mapsto \gamma(\col{\alpha})
+		&x_3 &\mapsto \col{\alpha} \\
+		&\psi_2: & x_1 &\mapsto \gamma(\gamma(\col{\gamma(\alpha)}))
+		&x_2 &\mapsto \gamma(\col{\gamma(\alpha)})
+		&x_3 &\mapsto \col{\gamma(\alpha)}
 	\end{align*}
 	
 	\pause
