@@ -17,11 +17,31 @@
 \renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
 
 \usepackage{listings}
-
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!10},
+	%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
 
 \usepackage{textgreek}
+\usepackage{tcolorbox}
 
 \newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
+\newcommand{\step}[2][]{\ensuremath{\overset{{#1} (\text{#2})}{=}}}
+\newcommand*{\astep}[2][]{\ensuremath{\overset{{#1} (\text{#2})}&{=}}}
 
 \DeclareMathOperator{\GV}{GV}
 \DeclareMathOperator{\FV}{FV}
@@ -29,13 +49,13 @@
 
 \begin{document}	
 	\title{Programmierung}
-	\subtitle{Übung 6: $\lambda$-Kalkül --- Teil 1}
+	\subtitle{Übung 6: \\ Strukturelle Induktion \& \textlambda-Kalkül (Teil 1)}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{16. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
@@ -60,7 +80,159 @@
 	\end{enumerate}
 \end{frame}
 
-\section{Der $\lambda$-Kalkül}
+
+
+\section{Induktionsbeweise \\ \textit{\normalsize Aufgabe 2}}
+
+\begin{frame} \frametitle{Vollständige Induktion auf $\N$}
+	\footnotesize
+	
+	\textbf{Definition:} natürliche Zahlen $\N \defeq \menge{0, 1, \dots}$
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad &&0 &\in \N \\
+			\text{Rekursionsfall: }\quad &&x + 1 &\in \N
+			\quad \text{ für } \quad x \in \N
+		\end{aligned}
+	\end{equation*}
+	
+	\textbf{Beweis von Eigenschaften:}
+	Eigenschaft $=$ Prädikat $P$
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle $x \in \N$ gilt $P(x)$}
+	\end{center}
+	
+	\textbf{vollständige Induktion:}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(x)$ für $x = 0$
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Sei $x \in \N$, sodass $P(x)$ gilt.
+		\hfill
+		\textcolor{cdgray}{$P(x)$ gilt noch nicht für \textit{alle} $x \in \N$}
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(x+1)$ unter Nutzung der Induktionsvoraussetzung
+	\end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Induktion auf Listen}
+	\footnotesize
+	
+	\textbf{Erinnerung:} Rekursion über Listen \texttt{xs}
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad \texttt{xs} &= \texttt{[]} \\
+			\text{Rekursionsfall: }\quad \texttt{xs} &= \texttt{(y:ys)} \quad \text{ für } \quad \texttt{ys :: [a]}
+		\end{aligned}
+	\end{equation*}
+	
+	\textbf{Beweis von Programmeigenschaften:}
+	Eigenschaft $=$ Prädikat $P$
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle \texttt{xs :: [a]} gilt $P(\texttt{xs})$}
+	\end{center}
+	
+	\textbf{Induktion auf Listen:} \vspace{-0.5\baselineskip}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(\texttt{xs})$ für \texttt{xs == []}
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Sei \texttt{xs :: [a]} eine Liste für die $P(\texttt{xs})$ gilt.
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(\texttt{x:xs})$ für alle \texttt{x :: a} unter Nutzung der Induktionsvoraussetzung
+	\end{itemize}
+	
+	\fbox{\emph{Allgemeiner Hinweis:} Es müssen immer \alert{alle} Variablen quantifiziert werden!}
+\end{frame}
+	
+\begin{frame} \frametitle{Strukturelle Induktion}
+	\footnotesize
+	
+	\textbf{Erinnerung:} Rekursion über Bäume
+	\begin{equation*}
+		\begin{aligned}
+			\text{Basisfall: } \quad &\texttt{Nil} \text{ oder } \texttt{Leaf x} \text{ für } \texttt{x :: a} \\
+			\text{Rekursionsfall: }\quad &\texttt{Branch x l r} \text{ für } \texttt{x :: a} \text{ und } \texttt{l,r :: BinTree a}
+		\end{aligned}
+	\end{equation*}
+	
+	\begin{center}
+		\fbox{zu zeigen: \hspace{2em} für alle \texttt{t :: BinTree a} gilt $P(\texttt{t})$}
+	\end{center}
+	
+	\textbf{strukturelle Induktion:} \vspace{-0.5\baselineskip}
+	\begin{itemize}
+		\item \textcolor{cdblue}{Induktionsanfang}: \\
+		zeige $P(\texttt{t})$ für \texttt{t == Nil} oder \texttt{t == Leaf x} für alle \texttt{x :: a}
+		\item \textcolor{cdblue}{Induktionsvoraussetzung}:\\
+		Seien \texttt{l, r :: BinTree a} zwei Bäume, sodass $P(\texttt{l})$ und $P(\texttt{r})$ gilt.
+		\item \textcolor{cdblue}{Induktionsschritt}: \\
+		zeige $P(\texttt{Branch x l r})$ für alle \texttt{x :: a} unter Nutzung der Induktionsvoraussetzung
+	\end{itemize}
+	
+	\fbox{\emph{Allgemeiner Hinweis:} Es müssen immer \alert{alle} Variablen quantifiziert werden!}
+\end{frame}
+
+
+\begin{frame}[fragile] \frametitle{Aufgabe 1}
+	\footnotesize
+	\begin{lstlisting}[style=bg, basicstyle=\ttfamily\scriptsize]
+data Tree a = Node a (Tree a) (Tree a) | Leaf a
+
+mirror :: Tree a -> Tree a
+mirror (Node x t1 t2) = Node x (mirror t2) (mirror t1)
+mirror (Leaf x) = Leaf x
+
+yield :: Tree a -> [a]
+yield (Node _ t1 t2) = yield t1 ++ yield t2
+yield (Leaf x) = [x]
+	\end{lstlisting}
+	verwendbare Eigenschaften:
+	\begin{align*}
+		\texttt{reverse [x]} &\texttt{ = }  \texttt{[x]} \tag{E1} \\
+		\texttt{reverse (xs ++ ys)} &\texttt{ = } \texttt{reverse ys ++ reverse xs} \tag{E2}
+	\end{align*}
+
+	Mittels struktureller Induktion ist folgende Aussage zu zeigen:
+	\begin{tcolorbox}[colback=cddarkblue!10, boxrule=0pt, arc=0mm]
+		\textit{Für jeden Typ \texttt{a}} und jeden Baum \texttt{t :: Tree a} gilt 
+		\begin{equation*}
+			\texttt{reverse (yield t) = yield (mirror t)} 
+		\end{equation*}
+	\end{tcolorbox}
+\end{frame}
+	
+\begin{frame} \frametitle{Aufgabe 1}
+	\scriptsize
+	\textbf{Induktionsanfang:} Sei \texttt{a} ein Typ und \texttt{x :: a} beliebig sowie \texttt{t = Leaf x}. 
+	\begin{align*}
+			\text{linke Seite: } \quad &\texttt{reverse (yield (Leaf x))} \step{9} \texttt{reverse [x]} \step{E1} \texttt{[x]} \\
+			\text{rechte Seite: } \quad & \texttt{yield (mirror (Leaf x))} \step{5} \texttt{yield (Leaf x)} \step{9} \texttt{[x]}
+		\end{align*}
+	
+	\textbf{Induktionsvoraussetzung:} Seien \texttt{a} ein Typ und \texttt{l, r:: Tree a}, sodass
+	\begin{align}
+			\texttt{reverse (yield r) = yield (mirror l)}  \tag{IV1} \\
+			\texttt{reverse (yield r) = yield (mirror r)}  \tag{IV2}
+	\end{align}
+	gilt.
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 1}
+	\scriptsize
+	\textbf{Induktionsschritt:} Sei \texttt{a} ein Typ und \texttt{x :: a} beliebig. Es gilt
+	\begin{align*}
+		&\texttt{reverse (yield (Node x l r))} \\
+		\astep{8} \texttt{reverse (yield l ++ yield r)} \\
+		\astep{E2}\texttt{reverse (yield r) ++ reverse (yield l)} \\
+		\astep{IV1} \texttt{reverse (yield r) ++ yield (mirror l)} \\
+		\astep{IV2} \texttt{yield (mirror r) ++ yield (mirror l)} \\
+		\astep{8} \texttt{yield (Node x (mirror r) (mirror l))} \\
+		\astep{4} \texttt{yield (mirror (Node x l r))}
+		\end{align*}
+\end{frame}
+
+\section{Der \textlambda-Kalkül}
 
 \begin{frame} \frametitle{$\lambda$-Kalkül}
 	\footnotesize
@@ -194,9 +366,7 @@
 	\end{equation*}
 \end{frame}
 
-\section{Übungsblatt 6 \\ \textit{\normalsize Aufgabe 1}}
-
-\begin{frame} \frametitle{Aufgabe 1 --- Teil (a)}
+\begin{frame} \frametitle{Aufgabe 2 --- Teil (a)}
 	\begin{itemize}[<+->]
 		\item $t_1 = (\lambda x . x y) \ (\lambda y . y)$:
 			\begin{itemize}
@@ -216,8 +386,8 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	% Term 1
+\begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	Term 1
 	\begin{align*}
 		&(\lambda x . (\underbrace{\lambda y . x \ z \ (y \ z))}_{\GV=\menge{y}}) \ \underbrace{(\lambda x . y \ (\lambda y . y))}_{\FV = \menge{y}}
 		\\
@@ -235,8 +405,8 @@
 \end{frame}
 
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	% Term 2
+\begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	 Term 2
 	\begin{align*}
 		& (\lambda x . (\underbrace{\lambda y . (\lambda z . z)}_{\GV=\menge{y,z}})) \ \underbrace{x}_{\FV = \menge{x}} ( + \ y \ 1)
 		\\
@@ -249,8 +419,8 @@
 \end{frame}
 
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	% Term 3
+\begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	Term 3
 	\begin{align*}
 		& (\lambda x . (\lambda y . x \ (\lambda z . y \ z))) \ (((\lambda x . \underbrace{(\lambda y . y )}_{\GV= \menge{y}}) \ \underbrace{8}_{\FV = \emptyset} ) \ (\lambda x . (\lambda y . y) \ x ))
 		\\
@@ -276,8 +446,8 @@
 	\end{align*}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	% Term 4
+\begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	Term 4
 	\begin{align*}
 		& (\lambda h . (\lambda x . h \ (x \ x)) \ (\lambda x . h \ (x \ x))) ((\lambda x . \underbrace{x}_{\GV = \emptyset}) \ \underbrace{(+ \ 1 \ 5)}_{ \FV = \emptyset})
 		\\
@@ -299,8 +469,8 @@
 	\end{align*}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 --- Teil (b)}
-	% Term 5
+\begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	Term 5
 	\begin{align*}
 		& (\lambda f . \underbrace{(\lambda a . (\lambda b . f \ a \ b))}_{\GV = \menge{a,b}}) \ \underbrace{(\lambda x . (\lambda y . x ))}_{\FV= \emptyset}) 
 		\\
@@ -317,10 +487,7 @@
 	\end{align*}
 \end{frame}
 
-
-\section{Übungsblatt 6 \\ \textit{\normalsize Aufgabe 2}}
-
-\begin{frame} \frametitle{Aufgabe 2}
+\begin{frame} \frametitle{Aufgabe 3}
 	\begin{tabbing}
 		\emph{(a)} $\quad$ \= $A$ mit $A \ t \ s \ u \Rightarrow^\ast s$:
 		\pause $\qquad$ \= $A = (\lambda xyz \ . \ y)$ \\[6pt]
@@ -342,12 +509,11 @@
 	\end{tabbing}
 	\small
 	\begin{align*}
-		(\lambda x\underbrace{y \ . \ xyx}_{GV = \{y\}}) (\underbrace{\lambda xy \ . \ xyx}_{FV = \emptyset}) \ t 
-		\pause \enskip &\Rightarrow^{\beta} \enskip
-		(\lambda y \ . \ (\lambda xy \ . \ xyx) \ y \ (\lambda xy \ . \ xyx)) \ t 
-		\pause \\
-		&\Rightarrow^{\beta} \enskip 
-		(\underbrace{\lambda xy \ . \ xyx}_{ = E}) \ t \ (\underbrace{\lambda xy \ . \ xyx}_{=E})
+		(\lambda x\underbrace{y \ . \ xyx}_{GV = \{y\}}) (\underbrace{\lambda xy \ . \ xyx}_{FV = \emptyset}) \ t \enskip
+		\onslide<13->{&\Rightarrow^{\beta} \enskip%
+		(\lambda y \ . \ (\lambda xy \ . \ xyx) \ y \ (\lambda xy \ . \ xyx)) \ t } \\
+		\onslide<14->{&\Rightarrow^{\beta} \enskip %
+		(\underbrace{\lambda xy \ . \ xyx}_{ = E}) \ t \ (\underbrace{\lambda xy \ . \ xyx}_{=E})}
 	\end{align*}
 \end{frame}
 
