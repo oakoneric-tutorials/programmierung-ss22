@@ -398,7 +398,9 @@ yield (Leaf x) = [x]
 		\begin{itemize} \footnotesize
 			\item Applikation $(t' s)$: es muss ein Term $s$ zum Einsetzen vorhanden sein
 			\item Abstraktion in $t' = (\lambda x . t)$: der erste Term braucht eine \enquote{Variable} $x$, für die etwas eingesetzt werden kann
-		\end{itemize} \pause
+		\end{itemize} 
+		\textit{Achtung: implizite Klammerung (Linksassoziativität) beachten!}
+		\pause
 		\item Bestimmung gebundener und freier Vorkommen: $\big( (\lambda x . \underbrace{t}_{\GV}) \underbrace{s}_{\FV} \big)$
 		\pause
 		\item Falls $\GV(t) \cap \FV(s) \neq \emptyset$: $\qquad \alpha$-Konversion
