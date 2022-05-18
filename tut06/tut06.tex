@@ -38,8 +38,10 @@
 
 \usepackage{textgreek}
 \usepackage{tcolorbox}
+\usepackage{ragged2e}
 
 \newcommand{\col}[1]{\textcolor{cdpurple}{#1}}
+\newcommand{\coll}[1]{\textcolor{cddarkgreen}{#1}}
 \newcommand{\step}[2][]{\ensuremath{\overset{{#1} (\text{#2})}{=}}}
 \newcommand*{\astep}[2][]{\ensuremath{\overset{{#1} (\text{#2})}&{=}}}
 
@@ -366,22 +368,70 @@ yield (Leaf x) = [x]
 	\end{equation*}
 \end{frame}
 
+\begin{frame} \frametitle{Normalform \hfill \alert{\small NEW}}
+	\footnotesize \justifying
+	Nutzt man sowohl $\alpha$-Konversionen $\Rightarrow_\alpha$ als auch $\beta$-Reduktionen $\Rightarrow_\beta$, so spricht man von der \textit{Rechenvorschrift} $\Rightarrow$ des $\lambda$-Kalküls.
+	
+	Führt man mehrere Schritte direkt aus, so schreibt man $\Rightarrow^\ast$ statt $\Rightarrow$.
+	\pause
+	
+	Wenn $t \Rightarrow^\ast s$ und es gibt keine $\lambda$-Terme $s_1, s_2$ mit $s \Rightarrow_\alpha^\ast s_1 \Rightarrow_\beta^\ast s_2$, dann heißt $s$ ($\beta$-)\textbf{Normalform} von $t$.
+	
+	\textbf{Anschauung:} \vspace{-.7\baselineskip}
+	\begin{itemize}
+		\item möglichst einfache Form eines Lambda-Terms
+		\item \enquote{fertig ausgerechnete} Funktion
+	\end{itemize}
+	\pause
+	
+	Die Rechenvorschrift $\Rightarrow$ ist \textit{konfluent}, d. h. für alle $\lambda$-Terme $t, t_1 , t_2$ gilt: wenn $t \Rightarrow^\ast t_1$ und $t \Rightarrow^\ast t_2$, dann gibt es einen $\lambda$-Term $s$ mit $t_1 \Rightarrow^\ast s$ und $t_2 \Rightarrow^\ast s$.
+	
+	Damit gilt auch: wenn eine Normalform existiert, dann ist sie \textit{eindeutig} (egal welche Schritte man zwischendurch auswählt).
+\end{frame}
+
+\begin{frame} \frametitle{Normalform --- Vorgehen \hfill \alert{\small NEW}}
+	\footnotesize
+	\textbf{Vorgehen:}
+	\begin{enumerate}
+		\item Bestimmung von Stellen, an denen reduziert werden kann \\
+		Anforderungen: (Teil-)Term der Form $\big( \underbrace{(\lambda x . t)}_{= t'} s \big)$
+		\begin{itemize} \footnotesize
+			\item Applikation $(t' s)$: es muss ein Term $s$ zum Einsetzen vorhanden sein
+			\item Abstraktion in $t' = (\lambda x . t)$: der erste Term braucht eine \enquote{Variable} $x$, für die etwas eingesetzt werden kann
+		\end{itemize} \pause
+		\item Bestimmung gebundener und freier Vorkommen: $\big( (\lambda x . \underbrace{t}_{\GV}) \underbrace{s}_{\FV} \big)$
+		\pause
+		\item Falls $\GV(t) \cap \FV(s) \neq \emptyset$: $\qquad \alpha$-Konversion
+		\begin{itemize} \footnotesize
+			\item Umbenennung der gebunden Vorkommen in $t$
+		\end{itemize}
+		\item Falls $\GV(t) \cap \FV(s) = \emptyset$: $\qquad \beta$-Reduktion
+		\begin{itemize} \footnotesize
+			\item Streichen der Abstraktion $\lambda x.$
+			\item Setze für jedes Vorkommen von $x$ in $t$ den Term $s$ sein
+		\end{itemize}
+	\end{enumerate}
+\end{frame}
+
+\newcommand{\acol}[2]{\textcolor<#2->{cdpurple}{#1}}
+\newcommand{\acoll}[2]{\textcolor<#2->{cddarkgreen}{#1}}
 \begin{frame} \frametitle{Aufgabe 2 --- Teil (a)}
+	
 	\begin{itemize}[<+->]
-		\item $t_1 = (\lambda x . x y) \ (\lambda y . y)$:
+		\item $t_1 = (\lambda \acoll{x}{2} . \acoll{x}{2} \acol{y}{3}) \ (\lambda \acoll{y}{2} . \acoll{y}{2})$:
 			\begin{itemize}
-				\item $\FV(t_1) = \menge{y}$
-				 \item $\GV(t_1) = \menge{x,y}$
+				\item $\GV(t_1) = \menge{\coll{x},\coll{y}}$
+				\item $\FV(t_1) = \menge{\col{y}}$
 			\end{itemize}
-		\item $t_2 = (\lambda x . (\lambda y . z (\lambda z . z (\lambda x . y))))$
+		\item $t_2 = (\lambda \acoll{x}{5} . (\lambda \acoll{y}{5} . \acol{z}{6} (\lambda \acoll{z}{5} . \acoll{z}{5} (\lambda \acoll{x}{5} . \acoll{y}{5}))))$
 			\begin{itemize}
-				\item $\FV(t_2) = \menge{z}$
-				\item $\GV(t_2) = \menge{x,y,z}$
+				\item $\GV(t_2) = \menge{\coll{x},\coll{y},\coll{z}}$
+				\item $\FV(t_2) = \menge{\col{z}}$
 			\end{itemize}
-		\item $t_3 = (\lambda x . (\lambda y . z (yz)))(\lambda x . y (\lambda y. y ))$
+		\item $t_3 = (\lambda \acoll{x}{8} . (\lambda \acoll{y}{8} . \acol{z}{9} (\acoll{y}{8} \acol{z}{9})))(\lambda \acoll{x}{8} . \acol{y}{9} (\lambda \acoll{y}{8}. \acoll{y}{8} ))$
 			\begin{itemize}
-				\item $\FV(t_3) = \menge{y,z}$
-				\item $\GV(t_3) = \menge{x,y}$
+				\item $\GV(t_3) = \menge{\coll{x},\coll{y}}$
+				\item $\FV(t_3) = \menge{\col{y},\col{z}}$
 			\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -420,6 +470,7 @@ yield (Leaf x) = [x]
 
 
 \begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	\small
 	Term 3
 	\begin{align*}
 		& (\lambda x . (\lambda y . x \ (\lambda z . y \ z))) \ (((\lambda x . \underbrace{(\lambda y . y )}_{\GV= \menge{y}}) \ \underbrace{8}_{\FV = \emptyset} ) \ (\lambda x . (\lambda y . y) \ x ))
@@ -447,6 +498,7 @@ yield (Leaf x) = [x]
 \end{frame}
 
 \begin{frame}[t] \frametitle{Aufgabe 2 --- Teil (b)}
+	\small
 	Term 4
 	\begin{align*}
 		& (\lambda h . (\lambda x . h \ (x \ x)) \ (\lambda x . h \ (x \ x))) ((\lambda x . \underbrace{x}_{\GV = \emptyset}) \ \underbrace{(+ \ 1 \ 5)}_{ \FV = \emptyset})
