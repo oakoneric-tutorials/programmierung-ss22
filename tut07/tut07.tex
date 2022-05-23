@@ -17,22 +17,41 @@
 \renewcommand{\tabularxcolumn}[1]{>{\hspace{0pt}}m{#1}}
 
 \usepackage{listings}
-\lstset{ 
+%\lstset{ 
+%	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+%	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+%	breaklines=true,                 % sets automatic line breaking
+%	commentstyle=\itshape,    	     % comment style
+%	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+%	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+%	firstnumber=1,                % start line enumeration with line 1000
+%	frame=single,
+%	keywordstyle=\bfseries,       % keyword style
+%	morekeywords={}, 
+%	language=Haskell,                 % the language of the code
+%	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+%	numbersep=5pt,                   % how far the line-numbers are from the code
+%	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+%	rulecolor=\color{cddarkblue}, 
+%	tabsize=2,	                   % sets default tabsize to 2 spaces
+%}
+\lstdefinestyle{bg}{ 
 	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
 	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
 	breaklines=true,                 % sets automatic line breaking
 	commentstyle=\itshape,    	     % comment style
-	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	escapeinside={\%*}{\%*},          % if you want to add LaTeX within your code
 	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
 	firstnumber=1,                % start line enumeration with line 1000
-	frame=single,
-	keywordstyle=\bfseries,       % keyword style
-	morekeywords={}, 
+	frame=L,
+	backgroundcolor=\color{cdgray!15},
+	%	keywordstyle=\bfseries,       % keyword style
 	language=Haskell,                 % the language of the code
 	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
-	numbersep=5pt,                   % how far the line-numbers are from the code
+	numbersep=8pt,                   % how far the line-numbers are from the code
 	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
 	rulecolor=\color{cddarkblue}, 
+	showstringspaces=false,
 	tabsize=2,	                   % sets default tabsize to 2 spaces
 }
 
@@ -51,38 +70,48 @@
 
 \newcommand{\num}[1]{\ensuremath{\langle #1 \rangle}}
 
+\makeatletter
+\let\save@measuring@true\measuring@true
+\def\measuring@true{%
+	\save@measuring@true
+	\def\beamer@sortzero##1{\beamer@ifnextcharospec{\beamer@sortzeroread{##1}}{}}%
+	\def\beamer@sortzeroread##1<##2>{}%
+	\def\beamer@finalnospec{}%
+}
+\makeatother
+
 \begin{document}	
 	\title{Programmierung}
 	\subtitle{Übung 7: \textlambda-Kalkül (Teil 2)}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{23. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile] \frametitle{Inhalt}
-	\begin{enumerate}
-		\item Funktionale Programmierung
-		\begin{enumerate}
-			\item Einführung in Haskell: Listen
-			\item Algebraische Datentypen
-			\item Funktionen höherer Ordnung
-			\item Typpolymorphie \& Unifikation
-			\item Beweis von Programmeigenschaften
-			\item \textbf{\textlambda--Kalkül}
-		\end{enumerate}
-		\item Logikprogrammierung
-		\item Implementierung einer imperativen Programmiersprache
-		\item Verifikation von Programmeigenschaften
-		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
-	\end{enumerate}
-\end{frame}
+%\begin{frame}[fragile] \frametitle{Inhalt}
+%	\begin{enumerate}
+%		\item Funktionale Programmierung
+%		\begin{enumerate}
+%			\item Einführung in Haskell: Listen
+%			\item Algebraische Datentypen
+%			\item Funktionen höherer Ordnung
+%			\item Typpolymorphie \& Unifikation
+%			\item Beweis von Programmeigenschaften
+%			\item \textbf{\textlambda--Kalkül}
+%		\end{enumerate}
+%		\item Logikprogrammierung
+%		\item Implementierung einer imperativen Programmiersprache
+%		\item Verifikation von Programmeigenschaften
+%		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
+%	\end{enumerate}
+%\end{frame}
 
 
 \section{Der \textlambda--Kalkül \\ \normalsize \itshape Programmieren mit \textlambda's}
@@ -170,8 +199,11 @@
 
 
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (a)}
+	\small
+	Gesucht ist die Normalform von $(\lambda f x . f f x) \ (\lambda y . x) \ z$. \pause
+	
 	\begin{align*}
-		&(\lambda f \underbrace{x . f \ f \ x}_{\GV = \menge{x}}) \ (\underbrace{\lambda y . x}_{\FV = \menge{x}}) \ z	\\
+		&(\lambda f \underbrace{x . f \ f \ x}_{\GV = \menge{x}}) \ (\underbrace{\lambda y . x}_{\FV = \menge{x}}) \ z	\\ 
 		\Rightarrow_\alpha \quad
 		& (\lambda f \underbrace{x_1 . f \ f \ x_1}_{\GV = \menge{x_1}}) \ (\underbrace{\lambda y . x}_{\FV = \menge{x}}) \ z
 		\\
@@ -188,12 +220,13 @@
 \end{frame}
 
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (b)}
-	\tiny
-	\begin{equation*}
-		\num{F} = \Biggl( \lambda f xyz \ . \ \num{ite} \ \Bigl(\num{iszero} \ (\num{sub} x y )\Bigr) \ \Bigl( \num{add} y z \Bigr) \ \Bigl( \num{succ} \ ( f \ (\num{pred} x) \ (\num{succ} y) \ ( \num{mult} \num{2} z )) \Bigr) \Biggr)
-	\end{equation*}
-	
 	\footnotesize
+	\begin{align*}
+		\num{F} = \Biggl( \lambda f xyz \ . \ \num{ite} \ &\Bigl(\num{iszero} \ (\num{sub} x y )\Bigr) \\ &\Bigl( \num{add} y z \Bigr) \\
+		&\Bigl( \num{succ} \ ( f \ (\num{pred} x) \ (\num{succ} y) \ ( \num{mult} \num{2} z )) \Bigr) \Biggr)
+	\end{align*}
+	
+	\pause
 	
 	\textbf{Nebenrechnung:} Zeige die Wirkung des Fixpunktkombinators.
 	\begin{align*}
@@ -207,7 +240,7 @@
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (b)}
 	\footnotesize
 	\begin{align*}
-		\num{Y} \num{F} \num{6} \num{5} \num{3} &\Rightarrow^\ast \num{F} \num{Y_F} \num{6} \num{5} \num{3} \\
+		\num{Y} \num{F} \num{6} \num{5} \num{3} \pause &\Rightarrow^\ast \num{F} \num{Y_F} \num{6} \num{5} \num{3} \\
 		&\Rightarrow^\ast \num{ite} \ 
 		(\underbrace{\num{iszero} \ (\num{sub}\num{6}\num{5})}_{\Rightarrow^\ast \num{false}}) \ 
 		( \dots ) \\
@@ -218,6 +251,19 @@
 		&\Rightarrow^\ast \num{succ} \ \num{12} \\
 		&\Rightarrow^\ast \num{13}
 	\end{align*}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 1 -- Teil (c)}
+	\small
+	Gegeben sei folgende Haskell-Funktion:
+	\begin{lstlisting}[style=bg]
+g :: Int -> Int -> Int
+g 0 y = 2 * (y + 1)
+g x 0 = 2 * (x + 1)
+g x y = 4 + g (x - 1) (y - 1)
+	\end{lstlisting}
+
+	Geben Sie einen $\lambda$-Term $\num{G}$ an, so dass $\num{Y} \num{G} \num{x} \num{y} \Rightarrow^\ast \num{\texttt{g} \ x \ y}$ für alle $x, y \in \N$ gilt.
 \end{frame}
 
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (c)}
@@ -237,10 +283,71 @@
 	\end{alignat*}
 \end{frame}
 
-
 \section{Übungsblatt 7 \\ \textit{\normalsize Aufgabe 2}}
 
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (a)}
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\small
+	Gegeben sei der $\lambda$-Term 
+	\begin{align*}
+		\num{F} = \Biggl( \lambda f xy \ . \ \num{ite} \ &\Bigl(\num{iszero} \ x \Bigr) \\ & \quad y  \\
+		&\Bigl( \num{add} \ x \ \big( f \ (\num{pred} x) \ (\num{add} x \ y) \big) \Bigr) \Biggr)
+	\end{align*}
+	Geben Sei eine Haskell-Funktion \texttt{f} an, sodass $\texttt{f} = \num{Y} \num{F}$.
+	
+	\medskip \pause
+	
+	\begin{lstlisting}[style=bg]
+f :: Int -> Int -> Int
+f 0 y = y
+f x y = x + f (x - 1) (x + y)
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+	\small
+	\begin{align*}
+		\num{F} = \Biggl( \lambda f xy \ . \ \num{ite} \ &\Bigl(\num{iszero} \ x \Bigr) \\ & \quad y  \\
+		&\Bigl( \num{add} \ x \ \big( f \ (\num{pred} x) \ (\num{add} x \ y) \big) \Bigr) \Biggr)
+	\end{align*}
+
+	\textbf{Gesucht:} Normalform von $\num{Y} \num{F} \num{1} \num{4}$
+	
+	\bigskip \pause
+	
+	\textbf{Nebenrechnung:} Zeige die Wirkung des Fixpunktkombinators.
+	\begin{align*}
+		\num{Y} \num{F}
+		= \enskip &\Bigl( \lambda z . \ \bigl( \lambda u . z (uu) \bigr) \ \bigl( \lambda u. z (uu) \bigr) \Bigr) \ \num{F} \\
+		\Rightarrow^{\beta} \quad &\Bigl( \lambda u . \num{F} (uu) \Bigr) \ \Bigl( \lambda u. \num{F} (uu) \Bigr) \qquad =: \num{Y_F} \\
+		\Rightarrow^{\beta} \quad &\num{F} \num{Y_F}
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+	\footnotesize
+	\begin{align*}
+		&\num{Y} \num{F} \num{1} \num{4} \\
+		\Rightarrow^\ast \ &\num{F} \num{Y_F} \num{1} \num{4} \\
+		\Rightarrow^\ast \
+		&\num{ite} \ 
+		\Bigl( \underbrace{\num{iszero} \ \num{1}}_{\Rightarrow^\ast \num{false}} \Bigr) \ \Bigl( \dots \Bigr) \ \Bigl( \num{add} \ \num{1} \ \bigl( \num{Y_F} \ \bigl(\underbrace{\num{pred} \ \num{1}}_{\Rightarrow^\ast \num{0}} \bigr) \ \bigl(\underbrace{\num{add} \ \num{1} \ \num{4}}_{\Rightarrow^\ast \num{5}} \bigr) \bigr) \Bigr) \\
+		%
+		\Rightarrow^\ast \
+		&\num{add} \ \num{1} \ \Bigl( \num{F} \ \num{Y_F} \ \num{0} \ \num{5} \Bigr) \\
+		%
+		\Rightarrow^\ast \
+		&\num{ite} \ 
+		\Bigl( \underbrace{\num{iszero} \ \num{0}}_{\Rightarrow^\ast \num{true}} \Bigr) \  \num{5}  \ \Bigl( \dots \Bigr) \\
+		%
+		\Rightarrow^\ast \ &\num{add} \ \num{1} \ \num{5} \\
+		\Rightarrow^\ast \ &\num{6}
+	\end{align*} 
+\end{frame}
+
+
+\section{Übungsblatt 7 (Sommer 2021) \\ \textit{\normalsize Aufgabe 12.4.21 aus der Aufgabensammlung}}
+
+\begin{frame} \frametitle{Aufgabe 12.4.21 -- Teil (a)}
 	\small
 	\begin{equation*}
 		g \colon \mathbb{N} \times \mathbb{N} \to \mathbb{N} \quad \text{ mit } \quad g(x,y) := \begin{cases}
@@ -260,7 +367,7 @@
 	\end{alignat*}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+\begin{frame} \frametitle{Aufgabe 12.4.21 -- Teil (b)}
 	\footnotesize
 	\begin{equation*}
 		\num{G} = \Biggl( \lambda \ g xy \ . \ \num{ite} \ \Bigl(\num{iszero} \ y \Bigr) \ \Bigl( \num{mult} \ x \ x \Bigr) \ \Bigl( g \ \bigl( \num{mult} \ \num{2} \ x \bigr) \ \bigl(\num{pred} \ y) \bigr) \Bigr) \Biggr)
@@ -278,7 +385,7 @@
 	\end{align*}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+\begin{frame} \frametitle{Aufgabe 12.4.21 -- Teil (b)}
 	\scriptsize
 	\begin{alignat*}{2}
 	&\num{Y} \num{G} \num{1} \num{3} \\
