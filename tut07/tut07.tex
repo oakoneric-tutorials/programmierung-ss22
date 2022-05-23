@@ -113,6 +113,32 @@
 %	\end{enumerate}
 %\end{frame}
 
+\begin{frame} \frametitle{Lehrveranstaltungsevaluation}
+	\begin{minipage}{\dimexpr0.6\linewidth-\fboxrule-\fboxsep}
+		\centering
+		\includegraphics[width=\linewidth]{evaluation-twitter.jpg} \\
+	\end{minipage}
+	\begin{minipage}{\dimexpr0.4\linewidth-\fboxrule-\fboxsep}
+		\centering \small
+		\includegraphics[width=.95\linewidth]{evaluation-gr.png} \\
+		\vspace{-\baselineskip}
+		\url{https://tud.link/uqo3} 	
+	\end{minipage}
+	
+	\begin{tikzpicture}[remember picture, overlay]
+		\node [
+			font=\scriptsize\color{cdgray!80},  % Einstellungen für die Schrift
+			inner xsep=0,       % Abstand des Textes von unten
+			% maximale Textbreite = Papierhöhe - 2*Abstand des Textes von unten:
+			%			text width={\dimexpr\paperheight-2\footskip\relax},
+			align=center,
+			%			minimum height=8mm,% Breite des Randstreifens
+			anchor=south west,
+			] at ($(current page.south west)+(+10mm,+2.5mm)$)
+		{Originallink: \url{https://befragung.zqa.tu-dresden.de/uz/de/sl/7086HheP0Rky}};
+	\end{tikzpicture}	
+\end{frame}
+
 
 \section{Der \textlambda--Kalkül \\ \normalsize \itshape Programmieren mit \textlambda's}
 
