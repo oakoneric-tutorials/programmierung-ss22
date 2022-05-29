@@ -41,6 +41,25 @@
 	tabsize=2,	                   % sets default tabsize to 2 spaces
 }
 
+\lstdefinestyle{bg}{ 
+	basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	commentstyle=\itshape,    	     % comment style
+	escapeinside={\%*}{\%*},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=L,
+	backgroundcolor=\color{cdgray!15},
+	%	keywordstyle=\bfseries,       % keyword style
+	language=Haskell,                 % the language of the code
+	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
+	numbersep=8pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	rulecolor=\color{cddarkblue}, 
+	showstringspaces=false,
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+}
 
 \usepackage{textgreek}
 
@@ -57,15 +76,22 @@
 
 \newcommand{\num}[1]{\ensuremath{\langle #1 \rangle}}
 
+\newcommand{\true}{\operatorname{true}}
+\newcommand{\false}{\operatorname{false}}
+
+\newcommand{\operator}[1]{\textbf{\textcolor{black}{#1}}}
+\newcommand{\pred}[1]{\textrm{#1}}
+\newcommand{\Fam}{\operator{Fam}}
+
 \begin{document}	
 	\title{Programmierung}
 	\subtitle{Übung 8: Logikprogrammierung mit Prolog${}^-$}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{30. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
@@ -92,33 +118,6 @@
 
 
 \section{Logikprogrammierung und Prolog${}^-$}
-
-\begin{frame} \frametitle{Einführung in Prolog}
-	\footnotesize
-	\begin{itemize}
-		\item Französisch: programmation en logique \\
-		(deutsch: Programmieren in Logik)
-		\item hier: Teilsprache Prolog${}^-$
-		\item \textbf{Interpreter:} \textit{swipl} \\ \url{https://www.swi-prolog.org/download/stable}
-		\begin{itemize}
-			\item Nutzung wie üblich im Terminal
-			\item \texttt{swipl <filename>} startet die interaktive Session
-		\end{itemize}
-		\item \textbf{Online-Editor \& Interpreter:} \url{https://swish.swi-prolog.org/}
-	\end{itemize}
-
-	\medskip \pause \hrule
-
-	\begin{itemize}		
-		\item Prolog-Programme bestehen aus \emph{Fakten} und \emph{Regeln}.
-		\bigskip
-		\item Statements werden mit \emph{\texttt{.}} abgeschlossen.
-		\item Variablen beginnen mit Großbuchstaben.
-		\bigskip
-		\item \emph{UND}-Operator: \hspace{.25cm} \texttt{,}
-		\item \emph{ODER}-Operator:\hspace{.2cm} \texttt{;}
-	\end{itemize}
-\end{frame}
 
 \begin{frame} \frametitle{Ein einführendes Beispiel}
 	\footnotesize
@@ -150,42 +149,160 @@
 			]
 			[Beate
 			[ Dennis ]
-			[ Dora ]
+			[ Daniel ]
 			]
 			]
 		\end{forest}
-	
+		
 		\begin{tikzpicture}[font=\tiny]
 			\node[below left] (left) at (-3,0) {\textit{jünger}};
 			\node[below right] (right) at (3,0) {\textit{älter}};
 			\draw [<->] (left) -- (right);
 		\end{tikzpicture}
 	\end{center}
+	
+	Nun wollen wir die Verwandtschaftsbeziehungen abbilden. Dafür brauchen wir vor allem Geschlechter und Eltern-Kind-Beziehung(en).
+	Dazu sei 
+	\begin{align*}
+		\Fam = \menge{albert, beate, berti, daniel, dennis, claudia, conrad, eva, erich, fritz}
+	\end{align*}
+	die Menge aller Familienmitglieder.
+	
+	\begin{tikzpicture}[remember picture, overlay]
+		\node [
+		font=\tiny\color{cdgray!80},  % Einstellungen für die Schrift
+		inner xsep=0,       % Abstand des Textes von unten
+		% maximale Textbreite = Papierhöhe - 2*Abstand des Textes von unten:
+		%			text width={\dimexpr\paperheight-2\footskip\relax},
+		align=center,
+		%			minimum height=8mm,% Breite des Randstreifens
+		anchor=south west,
+		] at ($(current page.south west)+(+10mm,+2.5mm)$)
+		{Wir betrachten hier den stark vereinfachten Fall und nehmen eine binäre Geschlechtsvorstellung an.};
+	\end{tikzpicture}
+\end{frame}
 
-	Nun wollen wir die Verwanschaftsbeziehungen abbilden und untersuchen. Dafür brauchen wir
+\begin{frame} \frametitle{Prädikatenlogik}
+	\footnotesize
 	\begin{itemize}
-		\item Geschlechter
-		\item Eltern-Kind-Beziehung(en)
+		\item \textit{Variablen}, z.B. $X$ $\leadsto$ kann verschiedene Werte annehmen
+		\item \textit{Konstanten}, z.B. $albert$ $\leadsto$ fixer Wert
+		\item \textit{Konstruktoren} (auch \enquote{Funktionen})
+		\item \textit{Prädikate}, z.B. $male$ $\leadsto$ Wahrheit hängt von Argumenten ab 
+		\begin{itemize} \footnotesize
+			\item $male(albert) = \true$, aber $male(beate) = \false$
+			\item $parent(claudia, berti) = \true$
+		\end{itemize}
+	\end{itemize}
+	
+	Prädikate kodieren Relationen passender Stelligkeit, d.h. beispielsweise
+	\begin{align*}
+		\operator{M} &= \menge{X \in \Fam : male(X) = \true} \\
+		\operator{P} &= \menge{(X,Y) \in \Fam \times \Fam : parent(X,Y) = \true}
+	\end{align*}
+
+	\textbf{Problem:} Woher wissen wir, was wahr und was falsch ist?
+\end{frame}
+
+\begin{frame} \frametitle{Fakten \& Regeln}
+	\footnotesize
+	
+	\textbf{Ziel:} wahre Aussagen beschreiben
+	\bigskip
+	
+	\textbf{Fakten:} unabhängig von anderen Zuständen immer wahr
+	\begin{itemize}
+		\item Albert ist männlich: $male(albert) = \true$
+		\item Claudia ist ein Elternteil von Berti: $parent(claudia, berti) = \true$
+	\end{itemize}
+	
+	\textbf{Regeln:} Abhängigkeit von einem oder mehreren anderen Fakten
+	\begin{itemize}
+		\item Vater ist männliches Elternteil:
+		$parent(X,Y) \land male(X) \implies father(X,Y)$ 
 	\end{itemize}
 \end{frame}
 
-\begin{frame} \frametitle{Prolog: Fakten \& Regeln}
+\begin{frame} \frametitle{Einführung in Prolog}
 	\footnotesize
-	\begin{block}{Fakten} 
-		\begin{itemize}
-			\item Prädikat mit Argumenten
-			\item z.B. Albert ist männlich $\leadsto$ \texttt{male(albert).}
-			\item z.B. Claudia ist ein Elternteil von Berti $\leadsto$ \texttt{parent(claudia, berti).}
+	\begin{itemize}
+		\item Französisch: programmation en logique 
+		\item hier: Teilsprache Prolog${}^-$
+		\item \textbf{Interpreter:} \textit{swipl} \\ \url{https://www.swi-prolog.org/download/stable}
+		\begin{itemize} \footnotesize
+			\item Nutzung wie üblich im Terminal
+			\item \texttt{swipl <filename>} startet die interaktive Session
 		\end{itemize}
-	\end{block}
-	\begin{block}{Regeln}
-		\begin{itemize}
-			\item Abhängigkeit eines Fakts von einem oder mehreren anderen Fakten
-			\item z.B. Vater ist männliches Elternteil \\
-			$\hookrightarrow$ \texttt{father(X,Y) :- parent(X,Y), male(X).} 
-			\item \texttt{:-} kann als umgedrehte Implikation ($\Leftarrow$) gelesen werden
-		\end{itemize}
-	\end{block}
+		\item \textbf{Online-Editor \& Interpreter:} \url{https://swish.swi-prolog.org/}
+	\end{itemize}
+	
+	\bigskip \pause \hrule \medskip
+	
+	\begin{itemize}		
+		\item Prolog-Programme bestehen aus \emph{Fakten} und \emph{Regeln}.
+		\bigskip
+		\item Statements werden mit \emph{\texttt{.}} abgeschlossen.
+		\item Variablen beginnen mit Großbuchstaben.
+		\bigskip
+		\item \emph{UND}-Operator: \hspace{.25cm} \texttt{,}
+		\item \emph{ODER}-Operator:\hspace{.2cm} \texttt{;}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Prolog: Fakten}
+	\footnotesize
+	
+	\textbf{Ziel:} wahre Aussagen beschreiben
+	
+	
+	\textbf{Fakten:} unabhängig von anderen Zuständen immer wahr
+	
+	\begin{itemize}
+		\item männliche Familienmitglieder: \pause
+		
+		\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\lstinputlisting[linerange={1-3}, frame=l, basicstyle=\ttfamily\scriptsize]{tut08-example-family.pl}
+		\end{minipage}
+		\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\lstinputlisting[linerange={4-7}, frame=l, basicstyle=\ttfamily\scriptsize, firstnumber=4]{tut08-example-family.pl}
+		\end{minipage} \pause
+		%
+		\item Elternbeziehungen: \pause
+		
+		\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\lstinputlisting[linerange={9-14}, frame=l, basicstyle=\ttfamily\scriptsize, firstnumber= 9]{tut08-example-family.pl}
+		\end{minipage}
+		\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+			\lstinputlisting[linerange={15-21}, frame=l, basicstyle=\ttfamily\scriptsize,firstnumber=15]{tut08-example-family.pl}
+		\end{minipage} \pause
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Prolog: Regeln}
+	\footnotesize
+	
+	\textbf{Ziel:} wahre Aussagen beschreiben
+	
+	\textbf{Regeln:} Abhängigkeit von einem oder mehreren anderen Fakten
+		
+	\begin{itemize}
+		\item Geschlecht weiblich: \pause
+		\begin{lstlisting}[frame=l, basicstyle=\ttfamily\scriptsize,firstnumber=23]
+female(X) :- not(male(X)).
+		\end{lstlisting} \pause
+		\item Prädikat $father$: \pause
+		\begin{lstlisting}[frame=l, basicstyle=\ttfamily\scriptsize,firstnumber=25]
+father(X,Y) :- parent(X,Y), male(X).
+		\end{lstlisting} \pause
+		\item Prädikat $ancestor$ --- Wir suchen eine Regel, um zu prüfen, ob $X$ ein Vorfahre von $Y$ ist.
+		\pause
+		Ein Elternteil ist immer auch ein Vorfahre; die Vorfahren eines Elternteils von $Y$ sind wiederum Vorfahren von $Y$.
+		\pause
+		\begin{lstlisting}[frame=l, basicstyle=\ttfamily\scriptsize,firstnumber=27]
+ancestor(X,Y) :- parent(X,Y).
+ancestor(X,Y) :- parent(Z,Y), ancestor(X,Z).
+		\end{lstlisting}
+	\end{itemize}
 \end{frame}
 
 \begin{frame} \frametitle{Arbeiten mit Swipl --- Anfragen}
@@ -196,6 +313,8 @@
 		\item Anfrage: \texttt{?- male(albert).}
 		\item Antwort: \texttt{true.}
 	\end{itemize}
+
+	\pause
 	
 	Im Allgemeinen gibt es kein I/O. Wir können das aber \enquote{simulieren}, indem wir Variablen nutzen. 
 	\begin{itemize}
@@ -203,6 +322,8 @@
 		\item Anfrage: \texttt{?- male(X).}
 		\item Anzeigen mehrerer Lösungen in \texttt{swipl} durch \texttt{;}
 	\end{itemize}
+
+	Die Belegung einer solchen Variable lässt sich mittel SLD-Refutation unter Nutzung von Unifikationen ermitteln.
 \end{frame}
 
 \begin{frame} \frametitle{SLD-Refutationen}
@@ -314,6 +435,77 @@ path(U, W) :- edge(U, V), path(V, W).
 
 \section{Aufgabe 2}
 
+\begin{frame}[fragile] \frametitle{Arithmetik in Prolog: natürliche Zahlen}
+	\footnotesize
+	\textbf{natürliche Zahlen:} Unärkodierung mit Konstruktor \texttt{s}, 
+	\begin{equation*}
+		\mathtt{
+		\num{n} \defeq \underbrace{s( \cdots s}_{n \text{ mal}} (0))
+		}
+	\end{equation*}
+	und einstelliges Prädikat \texttt{nat}, das über klassische Rekursion definiert ist:
+	\begin{lstlisting}[frame=l]
+nat(0).
+nat(s(X)) :- nat(X).
+	\end{lstlisting}
+
+	\pause \scriptsize
+	
+	\textbf{Anmerkung 1:} Prolog weiß dabei nicht, dass es sich um Zahlen handelt. Vielmehr sind alle Zeichen nur Symbole; die Zahl \texttt{0} wird zum Beispiel als Konstante im Sinne der Prädikatenlogik angesehen.
+	\pause
+	
+	\textbf{Anmerkung 2:} Durch die Unärkodierung müssen wir bei rekursiven Funktionen ein wenig umdenken. Die Zahl $\num{n}$ lässt sich in einer Rekursion nicht auf $\num{n-1}$ reduzieren. Stattdessen fügen wir vorher ein \texttt{s} ein, um es anschließend wieder zu entfernen, d.h. $\num{n+1} \leadsto \num{n}$.
+	\begin{itemize}
+		\item Haskell-Rekursion: $n \leadsto n-1$
+		\item Prolog-Rekursion: $n+1 \leadsto n$
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Arithmetik in Prolog: Funktionen}
+	\footnotesize
+	
+	Funktionen müssen als Relationen dargestellt werden, d.h. 
+	\begin{align*}
+		\text{statt } \qquad
+		\begin{aligned}
+			f : \N \to \N \\
+			f(x) = y
+		\end{aligned}
+		\quad
+		\text{ kodieren wir }
+		\quad \operator{F} = \menge{(x,y) \in \N \times \N : f(x) = y }
+	\end{align*}
+	\pause
+	
+	\textbf{Beispiel:} Summe zweier natürlicher Zahlen
+	
+	rekursive Idee:
+	\begin{align*}
+		0 + y = y \enskip &\impliedby \enskip y \in \N \tag{Basisfall} \\
+		(x+1) + y = s+1 \enskip &\impliedby \enskip x + y = s \tag{Rekursionsfall}
+	\end{align*}
+	\pause
+	
+	\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+		Haskell:
+		\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=l]
+sum :: Int -> Int -> Int
+sum 0 y = y
+sum x y = 1 + sum (x-1)  y
+		\end{lstlisting}
+	\end{minipage}
+	\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+		Prolog:
+		\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, frame=l]
+			
+sum(0, Y, Y) :- nat(Y).
+sum(s(X), Y, s(S)) 
+             :- sum(X, Y, S).
+		\end{lstlisting}
+	\end{minipage}
+\end{frame}
+
 \begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
 	\footnotesize
 	\begin{lstlisting}
@@ -365,15 +557,15 @@ div2(s(0), 0).
 div2(s(s(N)), s(M)) :- div2(N, M).
 	\end{lstlisting}
 
-	\textbf{gesucht:} SLD-Refutation für \texttt{?- div(<3>, <1>).}
+	\textbf{gesucht:} SLD-Refutation für \texttt{?- div2(<3>, <1>).}
 	
 	\begin{alignat*}{2}
-		&\texttt{?- div(<3>, <1>).} \\
-		&\texttt{?- div(<1>, 0).} \qquad && \texttt{\% 12 } \\
+		&\texttt{?- div2(<3>, <1>).} \\
+		&\texttt{?- div2(<1>, 0).} \qquad && \texttt{\% 12 } \\
 		&\texttt{?- .} && \texttt{\% 11 }
 	\end{alignat*}
-	
 \end{frame}
+
 \begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (d) \hfill \textit{Zusatz}}
 	\footnotesize
 	\begin{lstlisting}

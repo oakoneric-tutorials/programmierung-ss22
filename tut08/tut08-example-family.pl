@@ -2,6 +2,7 @@ male(albert).
 male(berti).
 male(conrad).
 male(dennis).
+male(daniel)
 male(erich).
 male(fritz).
 
@@ -14,13 +15,12 @@ parent(claudia,berti).
 parent(erich,conrad).
 parent(eva,conrad).
 
+parent(dennis,beate).
+parent(daniel,beate).
+
 parent(fritz,eva).
 
-parent(dennis,beate).
-parent(dora,beate).
-
 female(X) :- not(male(X)).
-
 
 father(X,Y) :- parent(X,Y), male(X).
 
