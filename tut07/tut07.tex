@@ -86,7 +86,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{23. Mai 2022}
+	\date{25. Mai 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -361,9 +361,9 @@ f x y = x + f (x - 1) (x + y)
 		\Rightarrow^\ast \
 		&\num{add} \ \num{1} \ \Bigl( \num{F} \ \num{Y_F} \ \num{0} \ \num{5} \Bigr) \\
 		%
-		\Rightarrow^\ast \
-		&\num{ite} \ 
-		\Bigl( \underbrace{\num{iszero} \ \num{0}}_{\Rightarrow^\ast \num{true}} \Bigr) \  \num{5}  \ \Bigl( \dots \Bigr) \\
+		\Rightarrow^\ast \ &\num{add} \ \num{1} \
+		\Bigg( \num{ite} \ 
+		\Bigl( \underbrace{\num{iszero} \ \num{0}}_{\Rightarrow^\ast \num{true}} \Bigr) \  \num{5}  \ \Bigl( \dots \Bigr) \Bigg) \\
 		%
 		\Rightarrow^\ast \ &\num{add} \ \num{1} \ \num{5} \\
 		\Rightarrow^\ast \ &\num{6}
