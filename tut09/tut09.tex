@@ -71,44 +71,104 @@
 
 \newcommand{\num}[1]{\ensuremath{\langle #1 \rangle}}
 
+
+\pgfdeclareverticalshading{rainbow}{100bp}
+{color(0bp)=(red); color(25bp)=(red); color(35bp)=(yellow);
+	color(45bp)=(green); color(55bp)=(cyan); color(65bp)=(blue);
+	color(75bp)=(violet); color(100bp)=(violet)}
+
+
 \begin{document}	
 	\title{Programmierung}
 	\subtitle{Übung 9: Logikprogrammierung mit Prolog${}^-$}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{13. Juni 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile] \frametitle{Inhalt}
-	\begin{enumerate}
-		\item Funktionale Programmierung
-		\begin{enumerate}
-			\item Einführung in Haskell: Listen
-			\item Algebraische Datentypen
-			\item Funktionen höherer Ordnung
-			\item Typpolymorphie \& Unifikation
-			\item Beweis von Programmeigenschaften
-			\item \textlambda--Kalkül
-		\end{enumerate}
-		\item \textbf{Logikprogrammierung}
-		\item Implementierung einer imperativen Programmiersprache
-		\item Verifikation von Programmeigenschaften
-		\item H${}_\text{0}$ -- ein einfacher Kern von Haskell
-	\end{enumerate}
+{
+\setbeamertemplate{frametitle}[pride]
+
+\begin{frame} \frametitle{Pride Month}
+	\centering
+	\includegraphics[width=0.7\linewidth]{bmw-1.png}
+	\pause
+	\includegraphics[width=0.6\linewidth]{bmw-2.png}
+	\begin{tikzpicture}[remember picture, overlay]
+		\node [
+		font=\tiny\color{cdgray!80},  % Einstellungen für die Schrift
+		inner xsep=0,       % Abstand des Textes von unten
+		% maximale Textbreite = Papierhöhe - 2*Abstand des Textes von unten:
+		%			text width={\dimexpr\paperheight-2\footskip\relax},
+		align=center,
+		%			minimum height=8mm,% Breite des Randstreifens
+		anchor=south west,
+		] at ($(current page.south west)+(+10mm,+2.5mm)$)
+		{Quelle: \url{https://twitter.com/BMW}};
+	\end{tikzpicture}	
 \end{frame}
+
+\begin{frame} \frametitle{Beratungsmöglichkeiten} 
+	\scriptsize
+
+	\textbf{Queere Peerberatung:} Fay Uhlmann, \hyperref{mailto:queerpeer@tu-dresden.de}{}{}{queerpeer@tu-dresden.de}
+
+	\begin{quote}
+		Das Ziel der queeren Peerberatung ist, eine zentrale Anlaufstelle für queere Unimitglieder zu bieten. Sie ist ein offenes Ohr, um auf Augenhöhe über Diskriminierungserfahrungen aufgrund von Queerness, Problemen im Alltag, Outings, Transitionen, Sexualität, uvm. reden zu können. Auch soll sie bei der Bewältigung der vielen Hürden unterstützen, mit denen queere Personen noch immer im Alltag zu kämpfen haben.
+	\end{quote}
+
+	\textbf{Psychosoziale Beratungsstelle:} Studierendenwerk
+	\begin{quote}
+		[...]
+		Bereiche des psychologischen Beratungsbedarfs können z.B. sein: [...]
+		\begin{itemize}
+			\item mangelndes Selbstwertgefühl
+			\item Probleme im sozialen Umfeld
+			\item Probleme mit Alkohol, Drogen, Online-Sucht
+			\item depressive Verstimmungen
+		\end{itemize}
+		Bei Partnerschaftsproblemen ist auch Paarberatung möglich.
+	\end{quote}
+	{\tiny \url{https://www.studentenwerk-dresden.de/soziales/psychosoziale-beratung.html}}
+\end{frame}
+
+\begin{frame} \frametitle{Hilfe, Interaktion, \dots}
+	\scriptsize
+	
+	\textbf{Gerede e.V.:} \url{https://gerede-dresden.de/}
+	\begin{quote}
+		Der Gerede e.V. versteht sich als Interessenvertretung für Schwule, Lesben, Bisexuelle, Transidente und Menschen mit vielfältigen Lebensweisen sowie deren Angehörige. 
+		\begin{itemize}
+			\item Beratungs-, Begegnungs- und Bildungsangebote sowie kulturelle Veranstaltungen
+			\item für Jugendliche und junge Erwachsene, aber auch Eltern, Lehrer*innen, Erzieher*innen und Sozialpädagogen*innen
+		\end{itemize}
+	\end{quote}
+	
+		
+	\textbf{Nightline Dresden:} \url{https://nightline-dresden.de/}
+	\begin{quote}
+		Egal ob Prüfungsangst, Zweifel an der Wahl des Studienfachs, Stress in der WG, Heimweh oder Liebeskummer – die Liste studentischer Sorgen ist lang und gerade bei solchen Problemen sind wir für Dich da. Auch wenn Du einfach mal reden willst, haben wir ein offenes Ohr für Dich.
+		
+		Wir sind während der Vorlesungszeit Dienstag, Donnerstag, Samstag und Sonntag von 21 bis 24 Uhr erreichbar!
+		
+		Telefonnummer: 0351 4277345		
+	\end{quote}
+
+	\textbf{Dresdner Wegweiser für Krisen- und Notsituationen:} \url{www.dresden.de/krisenwegweiser}
+\end{frame}
+
+}
+
 
 
 \section{Logikprogrammierung und Prolog${}^-$}
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
