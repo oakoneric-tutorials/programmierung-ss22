@@ -2,7 +2,7 @@ male(albert).
 male(berti).
 male(conrad).
 male(dennis).
-male(daniel)
+male(daniel).
 male(erich).
 male(fritz).
 

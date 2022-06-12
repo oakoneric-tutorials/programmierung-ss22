@@ -89,7 +89,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{30. Mai 2022}
+	\date{01. Juni 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -185,9 +185,10 @@
 \begin{frame} \frametitle{Prädikatenlogik}
 	\footnotesize
 	\begin{itemize}
-		\item \textit{Variablen}, z.B. $X$ $\leadsto$ kann verschiedene Werte annehmen
-		\item \textit{Konstanten}, z.B. $albert$ $\leadsto$ fixer Wert
-		\item \textit{Konstruktoren} (auch \enquote{Funktionen})
+		\item \textit{Variablen}, z.B. $X$ $\leadsto$ kann verschiedene Werte annehmen \\
+		$\hookrightarrow$ Großbuchstaben
+		\item \textit{Konstruktoren}, z.B. $s$ als \enquote{Nachfolger} \\
+		$\hookrightarrow$ Kleinbuchstaben
 		\item \textit{Prädikate}, z.B. $male$ $\leadsto$ Wahrheit hängt von Argumenten ab 
 		\begin{itemize} \footnotesize
 			\item $male(albert) = \true$, aber $male(beate) = \false$
@@ -246,13 +247,14 @@
 		\bigskip
 		\item \emph{UND}-Operator: \hspace{.25cm} \texttt{,}
 		\item \emph{ODER}-Operator:\hspace{.2cm} \texttt{;}
+		\item Negation: \hspace{1.15cm} \texttt{not}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile] \frametitle{Prolog: Fakten}
 	\footnotesize
 	
-	\textbf{Ziel:} wahre Aussagen beschreiben
+	\textbf{Ziel:} \textit{wahre} Aussagen beschreiben
 	
 	
 	\textbf{Fakten:} unabhängig von anderen Zuständen immer wahr
@@ -274,14 +276,14 @@
 		\end{minipage}
 		\begin{minipage}[t]{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
 			\lstinputlisting[linerange={15-21}, frame=l, basicstyle=\ttfamily\scriptsize,firstnumber=15]{tut08-example-family.pl}
-		\end{minipage} \pause
+		\end{minipage}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile] \frametitle{Prolog: Regeln}
 	\footnotesize
 	
-	\textbf{Ziel:} wahre Aussagen beschreiben
+	\textbf{Ziel:} \textit{wahre} Aussagen beschreiben
 	
 	\textbf{Regeln:} Abhängigkeit von einem oder mehreren anderen Fakten
 		
