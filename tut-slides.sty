@@ -59,6 +59,19 @@
 %%	\setbeamercolor{background canvas}{blue}
 %}
 
+\defbeamertemplate{frametitle}{pride}[1][]
+{
+		\setbeamercolor{frametitle}{fg=cddarkblue, bg=cddarkblue}
+		\begin{tikzpicture}[remember picture, overlay]
+			\fill[shading=rainbow,shading angle=270] ($(current page.north west)$) rectangle ($(current page.north east) - (0,0.4em)$);
+			\shade[shading=rainbow,shading angle=270, opacity=0.4] ($(current page.north west)$) rectangle +(\paperwidth, -2.4em);
+			\node[anchor=west, font=\usebeamerfont{frametitle}\color{cddarkblue}] at ($(current page.north west) + (0.5em,-1.4em)$) {\MakeUppercase{\insertframetitle}};
+		\end{tikzpicture}
+		\begin{tikzpicture}
+			\path[draw=none, line width=2pt, color=black] ($(current page.north west) - (0, 1em) $) -- +(\linewidth, 0);
+		\end{tikzpicture}		
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     SET COLOURS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
