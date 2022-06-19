@@ -74,15 +74,25 @@
 \undef\trans
 \DeclareMathOperator{\trans}{trans}
 
+\makeatletter
+\let\save@measuring@true\measuring@true
+\def\measuring@true{%
+	\save@measuring@true
+	\def\beamer@sortzero##1{\beamer@ifnextcharospec{\beamer@sortzeroread{##1}}{}}%
+	\def\beamer@sortzeroread##1<##2>{}%
+	\def\beamer@finalnospec{}%
+}
+\makeatother
+
 \begin{document}	
 	\title{Programmierung}
 	\subtitle{Übung 10: C${}_\text{0}$ und abstrakte Maschine AM${}_\text{0}$}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{20. Juni 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
@@ -173,14 +183,73 @@
 	\begin{align*}
 		\mathcal{C} [\![ \texttt{SUB} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } d = d.1 : d.2 : \dots : d.n \\
-		&\text{then } (m+1, (d.2 - d.1) : d.3 : \dots : d.n, inp, out)
+		&\text{then } (m+1, (d.2 - d.1) : d.3 : \dots : d.n, inp, out) 
 	\end{align*}
 \end{frame}
 
-\begin{frame} \frametitle{Semantik der Befehle}
-	\includegraphics[height=\textheight]{tut10-AM0Semantik.jpg}
+%\begin{frame} \frametitle{Semantik der Befehle}
+%	\includegraphics[height=.9\textheight]{tut10-AM0Semantik.jpg} \\
+%	\includegraphics[height=.07\textheight]{tut10-AM0Semantik2.jpg}
+%\end{frame}
+
+\begin{frame} \frametitle{Semantik der Befehle -- Arithmetik}
+	\small
+	\begin{align*}
+		\mathcal{C} [\![ \texttt{ADD} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } d = d.1 : d.2 : \dots : d.n \\
+		&\text{then } (m+1, (d.2 + d.1) : d.3 : \dots : d.n, inp, out) \\ 
+		\tag{analog dazu auch \texttt{MUL}, \texttt{SUB}, \texttt{DIV}, \texttt{MOD}} \\ \pause
+		%
+		\mathcal{C} [\![ \texttt{LT} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } d = d.1 : d.2 : \dots : d.n \\
+		&\text{then } (m+1, b : d.3 : \dots : d.n, inp, out) \\
+		&\phantom{\text{then }} \text{wobei } b = 1 \text{ falls } d.2 < d.1 \text{ und } b = 0 \text{ falls } d.2 \ge d.1
+		\tag{analog dazu auch \texttt{EQ}, \texttt{NE}, \texttt{GT}, \texttt{GE}, \texttt{LE}} 
+	\end{align*}
 \end{frame}
 
+
+\begin{frame} \frametitle{Semantik der Befehle -- Laden und Speichern}
+	\small
+	\begin{align*}
+		\mathcal{C} [\![ \texttt{LOAD n} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } h(n) \in \Z  \\
+		&\text{then } (m+1, h(n) : d, inp, out) \\
+		%
+		\mathcal{C} [\![ \texttt{LIT z} ]\!] &(m,d,h,inp,out) \defeq  (m+1, z : d, inp, out) \\ \pause
+		%
+		\mathcal{C} [\![ \texttt{STORE n} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } d = d.1 : d' \\
+		&\text{then } (m+1, d', h[n/d.1], inp, out) \\
+		&\phantom{\text{then }} \text{wobei } h[n/d.1] = \begin{cases} d.1 &\text{falls } k = n \\ h(k) &\text{sonst} \end{cases}
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Semantik der Befehle -- Sprünge}
+	\begin{align*}
+		\mathcal{C} [\![ \texttt{JMP e} ]\!] &(m,d,h,inp,out) \defeq (e, d, h, inp, out) \\ \pause
+		%
+		\mathcal{C} [\![ \texttt{JMC e} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } d = 0 : d.2 : \dots : d.n \text{ mit } n \ge 1 \\
+		&\quad\text{then} (e, d.2 : \dots : d.n, h, inp, out) \\
+		&\text{if } d = 1 : d.2 : \dots : d.n \text{ mit } n \ge 1 \\
+		&\quad\text{then} (m+1, d.2 : \dots : d.n, h, inp, out) 
+	\end{align*}
+\end{frame}
+
+\begin{frame} \frametitle{Semantik der Befehle -- Input/Output}
+	\begin{align*}
+		\mathcal{C} [\![ \texttt{READ n} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } inp = first(inp).rest(inp) \\
+		&\text{then } (m+1, d, h[n/first(inp)], rest(inp), out) \\
+		&\phantom{\text{then }} \text{wobei für jedes } n \in \Z \text{ und jedes } w \in \Z^\ast \text{ gilt:} \\
+		&\phantom{\text{then }} first(n:w) = n \text{ und } rest(n:w) = w \\
+		%
+		\mathcal{C} [\![ \texttt{WRITE n} ]\!] &(m,d,h,inp,out) \defeq  \\
+		&\text{if } h(n) \in \Z \\
+		&\text{then } (m+1, d, h, inp, out : h(n))
+	\end{align*}
+\end{frame}
 
 \begin{frame} \frametitle{Übersetzung von \texttt{if - then - else}}
 	\small \centering
