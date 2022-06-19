@@ -8,11 +8,12 @@
 
 \tikzset{myarrow/.style={-{Stealth[length=3mm, width=2mm, sep=1pt]}}} 
 \tikzset{mybackarrow/.style={{Stealth[length=3mm, width=2mm, sep=1pt]}-}} 
+\tikzset{beschriftung/.style={font=\fontsize{15}{0}\selectfont}} 
 
 \begin{document}
 %	\sffamily
 
-	\begin{tikzpicture}[scale=1]
+	\begin{tikzpicture}
 %		\foreach \i in {0,...,4} {
 %			\draw[draw=black] (0,-\i) rectangle ++(3,-1) node[pos=.5] (h\i) {$h.\i$};
 %			\draw[draw=black] (7,-\i) rectangle ++(3,-1) node[pos=.5] (d\i) {$d.\i$};
@@ -34,8 +35,8 @@
 %			\draw[] (\i+5,2) rectangle ++(1,1) node[pos=.5] (out\i) {};
 		}
 		
-		\node[above=0em of inp0](inpText){Input};
-		\node[above=0em of out3](outText){Output};
+		\node[beschriftung, above=0em of inp0.north west, anchor=south west, align=left] (inpText){Input};
+		\node[beschriftung, above=0em of out3.north east, anchor=south east, align=right](outText){Output};
 	
 	
 		% HAUPTSPEICHER
@@ -43,7 +44,7 @@
 			\node[fit={(\i+1,-1) (\i+2,-2)}, inner sep=0pt, draw, thick, align=center] (h\i) {$h.\i$};
 %			\draw[] (\i,-4) rectangle ++(1,1) node[pos=.5] (h\i) {$h.\i$};
 		}
-		\node[above=0em of h3](HSText){Hauptspeicher};
+		\node[beschriftung, above=0em of h3](HSText){Hauptspeicher};
 %				\draw[arrow,  bend angle=45, bend left] (HSText) -- (4.5,2);
 		\draw[myarrow]     ([xshift= 1em, yshift=1em]h5.north) to[bend right] ([xshift= 0em, yshift=-1em]out2.south west);
 		\draw[mybackarrow] ([xshift=-1em, yshift=1em]h1.north) to[bend left]  ([xshift= 0em, yshift=-1em]inp2.south west);
@@ -55,8 +56,8 @@
 %			\draw[red] (rect.east) to[out=0,in=-90] (rect.south);
 %			\draw[] (5,-5 - \i) rectangle ++(-1,-1) node[pos=.5] (d\i) {$d.\i$};
 		}
-		\path[draw] ([xshift=-3em]d5.south west) to ([xshift= 3em]d5.south east);
-		\node[left=of d3](DKText){Datenkeller};
+		\draw[thick] ([xshift=-3em]d5.south west) to ([xshift= 3em]d5.south east);
+		\node[beschriftung, left=1em of d3, align=right, anchor=east](DKText){Datenkeller};
 		
 		\draw[myarrow]     ([xshift= 1em, yshift=1em]d1.north) to[bend right] ([xshift= 1em, yshift=-1em]h3.south);
 		\draw[mybackarrow] ([xshift=-1em, yshift=1em]d1.north) to[bend left]  ([xshift=-1em, yshift=-1em]h3.south);
@@ -68,7 +69,7 @@
 %		\draw[mybackarrow] ([xshift=-1em, yshift=1em]bz.north) to[bend left]  ([xshift=-1em, yshift=-1em]d5.south);
 
 		\node[fit={(10,-8) (11, -9)}, inner sep=0pt, draw, thick, align=center] (bz) {$m$};
-		\node[above=1em of bz](BZText){Befehlszähler};
+		\node[beschriftung, above=1em of bz](BZText){Befehlszähler};
 		
 		\draw[myarrow]     ([xshift=-1em, yshift= 1em]bz.west) to[bend right] ([xshift= 1em, yshift= 1em]d3.east);
 		\draw[mybackarrow] ([xshift=-1em, yshift=-1em]bz.west) to[bend left]  ([xshift= 1em, yshift=-1em]d3.east);
