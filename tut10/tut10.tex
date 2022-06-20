@@ -8,8 +8,10 @@
 \usepackage{amsmath,amssymb}
 
 \usepackage{tikz}
-\usetikzlibrary{positioning,automata, matrix, trees}
-\usetikzlibrary{calc,positioning,backgrounds,arrows.meta}
+
+\usetikzlibrary{positioning,automata, matrix, trees, fit}
+\usetikzlibrary{calc,backgrounds}
+\usetikzlibrary{arrows, arrows.meta}
 \usepackage{forest}
 
 
@@ -160,9 +162,78 @@
 	Nun müssen aber auch Aktionen ausgeführt werden, wie zum Beispiel das Einlesen vom Eingabeband in den Hauptspeicher. Dafür gibt es folgende Befehle:
 \end{frame}
 
+\tikzset{myarrow/.style={-{Stealth[length=3mm, width=2mm, sep=1pt]}, thick}} 
+\tikzset{mybackarrow/.style={{Stealth[length=3mm, width=2mm, sep=1pt]}-, thick}} 
+\tikzset{mybotharrow/.style={{Stealth[length=3mm, width=2mm, sep=1pt]}-{Stealth[length=3mm, width=2mm, sep=1pt]}, thick}} 
+\tikzset{beschriftung/.style={font=\fontsize{15}{0}\selectfont}} 
+
+\newcommand{\befehl}[1]{\textcolor{cdblue}{\texttt{#1}}}
+
 \begin{frame}
 	\centering
-	\includegraphics[height=\textheight]{tut10-abb.pdf}
+	\scalebox{0.6}{%
+	\begin{tikzpicture}
+		\foreach \i in {0,1,2,3} {
+			\node[fit={(\i,2) (\i+1,3)}, inner sep=0pt, draw, thick, align=center] (inp\i) {};
+			\node[fit={(\i+5,2) (\i+5+1,3)}, inner sep=0pt, draw, thick, align=center] (out\i) {};
+			%			\draw[] (\i,2) rectangle ++(1,1) node[pos=.5] (inp\i) {};
+			%			\draw[] (\i+5,2) rectangle ++(1,1) node[pos=.5] (out\i) {};
+		}
+		
+		\node[beschriftung, above=0em of inp0.north west, anchor=south west, align=left] (inpText){Input};
+		\node[beschriftung, above=0em of out3.north east, anchor=south east, align=right](outText){Output};
+		
+		% HAUPTSPEICHER
+		\foreach \i in {0,...,6} {
+			\node[fit={(\i+1,-1) (\i+2,-2)}, inner sep=0pt, draw, thick, align=center] (h\i) {$h.\i$};
+			%			\draw[] (\i,-4) rectangle ++(1,1) node[pos=.5] (h\i) {$h.\i$};
+		}
+		\node[beschriftung, above=0em of h3](HSText){Hauptspeicher};
+		%				\draw[arrow,  bend angle=45, bend left] (HSText) -- (4.5,2);
+		\draw[mybackarrow] ([xshift=-1em, yshift=1em]h1.north) to[bend left] %
+							node[beschriftung, left=2em, anchor=east] (read) {{\onslide<+->{\befehl{READ}}}} %%
+							([xshift= 0em, yshift=-1em]inp2.south west);
+		\draw[myarrow]     ([xshift= 1em, yshift=1em]h5.north) to[bend right] %
+						   node[beschriftung, right=2em] (write) {{\onslide<+->{\befehl{WRITE}}}} %
+						   ([xshift= 0em, yshift=-1em]out2.south west);
+		
+		
+		
+		% DATENKELLER
+		\foreach \i in {1,...,5} {
+			\node[fit={(4,-5-\i) (5,-6-\i)}, inner sep=0pt, draw, thick, align=center] (d\i) {$d.\i$};
+			%			\draw[red] (rect.east) to[out=0,in=-90] (rect.south);
+			%			\draw[] (5,-5 - \i) rectangle ++(-1,-1) node[pos=.5] (d\i) {$d.\i$};
+		}
+		\draw[thick] ([xshift=-3em]d5.south west) to ([xshift= 3em]d5.south east);
+		\node[beschriftung, left=1em of d3, align=right, anchor=east](DKText){Datenkeller};
+		
+		\draw[mybackarrow] ([xshift=-1em, yshift=1em]d1.north) to[bend left] %
+							node[beschriftung, left=2em, anchor=east] (store) {{\onslide<+->{\parbox{1cm}{\befehl{LOAD} \\[.5em] \befehl{LIT}}}}} % 
+							([xshift=-1em, yshift=-1em]h3.south);
+		\draw[myarrow]     ([xshift= 1em, yshift=1em]d1.north) to[bend right] %
+			                 node[beschriftung, right=2em] (load) {{\onslide<+->{\befehl{STORE}}}} %
+			                 ([xshift= 1em, yshift=-1em]h3.south);
+		
+		
+		\draw[myarrow] ([xshift= 1em, yshift= 0em]d2.east) to[bend right=120, min distance=3cm] %
+		                node[beschriftung, right=1em] (arithmetik) {{\onslide<+->{\parbox{5cm}{\befehl{ADD}, \befehl{MUL}, \befehl{SUB}, \dots \\[.5em] \befehl{EQ}, \befehl{NE}, \befehl{LE}, \befehl{LT}, \dots}}}} %
+		                ([xshift= 1em, yshift= 0em]d1.east);
+		%		\node[fit={(5,-14) (4, -15)}, inner sep=0pt, draw, thick, align=center] (bz) {$m$};
+		%		\node[left=of bz](BZText){Befehlszähler};
+		%		
+		%		\draw[myarrow]     ([xshift= 1em, yshift=1em]bz.north) to[bend right] ([xshift= 1em, yshift=-1em]d5.south);
+		%		\draw[mybackarrow] ([xshift=-1em, yshift=1em]bz.north) to[bend left]  ([xshift=-1em, yshift=-1em]d5.south);
+		
+		\node[fit={(10,-10) (11, -11)}, inner sep=0pt, draw, thick, align=center] (bz) {$m$};
+		\node[beschriftung, above=1em of bz](BZText){Befehlszähler};
+		
+		\draw[mybotharrow] ([xshift=-1em, yshift= 0em]bz.west) to %
+							node[beschriftung, above=0.5em] {{\onslide<+->{\befehl{JMP}}}} %
+							node[beschriftung, below=0.5em] {{\onslide<+->{\befehl{JMC}}}} %
+							([xshift= 1em, yshift= 0em]d4.east);
+		%		\draw[mybackarrow] ([xshift=-1em, yshift=-1em]bz.west) to[bend left]  ([xshift= 1em, yshift=-1em]d3.east);
+	\end{tikzpicture}}
 \end{frame}
 
 \begin{frame} \frametitle{Semantik der Befehle}
