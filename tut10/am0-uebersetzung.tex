@@ -1,0 +1,179 @@
+\documentclass[ngerman,a4paper, 12pt, fleqn]{article}
+\usepackage[top=2cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{parskip}
+\usepackage{chngcntr}
+
+
+\usepackage{fancyhdr} 	% customize header / footer
+\usepackage{titlesec} 	% customize titles
+
+
+\usepackage[scale=1]{opensans}
+\newcommand*{\osfamily}{\fontfamily{fos}\selectfont}
+\DeclareTextFontCommand{\textos}{\osfamily}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% math related packages
+% basic ams-math and enhancments
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+% add some font-related stuff
+\usepackage{lmodern}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% graphics-related packages
+\usepackage[table,dvipsnames]{tudscrcolor} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% text-related packages
+% increase line spacing
+\usepackage[onehalfspacing]{setspace} % increase row-space
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           REFERENCES                            %
+\usepackage[
+	type={CC},
+	modifier={by-nc-sa},
+	version={4.0},
+]{doclicense}
+
+\usepackage[unicode,bookmarks=true]{hyperref}
+\hypersetup{
+	pdfborder={0 0 0},			% no boxed around links
+	colorlinks=true,
+	linkcolor=cdblue,
+	urlcolor=cdblue
+%	pdfborderstyle={/S/U/W 1},	% underlining insteas of boxes
+%	linkbordercolor=cdblue,
+%	urlbordercolor=cdblue
+}
+
+\usepackage{cleveref}
+\usepackage{bookmark}		% pdf-bookmarks
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareMathSymbol{*}{\mathbin}{symbols}{"01}
+
+\titleformat{\section}{\normalfont\sffamily\LARGE\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\sffamily\large\bfseries}{\thesection}{1em}{}
+\titlespacing*{\subsection}{0pt}{-0.3\baselineskip}{-.8\baselineskip}
+
+\newcommand*\ruleline[1]{\par\noindent\raisebox{.8ex}{\makebox[\linewidth]{\hrulefill\hspace{1ex}\raisebox{-.8ex}{#1}\hspace{1ex}\hrulefill}}}
+
+\newcommand{\menge}[1]{\left\{ #1 \right\}}
+\newcommand{\defeq}{\coloneqq}
+
+\newcommand{\befehl}[1]{\textsc{#1}}
+
+\begin{document}
+	\begin{center}
+		{\bfseries \sffamily \LARGE Übersetzung $\mathsf{C_0 \to AM_0}$}
+		
+		\ruleline{\sffamily \large Übungsblatt 10}
+		
+		{\scshape Eric Kunze --- \today}
+	\end{center}
+	\medskip
+	
+	{ \footnotesize \doclicenseThis }
+	
+	\begin{center}
+		\small \slshape Keine Garantie auf Vollständigkeit und/oder Korrektheit!
+	\end{center}
+
+	\bigskip
+	
+	\subsection*{Rahmenwerk}
+	\begin{align*}
+		&trans (\texttt{ \#\. include <stdio.h> int main() } block ) \defeq blocktrans(block) \\
+		%
+		&blocktrans(\texttt{\{} decl \ statseq \ \texttt{return 0;}\texttt{\}}) \defeq stseqtrans(statseq, update(decl , tab_\emptyset ), 1) \\
+		%
+		&stseqtrans(stat_1 stat_2 \dots stat_n , tab, a) \defeq \\[-3pt]
+		&\hspace{5em}\begin{aligned}
+			&sttrans(stat_1 , tab, a.1) \\[-3pt]
+			&sttrans(stat_2 , tab, a.2) \\[-3pt]
+			&... \\[-3pt]
+			&sttrans(stat_n , tab, a.n)
+		\end{aligned} \\
+		%
+		&update( \texttt{const } id_1 \texttt{=} z_1 , \dots , id_n \texttt{=} z_n \texttt{; } \texttt{int} id'_1 , \dots , id'_m \texttt{;} , tab) \defeq \\[-3pt]
+		&\hspace{5em}
+		tab[id_1 / (\operatorname{const}, z_1 ), \dots , id_n /(\operatorname{const}, z_n), id'_1 /(\operatorname{var}, 1), \dots , id'_m /(\operatorname{var}, m)]	
+	\end{align*}
+
+	\subsection*{Sequenzen \& Zuweisungen}
+	
+	\begin{align*}		%
+		&sttrans(\texttt{\{} stat_1 stat_2 \dots stat_n \texttt{\}}, tab, a) \defeq stseqtrans(stat_1 stat_2 \dots stat_n , tab, a) \\
+		%
+		&sttrans(id \texttt{ = } exp\texttt{;}, tab, a) \defeq \\[-3pt]
+		&\hspace{5em} \text{if } tab(id) = (\operatorname{var}, n) \text{ then } simpleexptrans(exp, tab) \befehl{ STORE } n\texttt{;}
+	\end{align*}
+
+	\subsection*{Input/Output}
+	\begin{align*}
+		&sttrans(\texttt{scanf("\%d", \&}id\texttt{);}, tab, a) \defeq \text{ if } tab(id) = (\operatorname{var}, n) \text{ then } \befehl{READ } n\texttt{;} \\
+		%
+		&sttrans(\texttt{printf("\%d", } id\texttt{);}, tab, a) \defeq \text{ if } tab(id) = (\operatorname{var}, n) \text{ then } \befehl{WRITE } n\texttt{;}
+	\end{align*}
+
+ 	\subsection*{Einfache Expressions}
+	
+	\begin{align*}
+		&boolexptrans(se_1 \ rel \ se_2, tab) \defeq \\[-3pt]
+		&\hspace{5em}\begin{aligned}
+			&simpleexptrans(se_1 , tab) \\[-3pt]
+			&simpleexptrans(se_2 , tab) \\[-3pt]
+			&\befehl{REL}\texttt{;} \\[-3pt]
+			&\text{wobei } (rel , \befehl{REL}) \in \{ (\texttt{==}, \befehl{EQ}), (\texttt{!=}, \befehl{NE}), (\texttt{<}, \befehl{LT}), (\texttt{>}, \befehl{GT}), (\texttt{<=}, \befehl{LE}), (\texttt{>=}, \befehl{GE}) \} 
+		\end{aligned} \\	
+		%
+		&simpleexptrans(\texttt{x + a * 2}, [\texttt{a}/(\texttt{const}, 5), \texttt{x}/(\texttt{var}, 1)])) = \\[-3pt]
+		& \hspace{5em}
+		\befehl{LOAD } 1\texttt{; } \befehl{LIT } 5 \texttt{; } \befehl{LIT } 2 \texttt{;} \befehl{MUL} \texttt{; } \befehl{ADD} \texttt{;}	
+	\end{align*}
+
+	\subsection*{Verzweigungen}
+	\begin{align*}
+		&sttrans(\texttt{if ( } exp \texttt{ ) } stat, tab, a) \defeq \\[-3pt]
+		& \hspace{5em}
+		\begin{aligned}
+			&boolexptrans(exp, tab) \\[-3pt]
+			&\befehl{JMC } a.1\texttt{;} \\[-3pt]
+			&sttrans(stat, tab, a.2) \\[-3pt]
+			a.1: \ &
+		\end{aligned} \\
+		%
+		&sttrans(\texttt{if ( } exp \texttt{ ) } stat_1 \texttt{ else } stat_2, tab, a) \defeq \\[-3pt]
+		&\hspace{5em}\begin{aligned}
+			&boolexptrans(exp, tab) \\[-3pt]
+			&\befehl{JMC } a.1\texttt{;} \\[-3pt]
+			&sttrans(stat_1, tab, a.2) \\[-3pt]
+			&\befehl{JMP } a.3\texttt{;} \\[-3pt]
+			a.1: \ &sttrans(stat_2 , tab, a.4) \\[-3pt]
+			a.3: \ &
+		\end{aligned} 
+	\end{align*}
+
+ 	\subsection*{Schleifen}
+ 	
+ 	\begin{align*}
+ 		&sttrans(\texttt{while ( } exp \texttt{ ) } stat, tab, a) \defeq \\[-3pt]
+ 		&\hspace{5em}\begin{aligned}
+ 			a.1: \ &boolexptrans(exp, tab) \\[-3pt]
+ 			&\befehl{JMC } a.2 \texttt{;} \\[-3pt]
+ 			&sttrans(stat, tab, a.3) \\[-3pt]
+ 			&\befehl{JMP } a.1\texttt{;} \\[-3pt]
+ 			a.2: \ &
+ 		\end{aligned}
+ 	\end{align*}
+ 
+
+\end{document}
