@@ -92,7 +92,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{20. Juni 2022}
+	\date{22. Juni 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -248,7 +248,7 @@
 	\begin{align*}
 		\mathcal{C} [\![ \texttt{SUB} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } d = d.1 : d.2 : \dots : d.n \\
-		&\text{then } (m+1, (d.2 - d.1) : d.3 : \dots : d.n, inp, out) 
+		&\text{then } (m+1, (d.2 - d.1) : d.3 : \dots : d.n, h, inp, out) 
 	\end{align*}
 \end{frame}
 
@@ -262,12 +262,12 @@
 	\begin{align*}
 		\mathcal{C} [\![ \texttt{ADD} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } d = d.1 : d.2 : \dots : d.n \\
-		&\text{then } (m+1, (d.2 + d.1) : d.3 : \dots : d.n, inp, out) \\ 
+		&\text{then } (m+1, (d.2 + d.1) : d.3 : \dots : d.n, h, inp, out) \\ 
 		\tag{analog dazu auch \texttt{MUL}, \texttt{SUB}, \texttt{DIV}, \texttt{MOD}} \\ \pause
 		%
 		\mathcal{C} [\![ \texttt{LT} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } d = d.1 : d.2 : \dots : d.n \\
-		&\text{then } (m+1, b : d.3 : \dots : d.n, inp, out) \\
+		&\text{then } (m+1, b : d.3 : \dots : d.n, h, inp, out) \\
 		&\phantom{\text{then }} \text{wobei } b = 1 \text{ falls } d.2 < d.1 \text{ und } b = 0 \text{ falls } d.2 \ge d.1
 		\tag{analog dazu auch \texttt{EQ}, \texttt{NE}, \texttt{GT}, \texttt{GE}, \texttt{LE}} 
 	\end{align*}
@@ -279,9 +279,9 @@
 	\begin{align*}
 		\mathcal{C} [\![ \texttt{LOAD n} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } h(n) \in \Z  \\
-		&\text{then } (m+1, h(n) : d, inp, out) \\
+		&\text{then } (m+1, h(n) : d, h, inp, out) \\
 		%
-		\mathcal{C} [\![ \texttt{LIT z} ]\!] &(m,d,h,inp,out) \defeq  (m+1, z : d, inp, out) \\ \pause
+		\mathcal{C} [\![ \texttt{LIT z} ]\!] &(m,d,h,inp,out) \defeq  (m+1, z : d, h, inp, out) \\ \pause
 		%
 		\mathcal{C} [\![ \texttt{STORE n} ]\!] &(m,d,h,inp,out) \defeq  \\
 		&\text{if } d = d.1 : d' \\
@@ -347,7 +347,7 @@
 int main( ) {
 	int a, b, max;
 	scanf("%i", &a);
-	scanf("%i", &a);
+	scanf("%i", &b);
 		\end{lstlisting}
 	\end{minipage}
 	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
