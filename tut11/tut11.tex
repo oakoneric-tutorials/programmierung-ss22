@@ -10,7 +10,6 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,automata, matrix, trees}
 \usetikzlibrary{calc,positioning,backgrounds,arrows.meta}
-\usetikzlibrary{patterns,snakes}
 \usepackage{forest}
 
 
@@ -37,7 +36,7 @@
 	language=C,                 % the language of the code
 	numbers=left,                    % where to put the line-numbers; possible: (none, left, right)
 	numbersep=5pt,                   % how far the line-numbers are from the code
-	numberstyle=\tiny\color{cdgray!50}, % the style that is used for the line-numbers
+	numberstyle=\tiny\color{cdgray!70}, % the style that is used for the line-numbers
 	rulecolor=\color{cddarkblue}, 
 	tabsize=2,	                   % sets default tabsize to 2 spaces
 }
@@ -83,7 +82,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{27. Juni 2022}
+	\date{29. Juni 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -323,6 +322,39 @@ JMP 0;
 \end{frame}
 
 
+\begin{frame}[fragile] \frametitle{Aufgabe 1 -- Teil (b)}
+	\small
+	Gegeben sei folgendes $C_1$-Programm:
+	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+		\begin{lstlisting}
+#include <stdio.h>
+int b;
+void f(int a, int *b) {
+	int c;
+	c = a;
+	while (c > 0) {
+		*b = *b * 2;
+		c = c - 1;
+	}
+		\end{lstlisting}	
+	\end{minipage}
+	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+	\begin{lstlisting}[firstnumber=10]
+		}
+		
+		void main () {
+			int a;
+			scanf("%i", &a);
+			b = 1;
+			f(a, &b);
+			printf("%d", b);
+		}
+	\end{lstlisting}	
+\end{minipage}
+
+Übersetzen Sie das Programm mittels $trans$ in ein $AM_1$-Programm mit baumstrukturierten Adressen. Geben Sie zunächst die Symboltabellen $tab_{\texttt{main}}$ und $tab_{\texttt{f}}$ zur Übersetzung der Statements in den Funktionen \texttt{main} bzw. \texttt{f} mittels $stseqtrans$ an. Geben Sie keine weiteren Zwischenschritte an.
+\end{frame}
+
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (b)}
 	\scriptsize
 	
@@ -384,15 +416,142 @@ JMP 0;
 	\end{minipage} }
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	\small
+	Gegeben sei folgendes Fragment eines $C_1$-Programms mit den Funktionen \texttt{g} und \texttt{f}:
+	\begin{lstlisting}
+while (y <= a)
+	if (y < *x)
+		g(&z, *x);
+*x = y + 1;
+	\end{lstlisting}
 
+	Übersetzen Sie dieses Fragment mittels $stseqtrans$ in $AM_1$-Code mit baumstrukturierten Adressen. Sie müssen keine Zwischenschritte angeben. Nehmen Sie dabei an, dass die \texttt{while}-Anweisung das erste Statement in \texttt{f} ist, und es sei
+	\begin{align*}
+		tab_{\text{f+lDecl}} = [ \enskip &\texttt{g}/(\text{proc}, 1), \texttt{f}/(\text{proc}, 2), \\
+		& \texttt{a}/(\text{var}, \text{global}, 1), \\
+		&\texttt{x}/\text{(var-ref}, -3), \texttt{y}/(\text{var}, \text{lokal}, -2), \texttt{z}/(\text{var}, \text{lokal}, 1) \enskip].
+	\end{align*}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+	
+	\textbf{Lösung.}
+	
+	\begin{lstlisting}[numbers=none]
+2.1.1:   LOAD(lokal, -2); LOAD(global, 1); LE;
+         JMC 2.1.2;
+         LOAD(lokal, -2); LOADI(-3); LT;
+         JMC 2.1.3.1;
+         LOADA(lokal, 1); PUSH; 
+         LOADI(-3); PUSH; 
+         CALL 1;
+2.1.3.1: JMP 2.1.1;
+2.1.2:   LOAD(lokal, -2); LIT 1; ADD; STOREI(-3);
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile, t] \frametitle{Aufgabe 2 -- Teil (b)}
+	\footnotesize
+	Gegeben sei folgender $AM_1$-Code: \\[-1em]	
+	\begin{minipage}[t]{\dimexpr0.33\linewidth-\fboxrule-\fboxsep}
+		\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+INIT 1;
+CALL 26;
+JMP 0;
+INIT 0;
+LOAD(global,1);
+LIT 1;
+SUB;
+STORE(global,1);
+LOAD(global,1);
+LIT 1;
+GT;
+JMC 23;
+LOAD(lokal,-4);
+		\end{lstlisting}
+	\end{minipage}
+	%
+	\begin{minipage}[t]{\dimexpr0.33\linewidth-\fboxrule-\fboxsep}
+		\begin{lstlisting}[basicstyle=\scriptsize\ttfamily, firstnumber=14]
+PUSH;
+LOAD(lokal,-2);
+PUSH;
+LOAD(lokal,-2);
+LOAD(lokal,-3);
+ADD;
+PUSH;
+CALL 4;
+JMP 25;
+LOAD(lokal,-2);
+STOREI(-4);
+RET 3;
+INIT 1;
+		\end{lstlisting}
+	\end{minipage}
+	%
+	\begin{minipage}[t]{\dimexpr0.33\linewidth-\fboxrule-\fboxsep}
+		\begin{lstlisting}[basicstyle=\scriptsize\ttfamily, firstnumber=27]
+LIT 42;
+STORE(lokal,1);
+READ(global,1);
+LOADA(lokal,1);
+PUSH;
+LIT 1;
+PUSH;
+LIT 1;
+PUSH;
+CALL 4;
+WRITE(lokal,1);
+RET 0;
+		\end{lstlisting}
+	\end{minipage}
+
+	Erstellen Sie ein Ablaufprotokoll der $AM_1$, indem Sie sie schrittweise ablaufen lassen, bis
+	die Maschine terminiert. Die Startkonfiguration sei $\sigma = (21, \epsilon, 2 : 3 : 0 : 42 : 4 : 1 : 1 : 37 : 3 : 4 : 1 : 2, 9, \epsilon, \epsilon)$.
+\end{frame}
+
+\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+	\footnotesize
+	\textbf{Lösung.} \hfill {\tiny \color{cdgray!50} Sind noch Fehler vorhanden?}
+	
+	\tiny
+	\begin{center}
+		\begin{tabu}{rccrclcccrcrl}
+			\head & BZ && DK && LZK && REF && Inp && Out & \\ \hline 
+			( & 21 &,& $\epsilon$ &,& 2:3:0:42:4:1:1:37:3:4:1:2      &,&  9 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  4 &,& $\epsilon$ &,& 2:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  5 &,& $\epsilon$ &,& 2:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  6 &,&          2 &,& 2:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  7 &,&        1:2 &,& 2:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  8 &,&          1 &,& 2:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( &  9 &,& $\epsilon$ &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 10 &,&          1 &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 11 &,&        1:1 &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 12 &,&          0 &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 23 &,& $\epsilon$ &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 24 &,&          2 &,& 1:3:0:42:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 25 &,& $\epsilon$ &,& 1:3:0:\phantom{4}2:4:1:1:37:3:4:1:2:22:9 &,& 14 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 22 &,& $\epsilon$ &,& 1:3:0:\phantom{4}2:4:1:1:37:3            &,&  9 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 25 &,& $\epsilon$ &,& 1:3:0:\phantom{4}2:4:1:1:37:3            &,&  9 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 37 &,& $\epsilon$ &,& 1:3:0:\phantom{4}2                       &,&  3 &,& $\epsilon$ &,& $\epsilon$ & ) \\
+			( & 38 &,& $\epsilon$ &,& 1:3:0:\phantom{4}2                       &,&  3 &,& $\epsilon$ &,&          2 & ) \\
+			( &  3 &,& $\epsilon$ &,& 1                              &,&  0 &,& $\epsilon$ &,&          2 & ) \\
+			( &  0 &,& $\epsilon$ &,& 1                              &,&  0 &,& $\epsilon$ &,&          2 & ) \\
+		\end{tabu}
+	\end{center}
+\end{frame}
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (a)}
+\section{Ein weiteres Beispiel aus der Aufgabensammlung}
+
+\begin{frame}[fragile] \frametitle{Aufgabe AGS 15.16 -- Teil (a)}
 	\footnotesize
 	\textbf{Aufgabe.}
 	\begin{lstlisting}
@@ -411,7 +570,7 @@ void main () {...}
 \end{frame}
 
 
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (a)}
+\begin{frame} \frametitle{Aufgabe AGS 15.16 -- Teil (a)}
 	\footnotesize
 	\textbf{Lösung.}
 	
@@ -434,7 +593,7 @@ void main () {...}
 	\end{tabular}
 \end{frame}
 
-\begin{frame}[fragile] \frametitle{Aufgabe 2 -- Teil (b)}
+\begin{frame}[fragile] \frametitle{Aufgabe AGS 15.18 -- Teil (b)}
 	\footnotesize
 	\textbf{Aufgabe.}
 	
@@ -475,7 +634,7 @@ JMP 0;
 	Erstellen Sie ein Ablaufprotokoll der AM${}_\text{1}$, indem Sie sie schrittweise ablaufen lassen, bis die Maschine terminiert. Die Anfangskonfiguration sei $(14, \epsilon, 0 : 0 : 1, 3, 4, \epsilon)$. Sie müssen nur Zellen ausfüllen, deren Wert sich im Vergleich zur letzten Zeile geändert hat.
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 2 -- Teil (b)}
+\begin{frame} \frametitle{Aufgabe AGS 15.18 -- Teil (b)}
 	\footnotesize
 	\textbf{Lösung.}
 	\scriptsize
