@@ -84,10 +84,10 @@
 	\subtitle{Übung 13: H${}_{\text{0}}$ -- ein einfacher Kern von Haskell}
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
-%	\city{TU Dresden}
-	\date{}
+	\city{TU Dresden}
+	\date{11. Juli 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
-%	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
+	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
 	\maketitle
 	
@@ -163,6 +163,70 @@
 		\item \texttt{STORE x3; STORE x2; STORE x1} {\footnotesize(umgekehrte Reihenfolge!)}
 		\item \texttt{JMP f}
 	\end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{H${}_\text{0}$ $\leftrightarrow$ AM${}_\text{0}$}
+	\footnotesize
+	H${}_\text{0}$ ist klein genug, dass es auf der AM${}_\text{0}$ laufen kann:
+	\begin{itemize}
+		\item Befehle bleiben die gleichen
+		\item baumstrukturierte Adressen beginnen mit Funktionsbezeichner (z.B. $f.1.3$)
+	\end{itemize}
+	\pause
+	
+	\textbf{Übersetzung von deterministischen rechten Seiten} \texttt{... = \textit{exp}}: 
+	
+	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+		\begin{itemize}
+			\item Übersetze \texttt{exp}
+			\item \texttt{STORE 1} \hspace{2em} (ja -- immer die \texttt{1})
+			\item \texttt{WRITE 1}
+			\item \texttt{JMP 0}
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
+		\hfill$\begin{aligned}
+			rhstrans(e, a) \coloneqq \,
+			&exptrans(e) \\
+			&\texttt{STORE 1;} \\
+			&\texttt{WRITE 1;} \\
+			&\texttt{JMP 0;} \\
+		\end{aligned}$
+	\end{minipage}
+\end{frame}
+
+\begin{frame}
+	\footnotesize
+
+	\textbf{Übersetzung von Funktionsaufrufen} $\texttt{... = f} \ {exp_1} \ {exp_2} \ {exp_3}$
+	\begin{itemize}
+		\item Übersetze $exp_1, exp_2, exp_3$ \hfill in richtiger Reihenfolge
+		\item \texttt{STORE x3; STORE x2; STORE x1} \hfill in umgekehrter Reihenfolge
+		\item Funktionsaufruf mit \texttt{JMP f}
+	\end{itemize}
+
+	formal: $\begin{aligned}[t]
+		rhstrans(f \ e_1 \ \dots \ e_n, a) \coloneqq \ &exptrans(e_1) \ \dots \ exptrans(e_n) \\
+		&\texttt{STORE n;} \ \dots \ \texttt{STORE 1;} \\
+		&\texttt{JMP f;}
+	\end{aligned}$
+	\pause
+	
+	\textbf{Übersetzung von Verzweigungen}: 	
+	\hfill \alert{\textit{\textbf{Änderung der Sprungmarken!}}}
+	\begin{itemize}
+		\item Bedingung übersetzen
+		\item \texttt{JMC } basis\texttt{.3;}
+		\item then-Zweig übersetzen mit interner Basisadresse \texttt{.1}
+		\item basis\texttt{.3:} else-Zweig übersetzen mit interner Basisadresse \texttt{.2}
+	\end{itemize}
+	formal: $\begin{aligned}[t]
+		rhstrans(\texttt{if } be \texttt{ then } r_1 \texttt{ else } r_2, a) \coloneqq
+		&bexptrans(be) \\
+		&\texttt{JMC a.3;} \\
+		&rhstrans(r_1, a.1) \\
+		a.3: \enskip &rhstrans(r_2, a.2)
+	\end{aligned}$
 \end{frame}
 
 {
