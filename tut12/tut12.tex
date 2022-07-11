@@ -47,7 +47,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{04. Juli 2022}
+	\date{06. Juli 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -126,7 +126,7 @@
 
 \section{Aufgabe 1}
 
-\begin{frame} \frametitle{Aufgabe 1 -- Teil (a)}
+\begin{frame}[t] \frametitle{Aufgabe 1 -- Teil (a)}
 	\footnotesize
 	\textbf{Verfikationsformel:}
 	\begin{scriptsize}
@@ -174,23 +174,31 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 1 -- Teil (a)}
+\begin{frame}[t] \frametitle{Aufgabe 1 -- Teil (a)}
 	\fbox{$SI = A \land B$} und wir wissen schon $A = (s = \sum\limits_{i = k+1}^j i)$
 	
 	\bigskip
 	
 	\textbf{abgeschwächte Schleifenbedingung:}
 	\begin{itemize}
-		\item Schleifenbedingung: $\pi = (\texttt{j < u})$
-		\item Schleifenbedingung letztmalig wahr für \texttt{j = u - 1}
-		\item Wert nach nochmaligem Schleifendurchlauf: $\pi' = (\texttt{j = u})$
-		\item $B = \pi \cup \pi' = (\texttt{j} \le \texttt{u})$ \hspace{1cm} {\footnotesize \itshape (symbolische Schreibweise)}
+		\item Schleifenbedingung: \onslide<2->{$\pi = (\texttt{j < u})$}
+		\item Schleifenbedingung letztmalig wahr für \onslide<2->{\texttt{j = u - 1}}
+		\item Wert nach nochmaligem Schleifendurchlauf: \onslide<2->{$\pi' = (\texttt{j = u})$}
+		\item $B = \pi \cup \pi' = \onslide<2->{(\texttt{j} \le \texttt{u})}$ \hspace{1cm} {\footnotesize \itshape (symbolische Schreibweise)}
 	\end{itemize}
 	\medskip
-	
+	\pause
 	\fbox{$\Longrightarrow SI = A \land B = (s = \sum\limits_{i = k+1}^j i) \land (\texttt{j} \le \texttt{u})$}
 \end{frame}
 
+\begin{frame}[t] \frametitle{Aufgabe 1 -- Teil (b)}
+	\small	
+	Sei $SI = A \land B = \left( s = \sum\limits_{i = k+1}^j i \right) \land (j \le u)$ und $\pi = (j < u)$.
+	
+	\begin{center}
+		\includegraphics[width=\linewidth]{tut12-aufgabe1-baum.png}
+	\end{center}
+\end{frame}
 
 \begin{frame} \frametitle{Aufgabe 1 -- Teil (b)}
 	\small
@@ -211,7 +219,7 @@
 		\end{scriptsize}
 	\end{center}
 	
-	\bigskip \pause
+	\bigskip
 	
 	Sei $SI = A \land B = \left( s = \sum\limits_{i = k+1}^j i \right) \land (j \le u)$ und $\pi = (j < u)$.
 	
@@ -227,6 +235,17 @@
 	\end{align*}
 \end{frame}
 
+\begin{frame}[t] \frametitle{Aufgabe 2}
+	\footnotesize
+	Zeigen Sie die Gültigkeit der Verifikationsformel
+	\begin{equation*}
+		\begin{gathered}
+			\Big\{ (\texttt{z} = (\texttt{x} - \texttt{x1}) \cdot \texttt{y}) \logand (\texttt{x1} \ge 0) \logand (\texttt{x1} > 0) \Big\} \\
+			\texttt{x1 = x1 - 1;} \\
+			\Big\{ (\texttt{z} + \texttt{y} = (\texttt{x} - \texttt{x1}) \cdot \texttt{y}) \logand (\texttt{x1} \ge 0) \Big\}.
+		\end{gathered}
+	\end{equation*}
+\end{frame}
 
 \begin{frame} \frametitle{Aufgabe 2}
 	\footnotesize
@@ -244,6 +263,13 @@
 \end{frame}
 
 \section{Aufgabe 3}
+
+\begin{frame} \frametitle{Aufgabe 3 -- Teil (a)}
+	\begin{figure}
+		\centering
+		\includegraphics[width=\linewidth]{tut12-aufgabe3-baum.png}
+	\end{figure}
+\end{frame}
 
 \begin{frame} \frametitle{Aufgabe 3 -- Teil (a)}
 	\begin{minipage}{\dimexpr0.5\linewidth-\fboxrule-\fboxsep}
@@ -268,7 +294,7 @@
 	\end{minipage}	
 \end{frame}
 
-\begin{frame} \frametitle{Aufgabe 3 -- Teil (b)}
+\begin{frame}[t] \frametitle{Aufgabe 3 -- Teil (b)}
 	\begin{center}
 		\textbf{zu zeigen:} $\text{true} \ \land \ (y < 0) \enskip \Rightarrow \enskip (-3 * y + 1 \ge 0)$
 		\pause
