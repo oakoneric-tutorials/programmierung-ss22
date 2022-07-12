@@ -85,7 +85,7 @@
 	\author{Eric Kunze}
 	\email{eric.kunze@tu-dresden.de}
 	\city{TU Dresden}
-	\date{11. Juli 2022}
+	\date{13. Juli 2022}
 %	\institute{Lehrstuhl für Grundlagen der Programmierung}
 	\titlegraphic{\includegraphics[width=2cm]{../TUD-white.pdf}}
 	
@@ -147,31 +147,6 @@
 		\item Befehle bleiben die gleichen
 		\item baumstrukturierte Adressen beginnen mit Funktionsbezeichner (z.B. $f.1.3$)
 	\end{itemize}
-	
-	\textbf{Übersetzung von rechten Seiten} \texttt{... = \textit{exp}}: 
-	\begin{itemize}
-		\item Übersetze \texttt{exp}
-		\item \texttt{STORE 1} \hspace{2em} (ja -- immer die \texttt{1})
-		\item \texttt{WRITE 1}
-		\item \texttt{JMP 0}
-	\end{itemize}
-
-	\medskip
-	\textbf{Übersetzung von Funktionsaufrufen} \texttt{... = f x1 x2 x3}:
-	\begin{itemize}
-		\item \texttt{LOAD x1; LOAD x2; LOAD x3}
-		\item \texttt{STORE x3; STORE x2; STORE x1} {\footnotesize(umgekehrte Reihenfolge!)}
-		\item \texttt{JMP f}
-	\end{itemize}
-\end{frame}
-
-\begin{frame} \frametitle{H${}_\text{0}$ $\leftrightarrow$ AM${}_\text{0}$}
-	\footnotesize
-	H${}_\text{0}$ ist klein genug, dass es auf der AM${}_\text{0}$ laufen kann:
-	\begin{itemize}
-		\item Befehle bleiben die gleichen
-		\item baumstrukturierte Adressen beginnen mit Funktionsbezeichner (z.B. $f.1.3$)
-	\end{itemize}
 	\pause
 	
 	\textbf{Übersetzung von deterministischen rechten Seiten} \texttt{... = \textit{exp}}: 
@@ -213,7 +188,7 @@
 	\pause
 	
 	\textbf{Übersetzung von Verzweigungen}: 	
-	\hfill \alert{\textit{\textbf{Änderung der Sprungmarken!}}}
+	\hfill \alert{\textit{\textbf{Änderungen im Vergleich zu $C_0$!}}}
 	\begin{itemize}
 		\item Bedingung übersetzen
 		\item \texttt{JMC } basis\texttt{.3;}
